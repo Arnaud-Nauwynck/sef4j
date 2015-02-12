@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<groupId>org.sef4j</groupId>
+	<artifactId>sef4j-parent</artifactId>
+	<version>1.0.0</version>
+
+	<packaging>pom</packaging>
+	<name>SEF4J</name>
+	<description>Simple Event Facade for Java ... is to Event what flat log message is to Slf4J</description>
+
+	<url>https://github.com/Arnaud-Nauwynck/sef4j</url>
+
+	<organization>
+		<name>Arnaud-Nauwynck</name>
+		<url>https://github.com/Arnaud-Nauwynck</url>
+	</organization>
+	<inceptionYear>2014</inceptionYear>
+
+  <licenses>
+    <license>
+      <name>LGPL</name>
+      <url>http://www.opensource.org/licenses/lgpl-license.php</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <properties>
+  </properties>
+
+
+  <modules>
+	<module>sef4j-log</module>
+<!-- 
+	<module>sef4j-callstack</module>
+	<module>sef4j-jdbc</module>
+	<module>sef4j-aop</module>
+	<module>sef4j-javaagent</module>
+	...
+ -->
+   </modules>
+
+  <dependencies>
+    <dependency>
+      <groupId>junit</groupId>
+      <artifactId>junit</artifactId>
+      <version>4.12</version>
+      <scope>test</scope>
+	</dependency>
+  </dependencies>
+
+ 
+  <dependencyManagement>
+    <dependencies>
+
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.1</version>
+      </dependency>
+
+   </dependencies>
+ </dependencyManagement>
+
+
+	<build>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>2.0</version>
+				<configuration>
+					<source>1.6</source>
+					<target>1.6</target>
+				</configuration>
+			</plugin>
+	    </plugins>
+	</build>
+
+
+	
+	  
+	<scm>
+		<connection>scm:git:https://github.com/Arnaud-Nauwynck/sef4j.git</connection>
+		<developerConnection>scm:git:git@github.com:Arnaud-Nauwynck/sef4j.git</developerConnection>
+		<url>https://github.com/Arnaud-Nauwynck/sef4j</url>
+	</scm>
+	
+	<distributionManagement>
+	</distributionManagement>
+  
+</project>

@@ -1,6 +1,5 @@
 package org.sef4j.callstack.stats;
 
-import java.lang.reflect.Field;
 
 /**
  * performance time statistics and counters using small Log-based histogram
@@ -8,14 +7,14 @@ import java.lang.reflect.Field;
  * This class is multi-thread safe, and lock FREE !!
  * <BR/>
  * 
- * logarithmic range slots: 0:[0-0], 1:[1-32], 2:[33-64], ...8:[2049,4096],  9:[4097,+infinity]
+ * logarithmic range slots: 0:[0-0], 1:[1-31], 2:[32-63], ...8:[2048,4095],  9:[4096,+infinity]
  * 
  */
 @SuppressWarnings("restriction")
 public final class PerfTimeStats {
 
 	/**
-	 * max slot index for logarithmic slots: [0-0], [1-32], [33-64], ...[2049,4096], [4097,+infinity]
+	 * slot count
 	 */
 	private static final int SLOT_LEN = 10;
 	
@@ -46,7 +45,7 @@ public final class PerfTimeStats {
 
 	// ------------------------------------------------------------------------
 
-	public void Add(long value) {
+	public void incr(long value) {
 		int index = valueToSlotIndex(value);
 		UNSAFE.getAndAddInt(countSlots, byteOffsetInt(index), 1);
 		UNSAFE.getAndAddLong(sumSlots, byteOffsetLong(index), value);

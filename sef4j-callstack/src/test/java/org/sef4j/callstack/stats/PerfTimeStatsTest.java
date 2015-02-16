@@ -11,20 +11,20 @@ public class PerfTimeStatsTest {
 		PerfTimeStats sut = new PerfTimeStats();
 
 		int add = 0;
-		sut.Add(add);
+		sut.incr(add);
 		int index = PerfTimeStats.valueToSlotIndex(add);
 		PerfTimeStatsSlotInfo[] copy = sut.getSlotInfoCopy();
 		Assert.assertEquals(1, copy[index].getCount());
 		Assert.assertEquals(add, copy[index].getSum());
 		
 		add = 20;
-		sut.Add(add);
+		sut.incr(add);
 		index = PerfTimeStats.valueToSlotIndex(add);
 		copy = sut.getSlotInfoCopy();
 		Assert.assertEquals(1, copy[index].getCount());
 		Assert.assertEquals(add, copy[index].getSum());
 
-		sut.Add(add);
+		sut.incr(add);
 		copy = sut.getSlotInfoCopy();
 		Assert.assertEquals(2, copy[index].getCount());
 		Assert.assertEquals(2*add, copy[index].getSum());
@@ -37,7 +37,7 @@ public class PerfTimeStatsTest {
 		PerfTimeStats sut = new PerfTimeStats();
 		
 		for(int i = 0; i < 10000; i++) {
-			sut.Add(i);
+			sut.incr(i);
 		}
 		
 		PerfTimeStatsSlotInfo[] slotInfo = sut.getSlotInfoCopy();

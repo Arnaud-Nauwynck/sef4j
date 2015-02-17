@@ -32,6 +32,7 @@
 
 
   <modules>
+        <module>sef4j-core</module>	
 	<module>sef4j-log</module>
 <!-- 
 	<module>sef4j-callstack</module>

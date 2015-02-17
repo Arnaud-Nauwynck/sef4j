@@ -4,25 +4,37 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.ThreadMXBean;
 import java.lang.reflect.Field;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  *
  */
 @SuppressWarnings("restriction")
 public final class PerfStats {
 
+	
+	private static final Logger LOG = LoggerFactory.getLogger(PerfStats.class);
+	
 	private static final sun.misc.Unsafe UNSAFE;
 	private static final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
 	static {
-		checkThreadCpuEnabled();
+		try {
+			checkThreadCpuEnabled();
+		} catch(Exception ex) {
+			LOG.error("FAILED to check/activate threadCpuTime! ... ignore, no rethrow!", ex);
+			// ignore, no rethrow!
+		}
 	}
+	
 	public static void checkThreadCpuEnabled() {
 		if (!threadMXBean.isThreadCpuTimeEnabled()) {
 			boolean isSupported = threadMXBean.isThreadCpuTimeSupported();
 			if (isSupported) {
-				System.out.println("ThreadMXBean.isThreadCpuTimeEnabled(): false => enable");
+				LOG.info("ThreadMXBean.isThreadCpuTimeEnabled(): false => enable");
 				threadMXBean.setThreadCpuTimeEnabled(true);
 			} else {
-				System.err.println("WARN : ThreadMXBean.isThreadCpuTimeSupported(): false !!");
+				LOG.warn("ThreadMXBean.isThreadCpuTimeSupported(): false !!");
 			}
 		}
 	}
@@ -61,9 +73,12 @@ public final class PerfStats {
 		return pendingSumStartTime; // UNSAFE.getLongVolatile(this, pendingSumStartTimeFieldOffset);
 	}
 
-	public void donePending(long startedTime, long startedThreadUserTime, long startedThreadCpuTime) {
+	public void incrAndRemovePending(long startedTime, long startedThreadUserTime, long startedThreadCpuTime) {
 		removePending(startedTime);
-		
+		incr(startedTime, startedThreadUserTime, startedThreadCpuTime);
+	}
+
+	public void incr(long startedTime, long startedThreadUserTime, long startedThreadCpuTime) {
 		long currThreadCpuTime = threadMXBean.getCurrentThreadCpuTime();
 		long currThreadUserTime = threadMXBean.getCurrentThreadUserTime();
 		long currTime = System.nanoTime();
@@ -77,7 +92,7 @@ public final class PerfStats {
 		threadCpuTimeStats.incr(elapsedThreadCpuTime);
 	}
 	
-	// internal 
+	// internal for UNSAFE
 	// ------------------------------------------------------------------------
 	
 	private static final long pendingCountFieldOffset;

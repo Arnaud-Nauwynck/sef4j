@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import org.sef4j.core.api.EventLoggerContext.EventLoggerContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,22 +13,17 @@ import org.slf4j.LoggerFactory;
 /**
  * similar to slf4j org.slf4j.LoggerFactory, but for event ...
  * 
- * This is the infamous ugly anti-pattern "singleton" but fortunatly, there is 1 singleton per ClassLoader,
- * which allow separation per application deployed onto application servers (osgi,webapps,ejb,.. )
+ * This class is a factory and the container manager for all created EventLogger elements.
+ * This class uses EventLoggerContext to attach EventAppenders to EventLoggers.
+ * The EventContext may be changed at runtime for a EventLoggerFactory
  * 
- * This is the user responsibility to (re-)initialize this singleton if default inititialisation doesn't fit user needs.
- * 
- * It is safe to use code like this:
- * <code>
- *    public static final EventLogger EVENT_LOGGER = EventLoggerFactory.getEventLogger(..);
- * </code>
- * because EventLogger ar estill "owned" by this static EventLoggerFactory, and may be reconfigured at runtime with new appenders
+ * it is preferable to use this class and EventLogger injected by an IOC container
+ * ... But you can also use default static instance, store in static singleton EventLoggerFactoryStaticBinder
+ *  
  */
 public class EventLoggerFactory {
 	
 	private static final Logger LOG = LoggerFactory.getLogger(EventLoggerFactory.class);
-	
-	private static EventLoggerFactory INSTANCE = new EventLoggerFactory();
 	
 	
 	private EventLoggerContext eventLoggerContext;
@@ -40,32 +36,31 @@ public class EventLoggerFactory {
 
 	private Map<String,EventAppender> eventAppenders = new HashMap<String,EventAppender>();
 
-	// Life cycle management (singleton, configure/reset)
+	private EventLoggerContextListener innerEventLoggerContextListener = new EventLoggerContextListener() {
+        @Override
+        public void onChangeInheritedLoggers(String eventLoggerName) {
+            // TODO Auto-generated method stub
+            
+        }
+    };
+    
 	// ------------------------------------------------------------------------
 	
-	static {
-		INSTANCE.initDefaultContext();
-	}
-
-	/** private to force static INSTANCE */
-	private EventLoggerFactory() {
+	public EventLoggerFactory(EventLoggerContext eventLoggerContext) {
+		this.eventLoggerContext = eventLoggerContext;
+		this.eventLoggerContext.addListener(innerEventLoggerContextListener);
 	}
 
 	// API
 	// ------------------------------------------------------------------------
-	
-	public static EventLogger getEventLogger(String eventLoggerName) {
-		return INSTANCE.getEventLogger_nonBlockingRead(eventLoggerName);
-		// return INSTANCE.getEventLogger_naiveBlockingRead(eventLoggerName);
-	}
 
+	public EventLogger getEventLogger(String eventLoggerName) {
+		return getEventLogger_nonBlockingRead(eventLoggerName);
+		// return getEventLogger_naiveBlockingRead(eventLoggerName);
+	}
+	
 	// SPI
 	// ------------------------------------------------------------------------
-
-	private void initDefaultContext() {
-		// TODO ... load default configuration file to fill Context 
-		this.eventLoggerContext = new EventLoggerContext();
-	}
 	
 	public void resetContext(EventLoggerContext newContext) {
 		if (newContext == null) throw new IllegalArgumentException();
@@ -82,20 +77,20 @@ public class EventLoggerFactory {
 			
 			// step 2: unconfigure from previous context
 			if (this.eventLoggerContext != null) {
-				disposeAppendersForEventContext();
+				cleanupForEventContext();
 			}
 			
 			// do set singleton context
 			this.eventLoggerContext = newContext;
 			
 			// step 3: reconfigure for new context
-			initializeAppendersForEventContext();
+			initializeForEventContext();
 			
 		}// end synchronized
 		LOG.info("... done EventLoggerFactory.resetContext()");
 	}
 
-	private void initializeAppendersForEventContext() {
+	private void initializeForEventContext() {
 		// => recompute, attach+start all appenders on all already created eventLoggers
 		for(EventLogger eventLogger : eventLoggers.values()) {
 			String eventLoggerName = eventLogger.getEventLoggerName();
@@ -103,11 +98,12 @@ public class EventLoggerFactory {
 			eventLogger.configureInheritedAppenders(appenders);
 		}
 		// start new appenders.. cf done in safeGetAndStart..()
+		this.eventLoggerContext.addListener(innerEventLoggerContextListener);
 	}
 
-	private void disposeAppendersForEventContext() {
-		// dispose previous context
-		LOG.info("detach appenders for " + eventLoggers.size() + " existing eventLogger(s)");
+	private void cleanupForEventContext() {
+	    this.eventLoggerContext.removeListener(innerEventLoggerContextListener);
+	    LOG.info("detach appenders for " + eventLoggers.size() + " existing eventLogger(s)");
 		// => detach+stop all appenders on all eventLoggers
 		EventAppender[] emptyAppenders = new EventAppender[0];  
 		for(EventLogger eventLogger : eventLoggers.values()) {
@@ -182,7 +178,7 @@ public class EventLoggerFactory {
 
 	protected EventLogger doCreateEventLogger(String eventLoggerName) {
 		EventAppender[] inheritedAppenders = safeGetAndStartInheritedAppenderFor(eventLoggerName);
-		return new EventLogger(eventLoggerName, inheritedAppenders);
+		return new EventLogger(this, eventLoggerName, inheritedAppenders);
 	}
 
 	protected EventAppender[] safeGetAndStartInheritedAppenderFor(String eventLoggerName) {

@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 
 	<modelVersion>4.0.0</modelVersion>
 
@@ -19,51 +20,56 @@
 	</organization>
 	<inceptionYear>2014</inceptionYear>
 
-  <licenses>
-    <license>
-      <name>LGPL</name>
-      <url>http://www.opensource.org/licenses/lgpl-license.php</url>
-      <distribution>repo</distribution>
-    </license>
-  </licenses>
+	<licenses>
+		<license>
+			<name>LGPL</name>
+			<url>http://www.opensource.org/licenses/lgpl-license.php</url>
+			<distribution>repo</distribution>
+		</license>
+	</licenses>
 
-  <properties>
-  </properties>
+	<properties>
+	</properties>
 
 
-  <modules>
-        <module>sef4j-core</module>	
-	<module>sef4j-log</module>
-<!-- 
-	<module>sef4j-callstack</module>
-	<module>sef4j-jdbc</module>
-	<module>sef4j-aop</module>
-	<module>sef4j-javaagent</module>
-	...
- -->
-   </modules>
+	<modules>
+		<module>sef4j-core</module>
+		<module>sef4j-log</module>
+		<!-- 
+		<module>sef4j-callstack</module> 
+		<module>sef4j-jdbc</module> 
+		<module>sef4j-aop</module> 
+		<module>sef4j-javaagent</module> 
+		... -->
+	</modules>
 
-  <dependencies>
-    <dependency>
-      <groupId>junit</groupId>
-      <artifactId>junit</artifactId>
-      <version>4.12</version>
-      <scope>test</scope>
-	</dependency>
-  </dependencies>
+	<dependencies>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
+		</dependency>
+	</dependencies>
 
- 
-  <dependencyManagement>
-    <dependencies>
 
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-        <version>1.7.1</version>
-      </dependency>
+	<dependencyManagement>
+		<dependencies>
 
-   </dependencies>
- </dependencyManagement>
+			<dependency>
+				<groupId>org.slf4j</groupId>
+				<artifactId>slf4j-api</artifactId>
+				<version>1.7.1</version>
+			</dependency>
+
+			<dependency>
+				<groupId>junit</groupId>
+				<artifactId>junit</artifactId>
+				<version>4.12</version>
+				<scope>test</scope>
+			</dependency>
+
+		</dependencies>
+	</dependencyManagement>
 
 
 	<build>
@@ -77,19 +83,19 @@
 					<target>1.6</target>
 				</configuration>
 			</plugin>
-	    </plugins>
+		</plugins>
 	</build>
 
 
-	
-	  
+
+
 	<scm>
 		<connection>scm:git:https://github.com/Arnaud-Nauwynck/sef4j.git</connection>
 		<developerConnection>scm:git:git@github.com:Arnaud-Nauwynck/sef4j.git</developerConnection>
 		<url>https://github.com/Arnaud-Nauwynck/sef4j</url>
 	</scm>
-	
+
 	<distributionManagement>
 	</distributionManagement>
-  
+
 </project>

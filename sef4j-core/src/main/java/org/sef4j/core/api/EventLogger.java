@@ -7,10 +7,24 @@ import org.slf4j.LoggerFactory;
 
 /**
  * similar to slf4j org.slf4j.Logger, but for events ...
+ * 
+ * this class is owned by eventLoggerFactory : life-cycle start()/stop() is managed by owner, 
+ * instances are re-configured is context change, but instance are never "disposed" once used
+ *
+ * 
+ * When choosing to use the default StaticBinder singleton, it is safe to use code like this:
+ * <code>
+ *    public static final EventLogger EVENT_LOGGER = EventLogger.getStatic(..);
+ *    // .. which is simply an alias for EventLoggerFactoryStaticBinder.getInstance().getEventLogger(..);
+ * </code>
+ * because EventLogger are still "owned" by the default static EventLoggerFactory, and may be reconfigured at runtime with new appenders
+ * 
  */
 public class EventLogger {
 	
 	private final Logger LOG;
+	
+	private final EventLoggerFactory eventLoggerFactory;
 	
 	private final String eventLoggerName;
 
@@ -23,18 +37,19 @@ public class EventLogger {
 	// ------------------------------------------------------------------------
 	
 	/* package protected, created and managed from EventLoggerContext */
-	/* pp */ EventLogger(String eventLoggerName, EventAppender[] inheritedAppenders) {
+	/* pp */ EventLogger(EventLoggerFactory eventLoggerFactory, String eventLoggerName, EventAppender[] inheritedAppenders) {
+		this.eventLoggerFactory = eventLoggerFactory;
 		this.eventLoggerName = eventLoggerName;
 		this.LOG = LoggerFactory.getLogger(eventLoggerName);
 		this.inheritedAppenders = inheritedAppenders;
 	}
 
-	public static EventLogger getEventLogger(String eventLoggerName) {
-		return EventLoggerFactory.getEventLogger(eventLoggerName);
+	public static EventLogger getStatic(String eventLoggerName) {
+		return EventLoggerFactoryStaticBinder.getInstance().getEventLogger(eventLoggerName);
 	}
 
-	public static EventLogger getEventLogger(Class<?> clss) {
-		return EventLoggerFactory.getEventLogger(clss.getName());
+	public static EventLogger getStatic(Class<?> clss) {
+		return getStatic(clss.getName());
 	}
 
 	/*pp*/ void configureInheritedAppenders(EventAppender[] inheritedLoggerAppenders) {
@@ -42,13 +57,16 @@ public class EventLogger {
 	}
 	
 	// ------------------------------------------------------------------------
-
+	
+	public EventLoggerFactory getEventLoggerFactory() {
+		return eventLoggerFactory;
+	}
 
 	public String getEventLoggerName() {
 		return eventLoggerName;
 	}
-
 	
+
 	public void sendEvent(Object event) {
 		final EventAppender[] appenders = inheritedAppenders; 
 		final int len = appenders.length;
@@ -56,7 +74,8 @@ public class EventLogger {
 			try {
 				appenders[i].handleEvent(event);
 			} catch(Exception ex) {
-				LOG.error("Failed to handleEvent on eventLogger '" + eventLoggerName + "' to appender " + appenders[i]);
+				LOG.error("Failed to handleEvent on eventLogger '" + eventLoggerName + "' to appender " + appenders[i] 
+						+ ", ex:" + ex.getMessage() + " ... ignore, no rethrow!");
 			}
 		}
 	}

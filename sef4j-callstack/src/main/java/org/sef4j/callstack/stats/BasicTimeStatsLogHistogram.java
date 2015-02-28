@@ -102,7 +102,16 @@ public final class BasicTimeStatsLogHistogram {
 		getCopyTo(res);
 		return res;
 	}
-	
+
+	public boolean compareHasChangeCount(BasicTimeStatsLogHistogram cmp) {
+		for (int i = 0; i < SLOT_LEN; i++) {
+			if (getCount(i) != cmp.getCount(i)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	@Override
 	public String toString() {
 		long count = getSlotsCount();

@@ -10,7 +10,7 @@ import org.sef4j.callstack.ThreadCpuTstUtils;
 
 public class ThreadTimeUtilsTest {
 
-	private static final long prec = 20 * 1000*1000; // precision ~20ms = 20 M nanos
+	private static final long prec = 25 * 1000*1000; // precision ~25ms, in nanos
 	
 	@Test
 	public void testCheckThreadCpuEnabled() {

@@ -1,5 +1,8 @@
 package org.sef4j.core.api;
 
+/**
+ * 
+ */
 public abstract class EventAppender {
 
 	private final String appenderName;
@@ -11,6 +14,13 @@ public abstract class EventAppender {
 	public EventAppender(String appenderName) {
 		this.appenderName = appenderName;
 	}
+
+	// ------------------------------------------------------------------------
+	
+	/**
+	 * 
+	 */
+	public abstract void handleEvent(Object event);
 
 	// ------------------------------------------------------------------------
 	
@@ -42,11 +52,6 @@ public abstract class EventAppender {
 	/** SPI overridable for life-cycle management */
 	public void onDetach() {
 	}
-	
-	/**
-	 * 
-	 */
-	public abstract void handleEvent(Object event);
 
 	
 }

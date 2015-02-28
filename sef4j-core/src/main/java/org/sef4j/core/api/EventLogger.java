@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * because EventLogger are still "owned" by the default static EventLoggerFactory, and may be reconfigured at runtime with new appenders
  * 
  */
-public class EventLogger {
+public final class EventLogger {
 	
 	private final Logger LOG;
 	

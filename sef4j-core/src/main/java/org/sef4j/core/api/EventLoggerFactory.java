@@ -151,7 +151,7 @@ public class EventLoggerFactory {
 			}
 		}
 		if (res == null) {
-			if (pendingInit) {
+			if (! pendingInit) {
 				// do create.. then notify created for other threads
 				res = doCreateEventLogger(eventLoggerName);
 				synchronized(lock) {

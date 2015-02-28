@@ -42,13 +42,11 @@ public class EventLoggerFactoryStaticBinder {
 	 * so the best approach is still to use your application container (Spring..) to manage the EventLoggerFactory and all its appenders
 	 */
 	private static void initDefaultInstance() {
-	    LOG.info("EventLoggerFactoryStaticBinder.iniDefaultInstance() : load default \"sef4j.config.xml\"");
+	    LOG.info("EventLoggerFactoryStaticBinder.iniDefaultInstance() : load default \"sef4j.groovy\"");
 	    EventLoggerContext eventLoggerContext = new EventLoggerContext();
-		// TODO load default "sef4j.config.xml"
+		// TODO load default "sef4j.groovy"
 		
 		INSTANCE = new EventLoggerFactory(eventLoggerContext);
 	}
 	
-	
-
 }

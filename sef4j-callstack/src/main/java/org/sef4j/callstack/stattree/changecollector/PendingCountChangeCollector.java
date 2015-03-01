@@ -1,6 +1,7 @@
-package org.sef4j.callstack.stattree.utils;
+package org.sef4j.callstack.stattree.changecollector;
 
 import java.util.Map;
+import java.util.concurrent.Callable;
 import java.util.function.Function;
 
 import org.sef4j.callstack.stats.PendingPerfCount;
@@ -50,6 +51,14 @@ public final class PendingCountChangeCollector extends AbstractCallTreeNodeChang
 			return t.getStats().getPendingCounts();
 		}
 	};
+	public static final Function<CallTreeNode, PendingPerfCount> createGetOrCreatePropPendingExtractor(final String propName) {
+		return new Function<CallTreeNode, PendingPerfCount>() {
+			@Override
+			public PendingPerfCount apply(CallTreeNode t) {
+				return t.getOrCreateProp(propName, PendingPerfCount.FACTORY);
+			}
+		};
+	}
 
 
 	// ------------------------------------------------------------------------

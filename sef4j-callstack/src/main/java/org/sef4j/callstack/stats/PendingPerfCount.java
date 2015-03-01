@@ -1,6 +1,7 @@
 package org.sef4j.callstack.stats;
 
 import java.lang.reflect.Field;
+import java.util.concurrent.Callable;
 
 import org.sef4j.callstack.CallStackElt;
 
@@ -20,6 +21,13 @@ public class PendingPerfCount {
 
 	public PendingPerfCount() {
 	}
+
+	public static final Callable<PendingPerfCount> FACTORY = new Callable<PendingPerfCount>() {
+		@Override
+		public PendingPerfCount call() throws Exception {
+			return new PendingPerfCount();
+		}
+	};
 
 	// ------------------------------------------------------------------------
 

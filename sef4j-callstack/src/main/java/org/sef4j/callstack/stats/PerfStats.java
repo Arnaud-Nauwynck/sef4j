@@ -47,10 +47,11 @@ public final class PerfStats {
 	}
 
 	public void getCopyTo(PerfStats dest) {
-		pendingCounts.getCopyTo(dest.pendingCounts);
 		elapsedTimeStats.getCopyTo(dest.elapsedTimeStats);
 		threadUserTimeStats.getCopyTo(dest.threadUserTimeStats);
 		threadCpuTimeStats.getCopyTo(dest.threadCpuTimeStats);
+
+		pendingCounts.getCopyTo(dest.pendingCounts);
 	}
 
 	public PerfStats getCopy() {
@@ -75,8 +76,8 @@ public final class PerfStats {
 
 	public void incrAndRemovePending(long startTime, long threadUserStartTime, long threadCpuStartTime,
 			long endTime, long threadUserEndTime, long threadCpuEndTime) {
-		pendingCounts.removePending(startTime);
 		incr(endTime-startTime, threadUserEndTime-threadUserStartTime, threadCpuEndTime-threadCpuStartTime);
+		pendingCounts.removePending(startTime);
 	}
 	
 	public void incr(long elapsedTime, long elapsedThreadUserTime, long elapsedThreadCpuTime) {
@@ -93,11 +94,12 @@ public final class PerfStats {
 	}
 
 	public void incrAndRemovePending(CallStackElt stackElt) {
-		pendingCounts.removePending(stackElt.getStartTime());		
 		long elapsedTime = stackElt.getEndTime() - stackElt.getStartTime();
 		long elapsedThreadUserTime = stackElt.getThreadUserEndTime() - stackElt.getThreadUserStartTime();
 		long elapsedThreadCpuTime = stackElt.getThreadCpuEndTime() - stackElt.getThreadCpuStartTime();
 		incr(elapsedTime, elapsedThreadUserTime, elapsedThreadCpuTime);
+
+		pendingCounts.removePending(stackElt.getStartTime());		
 	}
 
 	// ------------------------------------------------------------------------

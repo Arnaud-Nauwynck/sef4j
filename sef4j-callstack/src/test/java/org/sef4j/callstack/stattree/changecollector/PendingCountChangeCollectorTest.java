@@ -1,4 +1,4 @@
-package org.sef4j.callstack.stattree.utils;
+package org.sef4j.callstack.stattree.changecollector;
 
 import java.util.Map;
 
@@ -6,6 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stattree.CallTreeNode;
+import org.sef4j.callstack.stattree.changecollector.PendingCountChangeCollector;
 
 
 public class PendingCountChangeCollectorTest {
@@ -224,7 +225,73 @@ public class PendingCountChangeCollectorTest {
 		assertPendingCounts(0, 0, fooBarChange);		
 	}
 
+
 	
+	@Test
+	public void testMarkAndCollectChanges_withSelfPropExtractor() {
+		// replace default copy storage... sut = new PendingCountChangeCollector(rootNode);
+		sut = new PendingCountChangeCollector(rootNode,
+				rootNode, // <= store on self node!  CallTreeNode.newRoot(),
+				PendingCountChangeCollector.DEFAULT_PENDING_SRC_COPY_EXTRACTOR,
+				PendingCountChangeCollector.createGetOrCreatePropPendingExtractor("propPending")
+				);
+		
+		// Prepare
+		long startTime1 = 123L;
+		fooPendings.addPending(startTime1);
+		// Perform
+		Map<String, PendingPerfCount> changes = sut.markAndCollectChanges();
+		// Post-check
+		Assert.assertEquals(1, changes.size());
+		PendingPerfCount fooChange = changes.get("foo");
+		Assert.assertNotNull(fooChange);
+		assertPendingCounts(1, startTime1, fooChange);
+
+		// Prepare
+		// Perform
+		changes = sut.markAndCollectChanges();
+		// Post-check
+		Assert.assertEquals(0, changes.size());
+		
+		// Prepare
+		long startTime2 = 234L;
+		fooPendings.addPending(startTime2);
+		// Perform
+		changes = sut.markAndCollectChanges();
+		// Post-check
+		Assert.assertEquals(1, changes.size());
+		fooChange = changes.get("foo");
+		Assert.assertNotNull(fooChange);
+		assertPendingCounts(2, startTime1+startTime2, fooChange);
+
+		// Prepare
+		// Perform
+		changes = sut.markAndCollectChanges();
+		// Post-check
+		Assert.assertEquals(0, changes.size());
+
+		// Prepare
+		fooPendings.removePending(startTime1);
+		// Perform
+		changes = sut.markAndCollectChanges();
+		// Post-check
+		Assert.assertEquals(1, changes.size());
+		fooChange = changes.get("foo");
+		Assert.assertNotNull(fooChange);
+		assertPendingCounts(1, startTime2, fooChange);
+
+		// Prepare
+		fooPendings.removePending(startTime2);
+		// Perform
+		changes = sut.markAndCollectChanges();
+		// Post-check
+		Assert.assertEquals(1, changes.size());
+		fooChange = changes.get("foo");
+		Assert.assertNotNull(fooChange);
+		assertPendingCounts(0, 0, fooChange);
+	}
+
+
 	private static void assertPendingCounts(int expectedCount, long expectedSumStartTime, PendingPerfCount actual) {
 		Assert.assertEquals(expectedCount, actual.getPendingCount());
 		Assert.assertEquals(expectedSumStartTime, actual.getPendingSumStartTime());	

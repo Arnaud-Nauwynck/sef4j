@@ -3,6 +3,7 @@ package org.sef4j.core.api;
 /**
  * 
  */
+@Deprecated // use interface EventSender ... manage name + lifecycle in EventContext 
 public abstract class EventAppender {
 
 	private final String appenderName;

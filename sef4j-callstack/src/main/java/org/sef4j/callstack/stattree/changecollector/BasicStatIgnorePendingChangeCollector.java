@@ -1,4 +1,4 @@
-package org.sef4j.callstack.stattree.utils;
+package org.sef4j.callstack.stattree.changecollector;
 
 import java.util.Map;
 import java.util.function.Function;
@@ -7,10 +7,12 @@ import org.sef4j.callstack.stats.PerfStats;
 import org.sef4j.callstack.stattree.CallTreeNode;
 
 /**
- * collector of changed PerfStats since previous copy
+ * collector of changed PerfStats since previous copy, ignoring Pending counts
  * 
+ * this is a "basic" implementation: no optimization to avoid recursing in untouched sub-tree
+ * A better implementation should count occurrences+pending to check when a sub-tree is unmodified.
  */
-public class AnyStatChangeCollector extends AbstractCallTreeNodeChangeCollector<PerfStats> {
+public class BasicStatIgnorePendingChangeCollector extends AbstractCallTreeNodeChangeCollector<PerfStats> {
 
 	public static final Function<CallTreeNode, PerfStats> DEFAULT_PERFSTAT_SRC_COPY_EXTRACTOR = 
 			new Function<CallTreeNode, PerfStats>() {
@@ -29,11 +31,11 @@ public class AnyStatChangeCollector extends AbstractCallTreeNodeChangeCollector<
 
 	// ------------------------------------------------------------------------
 
-	public AnyStatChangeCollector(CallTreeNode srcRoot) {
+	public BasicStatIgnorePendingChangeCollector(CallTreeNode srcRoot) {
 		super(srcRoot, CallTreeNode.newRoot(), DEFAULT_PERFSTAT_SRC_COPY_EXTRACTOR, DEFAULT_PERFSTAT_PREV_EXTRACTOR);
 	}
 
-	public AnyStatChangeCollector(
+	public BasicStatIgnorePendingChangeCollector(
 			CallTreeNode srcRoot,
 			CallTreeNode prevRoot,
 			Function<CallTreeNode, PerfStats> srcValueCopyExtractor,
@@ -78,9 +80,9 @@ public class AnyStatChangeCollector extends AbstractCallTreeNodeChangeCollector<
 	}
 	
 	protected boolean compareHasChangeCount(PerfStats src, PerfStats prev) {
-		if (src.getPendingCount() != prev.getPendingCount()) {
-			return true;
-		}
+//		if (src.getPendingCount() != prev.getPendingCount()) {
+//			return true;
+//		}
 		if (src.getElapsedTimeStats().compareHasChangeCount(prev.getElapsedTimeStats())) {
 			return true;
 		}

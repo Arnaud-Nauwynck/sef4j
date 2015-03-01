@@ -1,7 +1,6 @@
 package org.sef4j.callstack.event.impl;
 
 import java.util.Collection;
-import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -9,6 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.sef4j.callstack.event.StackEvent;
 import org.sef4j.callstack.event.StackEvent.CompoundPopPushStackEvent;
 import org.sef4j.callstack.event.StackEventListener;
+import org.sef4j.core.helpers.AsyncUtils;
 
 /**
  * listener of StackEvent, that bufferize events 
@@ -26,7 +26,7 @@ public class AsyncCompoundPushPopSenderListener extends StackEventListener {
 	// ------------------------------------------------------------------------
 
 	public AsyncCompoundPushPopSenderListener(StackEventListener targetEventListener) {
-		this(Executors.newScheduledThreadPool(1), 15, targetEventListener);
+		this(AsyncUtils.defaultScheduledThreadPool(), 15, targetEventListener);
 	}
 	
 	public AsyncCompoundPushPopSenderListener(ScheduledExecutorService scheduledExecutor, long period,

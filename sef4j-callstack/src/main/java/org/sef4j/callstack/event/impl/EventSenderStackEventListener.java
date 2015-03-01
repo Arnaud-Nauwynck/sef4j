@@ -2,27 +2,27 @@ package org.sef4j.callstack.event.impl;
 
 import org.sef4j.callstack.event.StackEvent;
 import org.sef4j.callstack.event.StackEventListener;
-import org.sef4j.core.api.EventLogger;
+import org.sef4j.core.api.EventSender;
 
 /**
- * adapter for StackEventListener -> EventLogger
+ * adapter for StackEventListener -> EventSender
  * (downcast typed StackEvent into untyped Object event)
  */
-public class EventLoggerStackEventListener extends StackEventListener {
+public class EventSenderStackEventListener extends StackEventListener {
 
-	private EventLogger targetEventLogger;
+	private EventSender targetEventSender;
 	
 	// ------------------------------------------------------------------------
 	
-	public EventLoggerStackEventListener(EventLogger targetEventLogger) {
-		this.targetEventLogger = targetEventLogger;
+	public EventSenderStackEventListener(EventSender targetEventSender) {
+		this.targetEventSender = targetEventSender;
 	}
 	
 	// ------------------------------------------------------------------------
 	
 	@Override
 	public void onEvent(StackEvent event) {
-		targetEventLogger.sendEvent(event);
+		targetEventSender.sendEvent(event);
 	}
 
 }

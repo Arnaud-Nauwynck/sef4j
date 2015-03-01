@@ -1,4 +1,4 @@
-package org.sef4j.core.helpers;
+package org.sef4j.core.helpers.appenders;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,7 +1,6 @@
 package org.sef4j.callstack.stattree.changecollector;
 
 import java.util.Map;
-import java.util.concurrent.Callable;
 import java.util.function.Function;
 
 import org.sef4j.callstack.stats.PendingPerfCount;

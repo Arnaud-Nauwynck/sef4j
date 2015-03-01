@@ -10,7 +10,7 @@ import org.sef4j.callstack.event.StackEventListener;
  * listener of StackEvent, that append events in in-memory list.
  * 
  * This class is thread-safe, and offer atomic clearAndGet() operation
- * (cf also InMemoryEventAppender for untyped event Object)
+ * (cf also InMemoryEventSender for untyped event Object)
  */
 public class InMemoryStackEventListener extends StackEventListener {
 

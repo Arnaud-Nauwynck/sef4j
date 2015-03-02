@@ -10,7 +10,7 @@ import org.sef4j.callstack.ThreadCpuTstUtils;
 
 public class ThreadTimeUtilsTest {
 
-	private static final long prec = 25 * 1000*1000; // precision ~25ms, in nanos
+	private static final long prec = 30 * 1000*1000; // precision ~30ms, in nanos
 	
 	@Test
 	public void testCheckThreadCpuEnabled() {
@@ -26,7 +26,7 @@ public class ThreadTimeUtilsTest {
 	@Test
 	public void testGetTime() throws InterruptedException {
 		// Prepare
-		long sleepTime = 30;
+		long sleepTime = 50;
 		// Perform
 		long time1 = ThreadTimeUtils.getTime();
 		Thread.sleep(sleepTime);
@@ -39,7 +39,7 @@ public class ThreadTimeUtilsTest {
 	@Test
 	public void testGetCurrentThreadCpuTime_sleep() throws InterruptedException {
 		// Prepare
-		long sleepTime = 20;
+		long sleepTime = 30;
 		// Perform
 		long time1 = ThreadTimeUtils.getCurrentThreadCpuTime();
 		Thread.sleep(sleepTime);
@@ -52,7 +52,7 @@ public class ThreadTimeUtilsTest {
 	@Test
 	public void testGetCurrentThreadCpuTime_cpu() throws InterruptedException {
 		// Prepare
-		long expectedCpuTime = 70;
+		long expectedCpuTime = 80;
 		long cpuLoop = ThreadCpuTstUtils.cpuLoopCountForMillis(expectedCpuTime);
 		// Perform
 		long time1 = ThreadTimeUtils.getCurrentThreadCpuTime();

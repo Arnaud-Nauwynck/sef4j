@@ -1,52 +1,19 @@
 package org.sef4j.callstack.stats;
 
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
-import java.lang.reflect.Field;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.sef4j.callstack.CallStackElt;
 
 /**
- *
+ * class for aggregating PendingPerfCount + BasicTimeStatsLogHistogram (elapsed,threadUser,threadCpu)
+ * 
+ * this class is thread-safe, and lock-FREE !
  */
-@SuppressWarnings("restriction")
 public final class PerfStats {
-
 	
-	private static final Logger LOG = LoggerFactory.getLogger(PerfStats.class);
+	private PendingPerfCount pendingCounts = new PendingPerfCount();
 	
-	private static final sun.misc.Unsafe UNSAFE;
-	private static final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-	static {
-		try {
-			checkThreadCpuEnabled();
-		} catch(Exception ex) {
-			LOG.error("FAILED to check/activate threadCpuTime! ... ignore, no rethrow!", ex);
-			// ignore, no rethrow!
-		}
-	}
-	
-	public static void checkThreadCpuEnabled() {
-		if (!threadMXBean.isThreadCpuTimeEnabled()) {
-			boolean isSupported = threadMXBean.isThreadCpuTimeSupported();
-			if (isSupported) {
-				LOG.info("ThreadMXBean.isThreadCpuTimeEnabled(): false => enable");
-				threadMXBean.setThreadCpuTimeEnabled(true);
-			} else {
-				LOG.warn("ThreadMXBean.isThreadCpuTimeSupported(): false !!");
-			}
-		}
-	}
-	
-	
-	/*pp*/ volatile int pendingCount;
-	
-	/*pp*/ volatile int pendingSumStartTime;
-	
-	private PerfTimeStats elapsedTimeStats = new PerfTimeStats();
-	private PerfTimeStats threadUserTimeStats = new PerfTimeStats();
-	private PerfTimeStats threadCpuTimeStats = new PerfTimeStats();
+	private BasicTimeStatsLogHistogram elapsedTimeStats = new BasicTimeStatsLogHistogram();
+	private BasicTimeStatsLogHistogram threadUserTimeStats = new BasicTimeStatsLogHistogram();
+	private BasicTimeStatsLogHistogram threadCpuTimeStats = new BasicTimeStatsLogHistogram();
 	
 	// ------------------------------------------------------------------------
 
@@ -55,68 +22,98 @@ public final class PerfStats {
 
 	// ------------------------------------------------------------------------
 
-	public void addPending(long currTime) {
-		UNSAFE.getAndAddInt(this, pendingCountFieldOffset, 1); 
-		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, currTime); 
+	public PendingPerfCount getPendingCounts() {
+		return pendingCounts;
 	}
-	
-	public void removePending(long startedTime) {
-		UNSAFE.getAndAddInt(this, pendingCountFieldOffset, -1); 
-		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, - startedTime); 
+
+	public BasicTimeStatsLogHistogram getElapsedTimeStats() {
+		return elapsedTimeStats;
 	}
-	
+
+	public BasicTimeStatsLogHistogram getThreadUserTimeStats() {
+		return threadUserTimeStats;
+	}
+
+	public BasicTimeStatsLogHistogram getThreadCpuTimeStats() {
+		return threadCpuTimeStats;
+	}
+
 	public int getPendingCount() {
-		return pendingCount; // UNSAFE.getIntVolatile(this, pendingCountFieldOffset);
+		return pendingCounts.getPendingCount();
 	}
 
 	public long getPendingSumStartTime() {
-		return pendingSumStartTime; // UNSAFE.getLongVolatile(this, pendingSumStartTimeFieldOffset);
+		return pendingCounts.getPendingSumStartTime();
 	}
 
-	public void incrAndRemovePending(long startedTime, long startedThreadUserTime, long startedThreadCpuTime) {
-		removePending(startedTime);
-		incr(startedTime, startedThreadUserTime, startedThreadCpuTime);
+	public void getCopyTo(PerfStats dest) {
+		elapsedTimeStats.getCopyTo(dest.elapsedTimeStats);
+		threadUserTimeStats.getCopyTo(dest.threadUserTimeStats);
+		threadCpuTimeStats.getCopyTo(dest.threadCpuTimeStats);
+
+		pendingCounts.getCopyTo(dest.pendingCounts);
 	}
 
-	public void incr(long startedTime, long startedThreadUserTime, long startedThreadCpuTime) {
-		long currThreadCpuTime = threadMXBean.getCurrentThreadCpuTime();
-		long currThreadUserTime = threadMXBean.getCurrentThreadUserTime();
-		long currTime = System.nanoTime();
-		
-		long elapsedTime = currTime - startedTime;
-		long elapsedThreadUserTime = currThreadUserTime - startedThreadUserTime;
-		long elapsedThreadCpuTime = currThreadCpuTime - startedThreadCpuTime;
-		
+	public PerfStats getCopy() {
+		PerfStats res = new PerfStats();
+		getCopyTo(res);
+		return res;
+	}
+
+	public void setCopy(PerfStats src) {
+		src.getCopyTo(this);
+	}
+
+	// ------------------------------------------------------------------------
+	
+	public void addPending(long currTime) {
+		pendingCounts.addPending(currTime);
+	}
+
+	public void removePending(long startedTime) {
+		pendingCounts.removePending(startedTime);
+	}
+
+	public void incrAndRemovePending(long startTime, long threadUserStartTime, long threadCpuStartTime,
+			long endTime, long threadUserEndTime, long threadCpuEndTime) {
+		incr(endTime-startTime, threadUserEndTime-threadUserStartTime, threadCpuEndTime-threadCpuStartTime);
+		pendingCounts.removePending(startTime);
+	}
+	
+	public void incr(long elapsedTime, long elapsedThreadUserTime, long elapsedThreadCpuTime) {
 		elapsedTimeStats.incr(elapsedTime);
 		threadUserTimeStats.incr(elapsedThreadUserTime);
 		threadCpuTimeStats.incr(elapsedThreadCpuTime);
 	}
-	
-	// internal for UNSAFE
+
+	// Helper method using StackElt start/end times
 	// ------------------------------------------------------------------------
 	
-	private static final long pendingCountFieldOffset;
-	private static final long pendingSumStartTimeFieldOffset;
-	
-	static {
-		UNSAFE = UnsafeUtils.getUnsafe();
-        
-        Class<PerfStats> thisClass = PerfStats.class;
-        Field pendingCountField = getField(thisClass, "pendingCount");
-        pendingCountFieldOffset = UNSAFE.objectFieldOffset(pendingCountField);
-
-        Field pendingSumStartTimeField = getField(thisClass, "pendingSumStartTime");
-        pendingSumStartTimeFieldOffset = UNSAFE.objectFieldOffset(pendingSumStartTimeField);
-    }
-	
-	private static Field getField(Class<?> clss, String name) {
-		Field[] fields = clss.getDeclaredFields();
-		for(Field f : fields) {
-			if (f.getName().equals(name)) {
-				return f;
-			}
-		}
-		return null;
+	public void addPending(CallStackElt stackElt) {
+		pendingCounts.addPending(stackElt.getStartTime());
 	}
+
+	public void incrAndRemovePending(CallStackElt stackElt) {
+		long elapsedTime = stackElt.getEndTime() - stackElt.getStartTime();
+		long elapsedThreadUserTime = stackElt.getThreadUserEndTime() - stackElt.getThreadUserStartTime();
+		long elapsedThreadCpuTime = stackElt.getThreadCpuEndTime() - stackElt.getThreadCpuStartTime();
+		incr(elapsedTime, elapsedThreadUserTime, elapsedThreadCpuTime);
+
+		pendingCounts.removePending(stackElt.getStartTime());		
+	}
+
+	// ------------------------------------------------------------------------
 	
+	@Override
+	public String toString() {
+		int pendingCount = pendingCounts.getPendingCount();
+		return "PerfStats [" 
+				+ ((pendingCount != 0)? ", pending:" + pendingCount : "")
+				+ "count:" + elapsedTimeStats.getSlotsCount()
+				+ ", sum ms elapsed: " + elapsedTimeStats.getSlotsSum()
+				+ ", cpu:" + threadCpuTimeStats.getSlotsSum()
+				+ ", user:" + threadUserTimeStats.getSlotsSum()
+				+ "]";
+	}
+
 }

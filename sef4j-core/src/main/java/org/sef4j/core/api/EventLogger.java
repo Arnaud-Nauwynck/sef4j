@@ -7,9 +7,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * similar to slf4j org.slf4j.Logger, but for events ...
+ * <p/>
  * 
  * this class is owned by eventLoggerFactory : life-cycle start()/stop() is managed by owner, 
- * instances are re-configured is context change, but instance are never "disposed" once used
+ * instances are re-configured if context change, but instance are never "disposed" once used.<BR/>
  *
  * 
  * When choosing to use the default StaticBinder singleton, it is safe to use code like this:
@@ -20,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * because EventLogger are still "owned" by the default static EventLoggerFactory, and may be reconfigured at runtime with new appenders
  * 
  */
-public class EventLogger {
+public final class EventLogger implements EventSender {
 	
 	private final Logger LOG;
 	
@@ -32,12 +33,12 @@ public class EventLogger {
 	 * copy-on-write array of inherited appenders (from parent EventLogger + own appender)
 	 * this is managed from class EventLoggerContext, from configuration(at startup / re-init of context)
 	 */
-	private EventAppender[] inheritedAppenders; 
+	private EventSender[] inheritedAppenders; 
 
 	// ------------------------------------------------------------------------
 	
 	/* package protected, created and managed from EventLoggerContext */
-	/* pp */ EventLogger(EventLoggerFactory eventLoggerFactory, String eventLoggerName, EventAppender[] inheritedAppenders) {
+	/* pp */ EventLogger(EventLoggerFactory eventLoggerFactory, String eventLoggerName, EventSender[] inheritedAppenders) {
 		this.eventLoggerFactory = eventLoggerFactory;
 		this.eventLoggerName = eventLoggerName;
 		this.LOG = LoggerFactory.getLogger(eventLoggerName);
@@ -52,7 +53,7 @@ public class EventLogger {
 		return getStatic(clss.getName());
 	}
 
-	/*pp*/ void configureInheritedAppenders(EventAppender[] inheritedLoggerAppenders) {
+	/*pp*/ void configureInheritedAppenders(EventSender[] inheritedLoggerAppenders) {
 		this.inheritedAppenders = inheritedLoggerAppenders;
 	}
 	
@@ -68,13 +69,13 @@ public class EventLogger {
 	
 
 	public void sendEvent(Object event) {
-		final EventAppender[] appenders = inheritedAppenders; 
+		final EventSender[] appenders = inheritedAppenders; 
 		final int len = appenders.length;
 		for (int i = 0; i < len; i++) {
 			try {
-				appenders[i].handleEvent(event);
+				appenders[i].sendEvent(event);
 			} catch(Exception ex) {
-				LOG.error("Failed to handleEvent on eventLogger '" + eventLoggerName + "' to appender " + appenders[i] 
+				LOG.error("Failed to sendEvent on eventLogger '" + eventLoggerName + "' to appender " + appenders[i] 
 						+ ", ex:" + ex.getMessage() + " ... ignore, no rethrow!");
 			}
 		}

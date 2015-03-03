@@ -2,7 +2,7 @@ package org.sef4j.callstack.stats;
 
 import java.io.Serializable;
 
-public class PerfTimeStatsSlotInfo implements Serializable {
+public class BasicTimeStatsSlotInfo implements Serializable {
 
 	/** for java.io.Serializable */
 	private static final long serialVersionUID = 1L;
@@ -14,7 +14,7 @@ public class PerfTimeStatsSlotInfo implements Serializable {
 	
 	// ------------------------------------------------------------------------
 	
-	public PerfTimeStatsSlotInfo(long from, long to, int count, long sum) {
+	public BasicTimeStatsSlotInfo(long from, long to, int count, long sum) {
 		super();
 		this.from = from;
 		this.to = to;

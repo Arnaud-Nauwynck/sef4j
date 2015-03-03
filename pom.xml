@@ -34,9 +34,10 @@
 
 	<modules>
 		<module>sef4j-core</module>
-		<module>sef4j-log</module>
 		<module>sef4j-callstack</module> 
+		<module>sef4j-log</module>
 		<module>sef4j-jdbc</module> 
+		<!-- 
 		<!-- 
 		<module>sef4j-aop</module> 
 		<module>sef4j-javaagent</module> 

@@ -17,6 +17,16 @@
 	<description>Extension for plug-in Slf4j into Sef4j: transforming flat log messages to richer log Event</description>
 
 	<dependencies>
+		<dependency>
+		        <groupId>org.sef4j</groupId>
+        		<artifactId>sef4j-core</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>org.sef4j</groupId>
+			<artifactId>sef4j-callstack</artifactId>
+		</dependency>
+
+
 
 		<dependency>
 			<groupId>org.slf4j</groupId>
@@ -33,7 +43,6 @@
 			<artifactId>groovy-all</artifactId>
 			<version>2.4.1</version>
 		</dependency>
-
 
 		<dependency>
 			<groupId>org.mockito</groupId>

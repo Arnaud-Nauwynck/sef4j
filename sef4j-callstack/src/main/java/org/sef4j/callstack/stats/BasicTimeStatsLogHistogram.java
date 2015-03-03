@@ -11,7 +11,7 @@ package org.sef4j.callstack.stats;
  * 
  */
 @SuppressWarnings("restriction")
-public final class PerfTimeStats {
+public final class BasicTimeStatsLogHistogram {
 
 	/**
 	 * slot count
@@ -40,7 +40,7 @@ public final class PerfTimeStats {
 	
 	// ------------------------------------------------------------------------
 
-	public PerfTimeStats() {
+	public BasicTimeStatsLogHistogram() {
 	}
 
 	// ------------------------------------------------------------------------
@@ -54,19 +54,79 @@ public final class PerfTimeStats {
 	
 	// ------------------------------------------------------------------------
 
-	public PerfTimeStatsSlotInfo[] getSlotInfoCopy() {
-		PerfTimeStatsSlotInfo[] res = new PerfTimeStatsSlotInfo[SLOT_LEN];
+	/** @return sum of values in all slots */
+	public long getSlotsSum() {
+		long res = 0;
 		for (int i = 0; i < SLOT_LEN; i++) {
-			PerfTimeStatsSlotInfo slotInfo = SLOT_INFOS[i];
-			res[i] = new PerfTimeStatsSlotInfo(slotInfo.getFrom(), slotInfo.getTo(), getCount(i), getSum(i));
+			res += getSum(i);
 		}
 		return res;
+	}
+
+	/** @return sum of counts in all slots */
+	public int getSlotsCount() {
+		int res = 0;
+		for (int i = 0; i < SLOT_LEN; i++) {
+			res += getCount(i);
+		}
+		return res;
+	}
+
+	/** @return copy of all slots */
+	public BasicTimeStatsSlotInfo[] getSlotInfoCopy() {
+		BasicTimeStatsSlotInfo[] res = new BasicTimeStatsSlotInfo[SLOT_LEN];
+		for (int i = 0; i < SLOT_LEN; i++) {
+			BasicTimeStatsSlotInfo slotInfo = SLOT_INFOS[i];
+			res[i] = new BasicTimeStatsSlotInfo(slotInfo.getFrom(), slotInfo.getTo(), getCount(i), getSum(i));
+		}
+		return res;
+	}
+
+	/** @return copy of nth-slot */
+	public BasicTimeStatsSlotInfo getSlotInfoCopyAt(int i) {
+		if (i < 0 || i >= SLOT_LEN) throw new ArrayIndexOutOfBoundsException();
+		BasicTimeStatsSlotInfo slotInfo = SLOT_INFOS[i];
+		return new BasicTimeStatsSlotInfo(slotInfo.getFrom(), slotInfo.getTo(), getCount(i), getSum(i));
+	}
+
+	
+	public void getCopyTo(BasicTimeStatsLogHistogram dest) {
+		for (int i = 0; i < SLOT_LEN; i++) {
+			dest.countSlots[i] = getCount(i);
+			dest.sumSlots[i] = getSum(i);
+		}
+	}
+
+	public BasicTimeStatsLogHistogram getCopy() {
+		BasicTimeStatsLogHistogram res = new BasicTimeStatsLogHistogram();
+		getCopyTo(res);
+		return res;
+	}
+
+	public boolean compareHasChangeCount(BasicTimeStatsLogHistogram cmp) {
+		for (int i = 0; i < SLOT_LEN; i++) {
+			if (getCount(i) != cmp.getCount(i)) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	@Override
+	public String toString() {
+		long count = getSlotsCount();
+		long avg = (count != 0)? getSlotsSum()/count : 0;
+		return "PerfStatsHistogram ["
+				+ "count:" + count 
+				+ ", avg:" + avg
+				+ "]";
 	}
 	
 	// internal utilities for log-based index
 	// ------------------------------------------------------------------------
 
-	private static final PerfTimeStatsSlotInfo[] SLOT_INFOS;
+
+	private static final BasicTimeStatsSlotInfo[] SLOT_INFOS;
 	private static final int MAX_SLOT_VALUE = 4096;
 	private static final int[] VALUE_DIV32_TO_SLOT_INDEX; 
 
@@ -75,16 +135,16 @@ public final class PerfTimeStats {
 				1, 32, 64, 128, 256, 512, 1024, 2048, 4096 
 		};
 
-		PerfTimeStatsSlotInfo[] tmp = new PerfTimeStatsSlotInfo[SLOT_LEN];
+		BasicTimeStatsSlotInfo[] tmp = new BasicTimeStatsSlotInfo[SLOT_LEN];
 		int[] tmpValueToSlotIndex = new int[MAX_SLOT_VALUE/32];
 		
-		tmp[0] = new PerfTimeStatsSlotInfo(-Long.MAX_VALUE, 0, 0, 0);
+		tmp[0] = new BasicTimeStatsSlotInfo(-Long.MAX_VALUE, 0, 0, 0);
 //		System.out.println("0: [-INF, 0]");
 		int index = 1;
 		int from = 1;
 		for(int i = 1; i <= MAX_SLOT_VALUE; i++) {
 			if (breaks[index] == i) {
-				tmp[index] = new PerfTimeStatsSlotInfo(from, i-1, 0, 0);
+				tmp[index] = new BasicTimeStatsSlotInfo(from, i-1, 0, 0);
 //				System.out.println(index + ": [" + from + ", " + (i-1) + "]");
 				index++;
 				from = i;
@@ -93,7 +153,7 @@ public final class PerfTimeStats {
 			int iDiv32 = i >>> 5;
 			tmpValueToSlotIndex[iDiv32] = index;
 		}
-		tmp[SLOT_LEN-1] = new PerfTimeStatsSlotInfo(from, Long.MAX_VALUE, 0, 0);
+		tmp[SLOT_LEN-1] = new BasicTimeStatsSlotInfo(from, Long.MAX_VALUE, 0, 0);
 //		System.out.println((SLOT_LEN-1) + ": [" + from + ", +INF]");
 		
 		SLOT_INFOS = tmp;
@@ -133,7 +193,6 @@ public final class PerfTimeStats {
 		else return VALUE_DIV32_TO_SLOT_INDEX[v >>> 5];
 	}
 
-	
 	// internal utilities of UNSAFE memory access for atomic operation, without locks 
 	// ------------------------------------------------------------------------
 
@@ -143,7 +202,7 @@ public final class PerfTimeStats {
 	private static final int shiftLong;  // = 3 ...
 	
 	static {
-		UNSAFE = sun.misc.Unsafe.getUnsafe();
+		UNSAFE = UnsafeUtils.getUnsafe();
 		
 		ARRAY_BASE_OFFSET = UNSAFE.arrayBaseOffset(byte[].class); // = 16...
 		
@@ -172,5 +231,5 @@ public final class PerfTimeStats {
 		assert index >= 0 && index < SLOT_LEN;
 		return UNSAFE.getLongVolatile(sumSlots, byteOffsetLong(index));
 	}
-	
+
 }

@@ -16,6 +16,7 @@
 	<name>SEF4J - extension for logging (Slf4j, Log4j, ..)</name>
 	<description>Extension for plug-in Slf4j into Sef4j: transforming flat log messages to richer log Event</description>
 
+<<<<<<< HEAD
 	<dependencies>
 		<dependency>
 		        <groupId>org.sef4j</groupId>
@@ -54,4 +55,40 @@
 	</dependencies>
 
 
+=======
+    <dependencies>
+	  <!-- Module dependencies -->
+      <dependency>
+        <groupId>org.sef4j</groupId>
+        <artifactId>sef4j-core</artifactId>
+      </dependency>
+      <dependency>
+        <groupId>org.sef4j</groupId>
+        <artifactId>sef4j-callstack</artifactId>
+      </dependency>
+      
+	  <!-- Thirdparty dependencies -->
+      <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+      </dependency>
+
+	  <dependency>
+	  	<groupId>ch.qos.logback</groupId>
+	  	<artifactId>logback-classic</artifactId>
+	  	<version>1.0.9</version>
+	  </dependency>
+
+	  <!-- Test dependencies -->
+      <dependency>
+        <groupId>org.mockito</groupId>
+        <artifactId>mockito-all</artifactId>
+        <version>1.10.8</version>
+        <scope>test</scope>
+      </dependency>
+
+   </dependencies>
+
+  
+>>>>>>> df9183a3fa1e41bc7249233cd22f205c6912aa95
 </project>

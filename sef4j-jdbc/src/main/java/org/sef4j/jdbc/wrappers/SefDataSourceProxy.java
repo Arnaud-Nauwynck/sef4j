@@ -1,21 +1,24 @@
 package org.sef4j.jdbc.wrappers;
 
-import java.io.PrintWriter;
 import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
+import org.sef4j.callstack.CallStackElt.StackPopper;
+import org.sef4j.callstack.LocalCallStack;
+
 /**
- *
+ * java.sql.DataSource proxy instrumented for using LocalCallStack.push()/pop()
  */
-public class SefDataSourceProxy implements DataSource {
+public class SefDataSourceProxy extends SefCommonDataSourceProxy implements DataSource {
 
 	protected DataSource to;
 	
 	// ------------------------------------------------------------------------
 
 	public SefDataSourceProxy(DataSource to) {
+	    super(to);
 		this.to = to;
 	}
 
@@ -29,37 +32,37 @@ public class SefDataSourceProxy implements DataSource {
 	// ------------------------------------------------------------------------
 
 	public Connection getConnection() throws SQLException {
-	    Connection toConn = to.getConnection();
-		return new SefConnectionProxy(toConn);
+	    StackPopper toPop = LocalCallStack.meth("getConnection").push();
+	    try {
+    	    
+	        Connection toConn = to.getConnection();
+    		SefConnectionProxy res = new SefConnectionProxy(toConn);
+    		
+    		return LocalCallStack.pushPopParentReturn(res);
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } catch(RuntimeException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+	    } finally {
+	        toPop.close();
+	    }
 	}
 
 	public Connection getConnection(String username, String password) throws SQLException {
-	    Connection toConn = to.getConnection(username, password);
-        return new SefConnectionProxy(toConn);
+        StackPopper toPop = LocalCallStack.meth("getConnection_user").push();
+        try {
+            
+            Connection toConn = to.getConnection(username, password);
+            SefConnectionProxy res = new SefConnectionProxy(toConn);
+            
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } catch(RuntimeException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
 
-	public PrintWriter getLogWriter() throws SQLException {
-		return to.getLogWriter();
-	}
-
-	public <T> T unwrap(Class<T> iface) throws SQLException {
-		return to.unwrap(iface);
-	}
-
-	public void setLogWriter(PrintWriter out) throws SQLException {
-		to.setLogWriter(out);
-	}
-
-	public boolean isWrapperFor(Class<?> iface) throws SQLException {
-		return to.isWrapperFor(iface);
-	}
-
-	public void setLoginTimeout(int seconds) throws SQLException {
-		to.setLoginTimeout(seconds);
-	}
-
-	public int getLoginTimeout() throws SQLException {
-		return to.getLoginTimeout();
-	}
-	
 }

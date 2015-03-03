@@ -19,8 +19,11 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.concurrent.Executor;
 
+import org.sef4j.callstack.CallStackElt.StackPopper;
+import org.sef4j.callstack.LocalCallStack;
+
 /**
- * Proxy for java.sql.Connection + wrapp all calls with push()/pop() 
+ * java.sql.Connection proxy instrumented for using LocalCallStack.push()/pop()
  *
  * design pattern:
  *  - Bridge/Proxy to java.sql.Connection
@@ -132,30 +135,30 @@ public class SefConnectionProxy implements Connection {
     // ------------------------------------------------------------------------
 
     public String nativeSQL(String sql) throws SQLException {
-        callInfoLogger.pre("nativeSQL", sql);
+        StackPopper toPop = LocalCallStack.meth("nativeSQL").withParam("sql", sql).push();
         try {
             String res = to.nativeSQL(sql);
-            callInfoLogger.postRes(res);
-            return res;
-        } catch (SQLException ex) {
-            callInfoLogger.postEx(ex);
-            throw ex;
+            
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
     }
 
     public void setAutoCommit(boolean autoCommit) throws SQLException {
-        boolean isLog = isLogCommits();
-        if (isLog) {
-            callInfoLogger.pre("setAutoCommit", "setAutoCommit " + autoCommit);
-        }
+        // distinguish true/false as pseudo method name for stats
+        String pseudoMeth = (autoCommit)? "setAutoCommit_true" : "setAutoCommit_false";
+        StackPopper toPop = LocalCallStack.meth(pseudoMeth).push();
         try {
             to.setAutoCommit(autoCommit);
-            if (isLog) {
-                callInfoLogger.postVoid();
-            }
-        } catch (SQLException ex) {
-            callInfoLogger.postEx(ex);
-            throw ex;
+            
+            // LocalCallStack.pushPopParentReturn();
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
     }
 
@@ -163,19 +166,27 @@ public class SefConnectionProxy implements Connection {
         return to.getAutoCommit();
     }
 
-    public void setTransactionIsolation(int level) throws SQLException {
-        boolean isLog = isLogCommits();
-        if (isLog) {
-            callInfoLogger.pre("setTransactionIsolation", "setTransactionIsolation " + level);
+    public static String transactionLevelToString(int level) {
+        switch(level) {
+        case Connection.TRANSACTION_NONE: return "NONE";
+        case Connection.TRANSACTION_READ_UNCOMMITTED: return "READ_COMMITTED";
+        case Connection.TRANSACTION_REPEATABLE_READ: return "REPEATABLE_READ";
+        case Connection.TRANSACTION_SERIALIZABLE: return "SERIALIZABLE";
+        default: return "UNKOWN";
         }
+    }
+        
+    public void setTransactionIsolation(int level) throws SQLException {
+        String pseudoMeth = "setTransactionIsolation_" + transactionLevelToString(level);
+        StackPopper toPop = LocalCallStack.meth(pseudoMeth).push();
         try {
             to.setTransactionIsolation(level);
-            if (isLog) {
-                callInfoLogger.postVoid();
-            }
-        } catch (SQLException ex) {
-            callInfoLogger.postEx(ex);
-            throw ex;
+            
+            // LocalCallStack.pushPopParentReturn();
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
     }
 

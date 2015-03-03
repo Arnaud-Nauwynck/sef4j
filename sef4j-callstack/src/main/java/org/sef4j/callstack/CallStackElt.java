@@ -101,7 +101,29 @@ public final class CallStackElt {
 			}
 		}
 	}
-	
+
+    /*pp*/ void onPushWithParentStartTime() {
+        CallStackElt parent = parentCallStackElt;
+        this.startTime = parent.startTime;
+        this.threadUserStartTime = parent.threadUserStartTime;
+        this.threadCpuStartTime = parent.threadCpuStartTime;
+        
+        // cf remaining code as copy&paste from onPush()
+        final int handlersLen = parentCallStackElt.pushPopHandlersLen;
+        final CallStackPushPopHandler[] handlers = parentCallStackElt.pushPopHandlers;
+        for (int i = 0; i < handlersLen; i++) {
+            try {
+                // implementation note: this is up to each handler responsibility to re-register a handler 
+                // on newly push (this) CallStackElt
+                // => cf   this.addCallStackPushPopHandler(newChildHandler)
+                handlers[i].onPush(this);
+            } catch(Exception ex) {
+                LOG.error("Failed to call CallStackPushPopHandler.onPush()! .. ignore, no rethrow", ex);
+            }
+        }
+    }
+
+	   
 	/*pp*/ void onPop() {
 		this.threadCpuEndTime = ThreadTimeUtils.getCurrentThreadCpuTime();
 		this.threadUserEndTime = ThreadTimeUtils.getCurrentThreadUserTime();
@@ -340,7 +362,11 @@ public final class CallStackElt {
 		public StackPopper push() {
 			return pushedElt.ownerStack.doPush(pushedElt);
 		}
-		
+
+		public StackPopper pushWithParentStartTime() {
+		    return pushedElt.ownerStack.doPushWithParentStartTime(pushedElt);
+	    }
+
 		/*pp?*/ 
 		public StackPusher withName(String name) {
 			pushedElt.name = name;

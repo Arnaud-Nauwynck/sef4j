@@ -52,7 +52,16 @@ public class CallStack {
 		pushedElt.onPush();
 		return pushedElt.popper;
 	}
-	
+
+   /*pp*/ StackPopper doPushWithParentStartTime(CallStackElt pushedElt) {
+        if (pushedElt.pusher == null) {
+            reallocStackEltArray(this.stackElts.length + DEFAULT_ALLOC_INCR_STACK_LEN);
+        }
+        this.curr = pushedElt;
+        pushedElt.onPushWithParentStartTime();
+        return pushedElt.popper;
+    }
+
 	/*pp*/ void doPop(CallStackElt poppedElt) {
 		this.curr = poppedElt.getParentCallStackElt();
 		poppedElt.onPop();

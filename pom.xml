@@ -36,7 +36,7 @@
 		<module>sef4j-core</module>
 		<module>sef4j-callstack</module> 
 		<module>sef4j-log</module>
-		<!-- 
+		<!--
 		<module>sef4j-jdbc</module> 
 		<module>sef4j-aop</module> 
 		<module>sef4j-javaagent</module> 
@@ -55,6 +55,38 @@
 	<dependencyManagement>
 		<dependencies>
 
+			<dependency>
+				<groupId>org.sef4j</groupId>
+				<artifactId>sef4j-core</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sef4j</groupId>
+				<artifactId>sef4j-log</artifactId>
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sef4j</groupId>
+				<artifactId>sef4j-callstack</artifactId> 
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sef4j</groupId>
+				<artifactId>sef4j-jdbc</artifactId> 
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sef4j</groupId>
+				<artifactId>sef4j-aop</artifactId> 
+				<version>${project.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.sef4j</groupId>
+				<artifactId>sef4j-javaagent</artifactId> 
+				<version>${project.version}</version>
+			</dependency>
+		
+		
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>

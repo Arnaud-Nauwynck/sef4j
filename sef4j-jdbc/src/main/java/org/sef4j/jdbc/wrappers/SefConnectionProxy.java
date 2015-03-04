@@ -21,6 +21,7 @@ import java.util.concurrent.Executor;
 
 import org.sef4j.callstack.CallStackElt.StackPopper;
 import org.sef4j.callstack.LocalCallStack;
+import org.sef4j.jdbc.util.ConnectionUtils;
 
 /**
  * java.sql.Connection proxy instrumented for using LocalCallStack.push()/pop()
@@ -62,6 +63,26 @@ public class SefConnectionProxy implements Connection {
 
 
     // implements java.sql.Connection
+    // ------------------------------------------------------------------------
+
+    public void close() throws SQLException {
+        StackPopper toPop = LocalCallStack.meth("close").push();
+        try {
+            to.close();
+            
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
+    }
+
+    public boolean isClosed() throws SQLException {
+        boolean res = to.isClosed();
+        return res;
+    }
+
+    
     // create sub Statement/PreparedStatment... => create real statement + wrap in logger   
     // ------------------------------------------------------------------------
 
@@ -154,7 +175,6 @@ public class SefConnectionProxy implements Connection {
         try {
             to.setAutoCommit(autoCommit);
             
-            // LocalCallStack.pushPopParentReturn();
         } catch(SQLException ex) {
             throw LocalCallStack.pushPopParentException(ex);
         } finally {
@@ -166,23 +186,12 @@ public class SefConnectionProxy implements Connection {
         return to.getAutoCommit();
     }
 
-    public static String transactionLevelToString(int level) {
-        switch(level) {
-        case Connection.TRANSACTION_NONE: return "NONE";
-        case Connection.TRANSACTION_READ_UNCOMMITTED: return "READ_COMMITTED";
-        case Connection.TRANSACTION_REPEATABLE_READ: return "REPEATABLE_READ";
-        case Connection.TRANSACTION_SERIALIZABLE: return "SERIALIZABLE";
-        default: return "UNKOWN";
-        }
-    }
-        
     public void setTransactionIsolation(int level) throws SQLException {
-        String pseudoMeth = "setTransactionIsolation_" + transactionLevelToString(level);
+        String pseudoMeth = "setTransactionIsolation_" + ConnectionUtils.transactionLevelToString(level);
         StackPopper toPop = LocalCallStack.meth(pseudoMeth).push();
         try {
             to.setTransactionIsolation(level);
             
-            // LocalCallStack.pushPopParentReturn();
         } catch(SQLException ex) {
             throw LocalCallStack.pushPopParentException(ex);
         } finally {
@@ -195,149 +204,101 @@ public class SefConnectionProxy implements Connection {
     }
 
     public void commit() throws SQLException {
-        boolean isLog = isLogCommits();
-        boolean doSleep = hasMatchingSleepCommit();
-        if (sleepMillisBeforeCommit > 0 && doSleep) {
-            try {
-                Thread.sleep(sleepMillisBeforeCommit);
-            } catch (Exception ex) {
-            }
-        }
-        if (isLog) {
-            String methodMsg = "commit";
-            if (sleepMillisBeforeCommit > 0 && doSleep) {
-                methodMsg = "sleep-before" + sleepMillisBeforeCommit + " + " + methodMsg;
-            }
-            if (sleepMillisAfterCommit > 0 && doSleep) {
-                methodMsg = methodMsg + " + sleep-after " + sleepMillisAfterCommit;
-            }
-            callInfoLogger.pre(methodMsg, "commit");
-        }
-
+        StackPopper toPop = LocalCallStack.meth("commit").push();
         try {
             to.commit();
-
-            resetCount();
-            if (isLog) {
-                callInfoLogger.postVoid();
-            }
-        } catch (SQLException ex) {
-            callInfoLogger.postEx(ex);
-            throw ex;
-        }
-
-        if (sleepMillisAfterCommit > 0 && doSleep) {
-            try {
-                Thread.sleep(sleepMillisAfterCommit);
-            } catch (Exception ex) {
-            }
+            
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
     }
 
     public void rollback() throws SQLException {
-        boolean isLog = isLogCommits();
-        if (isLog) {
-            callInfoLogger.pre("rollback", "rollback");
-        }
+        StackPopper toPop = LocalCallStack.meth("rollback").push();
         try {
             to.rollback();
-
-            resetCount();
-            if (isLog) {
-                callInfoLogger.postVoid();
-            }
-        } catch (SQLException ex) {
-            callInfoLogger.postEx(ex);
-            throw ex;
+            
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
     }
 
     public void releaseSavepoint(Savepoint savepoint) throws SQLException {
-        boolean isLog = isLogCommits();
-        if (isLog) {
-            callInfoLogger.pre("releaseSavepoint", "" + savepoint);
-        }
+        StackPopper toPop = LocalCallStack.meth("releaseSavepoint").push();
         try {
             to.releaseSavepoint(savepoint);
-            if (isLog) {
-                callInfoLogger.postVoid();
-            }
-        } catch (SQLException ex) {
-            callInfoLogger.postEx(ex);
-            throw ex;
+            
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
     }
 
     public void rollback(Savepoint savepoint) throws SQLException {
-        boolean isLog = isLogCommits();
-        if (isLog) {
-            callInfoLogger.pre("rollback", "" + savepoint);
-        }
+        StackPopper toPop = LocalCallStack.meth("rollback_savepoint").push();
         try {
             to.rollback(savepoint);
-
-            // TODO .. handle counter in savepoint
-            resetCount();
-            if (isLog) {
-                callInfoLogger.postVoid();
-            }
-        } catch (SQLException ex) {
-            callInfoLogger.postEx(ex);
-            throw ex;
+            
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
     }
 
     public Savepoint setSavepoint() throws SQLException {
-        boolean isLog = isLogCommits();
-        if (isLog) {
-            callInfoLogger.pre("setSavepoint", "");
-        }
+        StackPopper toPop = LocalCallStack.meth("setSavepoint").push();
         try {
-            Savepoint res = to.setSavepoint();
-            // TODO .. handle counter in savepoint
-            if (isLog) {
-                callInfoLogger.postRes(res);
-            }
-            return res;
-        } catch (SQLException ex) {
-            callInfoLogger.postEx(ex);
-            throw ex;
+            return to.setSavepoint();
+            
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
     }
 
     public Savepoint setSavepoint(String name) throws SQLException {
-        boolean isLog = isLogCommits();
-        if (isLog) {
-            callInfoLogger.pre("setSavepoint", name);
-        }
+        StackPopper toPop = LocalCallStack.meth("setSavepoint_name").withParam("name", name).push();
         try {
-            Savepoint res = to.setSavepoint(name);
-            // TODO .. handle counter in savepoint
-            if (isLog) {
-                callInfoLogger.postRes(res);
-            }
-            return res;
-        } catch (SQLException ex) {
-            callInfoLogger.postEx(ex);
-            throw ex;
+            return to.setSavepoint(name);
+            
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
+    }
+
+    public void abort(Executor executor) throws SQLException {
+        StackPopper toPop = LocalCallStack.meth("abort")
+                // .withParam("executor", executor)
+                .push();
+        try {
+            to.abort(executor);
+            
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
     }
 
     public void setReadOnly(boolean readOnly) throws SQLException {
-    	boolean isLog = isLogCommits();
-        if (isLog) {
-        	callInfoLogger.pre("setReadOnly", "" + readOnly);
-        }
+        String pseudoMeth = (readOnly)? "setReadOnly_true" : "setReadOnly_false";
+        StackPopper toPop = LocalCallStack.meth(pseudoMeth).push();
         try {
             to.setReadOnly(readOnly);
-            if (isLog) {
-            	callInfoLogger.postVoid();
-            }
-        } catch (SQLException ex) {
-            if (isLog) {
-            	callInfoLogger.postEx(ex);
-            }
-            throw ex;
+            
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
     }
 
@@ -345,16 +306,24 @@ public class SefConnectionProxy implements Connection {
         return to.isReadOnly();
     }
 
-    public void close() throws SQLException {
-        owner.onCloseConn(this);
-        to.close();
+
+    public int getHoldability() throws SQLException {
+        return to.getHoldability();
     }
 
-    public boolean isClosed() throws SQLException {
-        boolean res = to.isClosed();
-        return res;
+    public void setHoldability(int holdability) throws SQLException {
+        StackPopper toPop = LocalCallStack.meth("setHoldability").withParam("holdability", holdability).push();
+        try {
+            to.setHoldability(holdability);
+            
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
+    
     public DatabaseMetaData getMetaData() throws SQLException {
         return to.getMetaData();
     }
@@ -375,6 +344,7 @@ public class SefConnectionProxy implements Connection {
         to.clearWarnings();
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Map getTypeMap() throws SQLException {
         return to.getTypeMap();
     }
@@ -382,27 +352,6 @@ public class SefConnectionProxy implements Connection {
     public void setTypeMap(Map<String, Class<?>> map) throws SQLException {
         to.setTypeMap(map);
     }
-
-    public int getHoldability() throws SQLException {
-        return to.getHoldability();
-    }
-
-    public void setHoldability(int holdability) throws SQLException {
-        boolean isLog = isLogCommits();
-        if (isLog) {
-            callInfoLogger.pre("setHoldability", "" + holdability);
-        }
-        try {
-            to.setHoldability(holdability);
-            if (isLog) {
-                callInfoLogger.postVoid();
-            }
-        } catch (SQLException ex) {
-            callInfoLogger.postEx(ex);
-            throw ex;
-        }
-    }
-
 
     public Array createArrayOf(String typeName, Object[] elements) throws SQLException {
         return to.createArrayOf(typeName, elements);
@@ -456,17 +405,12 @@ public class SefConnectionProxy implements Connection {
         return to.unwrap(iface);
     }
 
-
     public void setSchema(String schema) throws SQLException {
         to.setSchema(schema);
     }
 
     public String getSchema() throws SQLException {
         return to.getSchema();
-    }
-
-    public void abort(Executor executor) throws SQLException {
-        to.abort(executor);
     }
 
     public void setNetworkTimeout(Executor executor, int milliseconds) throws SQLException {
@@ -476,7 +420,6 @@ public class SefConnectionProxy implements Connection {
     public int getNetworkTimeout() throws SQLException {
         return to.getNetworkTimeout();
     }
-    
 
     // override Object
     // ------------------------------------------------------------------------
@@ -493,7 +436,7 @@ public class SefConnectionProxy implements Connection {
     
     @Override
     public String toString() {
-        return "SefWrappedConnection[" + connId + "]";
+        return "SefConnectionProxy[" + connId + "]";
     }
     
 }

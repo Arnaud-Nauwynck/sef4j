@@ -20,7 +20,7 @@ import java.util.Calendar;
 import java.util.Map;
 
 /**
- * Proxy for java.sql.Statement + wrapp all calls with pre()/log.post() + set params 
+ * Proxy for java.sql.Statement + wrapp all calls with push()/pop() + set params 
  */
 public class SefCallableStatementProxy extends SefPreparedStatementProxy implements CallableStatement {
 
@@ -36,10 +36,10 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public SefCallableStatementProxy(SefConnectionProxy owner,
-                                CallableStatement to,
-                                String sql,
-                                int resultSetType,
-                                int resultSetConcurrency) {
+            CallableStatement to,
+            String sql,
+            int resultSetType,
+            int resultSetConcurrency) {
         super(owner, to, sql, resultSetType, resultSetConcurrency);
         this.to = to;
     }
@@ -48,64 +48,38 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     // ------------------------------------------------------------------------
 
     /** internal */
-    protected void registerOut(int parameterIndex, ParamInfo p) {
-        super.set(parameterIndex, p);
+    protected ParamInfo doRegisterOutputParamInfo(int parameterIndex) {
+        return paramInfoFor(parameterIndex).output(true);
     }
 
-    /** internal */
-    protected void fillOutRes(int parameterIndex, Object value) {
-        // TODO NOT IMPLEMENTED
-        //        ParamInfo p = getParamInfo(parameterIndex);
-        //        p.isRuntimeResAlreadyGet = true;
-        //        p.outResValue = value;
-        //        p.outResException = null;
+    protected ParamInfo doRegisterOutputParamInfo(String parameterName) {
+        return paramInfoFor(parameterName).output(true);
     }
 
-    protected void fillOutRes(String parameterName, Object value) {
-        // TODO NOT IMPLEMENTED
-        //    ParamInfo p = getParamInfo(parameterName);
-        //    p.isRuntimeResAlreadyGet = true;
-        //    p.outResValue = value;
-        //    p.outResException = null;        
+    protected <T> T onGetParamReturn(int index, T value) {
+        paramInfoFor(index).outResValue(value, null);
+        return value;
     }
 
-    protected void fillOutEx(int parameterIndex, Exception ex) {
-        // do nothing / log?
+    protected <T> T onGetParamReturn(String name, T value) {
+        paramInfoFor(name).outResValue(value, null);
+        return value;
     }
 
-    protected void fillOutEx(String parameterName, Exception ex) {
-        // do nothing / log?
+    protected <T extends Exception> T onGetParamException(String name, T ex) {
+        paramInfoFor(name).outResValue(null, ex);
+        return ex;
     }
 
-    /** internal */
-    protected void set(String parameterName, ParamInfo paramInfo) {
-        //         TODO NOT IMPLEMENTED
-
-        //    try {
-        //      if (index >= 0) {
-        //        setParamChanged();
-        //        if (index >= params.size()) {
-        //            // params.ensureSize..
-        //            params.ensureCapacity(index);            
-        //            // TOCHECK?? 
-        //            int nb = params.size() - index;
-        //            for (int i = 0; i <  nb; i++) params.add(null);
-        //        }
-        //        params.set(index, paramInfo);
-        //      } else {
-        //        // ignore error here in log
-        //      }
-        //    } catch (Exception ex) {
-        //      log.error("set", ex);
-        //    }
-
-        // TODO NOT IMPLEMENTED
+    protected <T extends Exception> T onGetParamException(int index, T ex) {
+        paramInfoFor(index).outResValue(null, ex);
+        return ex;
     }
+
 
     // implements java.sql.CallableStatement, wrapp by logging / storing param..
     // ------------------------------------------------------------------------
 
-    
     public boolean wasNull() throws SQLException {
         boolean res;
         pre("wasNull", "");
@@ -122,734 +96,843 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
         return res;
     }
 
-    //implements java.sql.CallableStatement get/set parameters by index
-    // ------------------------------------------------------------------------
-
-    public String getString(int parameterIndex) throws SQLException {
-        String res;
-        try {
-            res = to.getString(parameterIndex);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public boolean getBoolean(int parameterIndex) throws SQLException {
-        boolean res;
-        try {
-            res = to.getBoolean(parameterIndex);
-            fillOutRes(parameterIndex, new Boolean(res));
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public byte getByte(int parameterIndex) throws SQLException {
-        byte res;
-        try {
-            res = to.getByte(parameterIndex);
-            fillOutRes(parameterIndex, new Byte(res));
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public short getShort(int parameterIndex) throws SQLException {
-        short res;
-        try {
-            res = to.getShort(parameterIndex);
-            fillOutRes(parameterIndex, new Short(res));
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public int getInt(int parameterIndex) throws SQLException {
-        int res;
-        try {
-            res = to.getInt(parameterIndex);
-            fillOutRes(parameterIndex, new Integer(res));
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public long getLong(int parameterIndex) throws SQLException {
-        long res;
-        try {
-            res = to.getLong(parameterIndex);
-            fillOutRes(parameterIndex, new Long(res));
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public float getFloat(int parameterIndex) throws SQLException {
-        float res;
-        try {
-            res = to.getFloat(parameterIndex);
-            fillOutRes(parameterIndex, new Float(res));
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public double getDouble(int parameterIndex) throws SQLException {
-        double res;
-        try {
-            res = to.getDouble(parameterIndex);
-            fillOutRes(parameterIndex, new Double(res));
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    @Deprecated
-    public BigDecimal getBigDecimal(int parameterIndex, int scale) throws SQLException {
-        BigDecimal res;
-        try {
-            res = to.getBigDecimal(parameterIndex, scale);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public byte[] getBytes(int parameterIndex) throws SQLException {
-        byte[] res;
-        try {
-            res = to.getBytes(parameterIndex);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Date getDate(int parameterIndex) throws SQLException {
-        Date res;
-        try {
-            res = to.getDate(parameterIndex);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Time getTime(int parameterIndex) throws SQLException {
-        Time res;
-        try {
-            res = to.getTime(parameterIndex);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Timestamp getTimestamp(int parameterIndex) throws SQLException {
-        Timestamp res;
-        try {
-            res = to.getTimestamp(parameterIndex);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Object getObject(int parameterIndex) throws SQLException {
-        Object res;
-        try {
-            res = to.getObject(parameterIndex);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public BigDecimal getBigDecimal(int parameterIndex) throws SQLException {
-        BigDecimal res;
-        try {
-            res = to.getBigDecimal(parameterIndex);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
     
-    public Object getObject(int parameterIndex, Map<String, Class<?>> map) throws SQLException {
-        Object res;
-        try {
-            res = to.getObject(parameterIndex, map);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Object getObject(String parameterName, Map<String, Class<?>> map) throws SQLException {
-        Object res;
-        try {
-            res = to.getObject(parameterName, map);
-            fillOutRes(parameterName, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterName, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-
-    public Ref getRef(int parameterIndex) throws SQLException {
-        Ref res;
-        try {
-            res = to.getRef(parameterIndex);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Blob getBlob(int parameterIndex) throws SQLException {
-        Blob res;
-        try {
-            res = to.getBlob(parameterIndex);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Clob getClob(int parameterIndex) throws SQLException {
-        Clob res;
-        try {
-            res = to.getClob(parameterIndex);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Array getArray(int parameterIndex) throws SQLException {
-        Array res;
-        try {
-            res = to.getArray(parameterIndex);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Date getDate(int parameterIndex, Calendar cal) throws SQLException {
-        Date res;
-        try {
-            res = to.getDate(parameterIndex, cal);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Time getTime(int parameterIndex, Calendar cal) throws SQLException {
-        Time res;
-        try {
-            res = to.getTime(parameterIndex, cal);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Timestamp getTimestamp(int parameterIndex, Calendar cal) throws SQLException {
-        Timestamp res;
-        try {
-            res = to.getTimestamp(parameterIndex, cal);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public URL getURL(int parameterIndex) throws SQLException {
-        URL res;
-        try {
-            res = to.getURL(parameterIndex);
-            fillOutRes(parameterIndex, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterIndex, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    //implements java.sql.CallableStatement get/set parameters by names
-    // -------------------------------------------------------------
-
-    public Array getArray(String parameterName) throws SQLException {
-        return to.getArray(parameterName);
-    }
-
-    public BigDecimal getBigDecimal(String parameterName) throws SQLException {
-        return to.getBigDecimal(parameterName);
-    }
-
-    public Blob getBlob(String parameterName) throws SQLException {
-        return to.getBlob(parameterName);
-    }
-
-    public boolean getBoolean(String parameterName) throws SQLException {
-        return to.getBoolean(parameterName);
-    }
-
-    public byte getByte(String parameterName) throws SQLException {
-        return to.getByte(parameterName);
-    }
-
-    public byte[] getBytes(String parameterName) throws SQLException {
-        return to.getBytes(parameterName);
-    }
-
-    public Clob getClob(String parameterName) throws SQLException {
-        return to.getClob(parameterName);
-    }
-
-    public Date getDate(String parameterName) throws SQLException {
-        return to.getDate(parameterName);
-    }
-
-    public Date getDate(String parameterName, Calendar cal) throws SQLException {
-        return to.getDate(parameterName, cal);
-    }
-
-    public double getDouble(String parameterName) throws SQLException {
-        return to.getDouble(parameterName);
-    }
-
-    public float getFloat(String parameterName) throws SQLException {
-        return to.getFloat(parameterName);
-    }
-
-    public int getInt(String parameterName) throws SQLException {
-        return to.getInt(parameterName);
-    }
-
-    public long getLong(String parameterName) throws SQLException {
-        return to.getLong(parameterName);
-    }
-
-    public Object getObject(String parameterName) throws SQLException {
-        return to.getObject(parameterName);
-    }
-
-    public Ref getRef(String parameterName) throws SQLException {
-        return to.getRef(parameterName);
-    }
-
-    public short getShort(String parameterName) throws SQLException {
-        short res;
-        try {
-            res = to.getShort(parameterName);
-            fillOutRes(parameterName, new Short(res));
-        } catch (SQLException ex) {
-            fillOutEx(parameterName, ex);
-            throw ex;
-        }
-        return res;
-
-    }
-
-    public String getString(String parameterName) throws SQLException {
-        String res;
-        try {
-            res = to.getString(parameterName);
-            fillOutRes(parameterName, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterName, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Time getTime(String parameterName) throws SQLException {
-        Time res;
-        try {
-            res = to.getTime(parameterName);
-            fillOutRes(parameterName, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterName, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Time getTime(String parameterName, Calendar cal) throws SQLException {
-        Time res;
-        try {
-            res = to.getTime(parameterName, cal);
-            fillOutRes(parameterName, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterName, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Timestamp getTimestamp(String parameterName) throws SQLException {
-        Timestamp res;
-        try {
-            res = to.getTimestamp(parameterName);
-            fillOutRes(parameterName, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterName, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public Timestamp getTimestamp(String parameterName, Calendar cal) throws SQLException {
-        Timestamp res;
-        try {
-            res = to.getTimestamp(parameterName, cal);
-            fillOutRes(parameterName, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterName, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    public URL getURL(String parameterName) throws SQLException {
-        URL res;
-        try {
-            res = to.getURL(parameterName);
-            fillOutRes(parameterName, res);
-        } catch (SQLException ex) {
-            fillOutEx(parameterName, ex);
-            throw ex;
-        }
-        return res;
-    }
-
-    // ------------------------------------------------------------------------
-
-    
-    public final void setAsciiStream(String parameterName, InputStream x, int length) throws SQLException {
-        set(parameterName, new ParamInfo("'--AsciiStream.. (not  supported  in log) length:" + length + "--'"));
-        to.setAsciiStream(parameterName, x, length);
-    }
-
-    public void setBigDecimal(String parameterName, BigDecimal x) throws SQLException {
-        to.setBigDecimal(parameterName, x);
-    }
-
-    public void setBinaryStream(String parameterName, InputStream x, int length) throws SQLException {
-        to.setBinaryStream(parameterName, x, length);
-    }
-
-    public void setBoolean(String parameterName, boolean x) throws SQLException {
-        to.setBoolean(parameterName, x);
-    }
-
-    public void setByte(String parameterName, byte x) throws SQLException {
-        to.setByte(parameterName, x);
-    }
-
-    public void setBytes(String parameterName, byte[] x) throws SQLException {
-        to.setBytes(parameterName, x);
-    }
-
-    public void setCharacterStream(String parameterName, Reader reader, int length) throws SQLException {
-        to.setCharacterStream(parameterName, reader, length);
-    }
-
-    public void setDate(String parameterName, Date x) throws SQLException {
-        to.setDate(parameterName, x);
-    }
-
-    public void setDate(String parameterName, Date x, Calendar cal) throws SQLException {
-        to.setDate(parameterName, x, cal);
-    }
-
-    public void setDouble(String parameterName, double x) throws SQLException {
-        to.setDouble(parameterName, x);
-    }
-
-    public void setFloat(String parameterName, float x) throws SQLException {
-        to.setFloat(parameterName, x);
-    }
-
-    public void setInt(String parameterName, int x) throws SQLException {
-        to.setInt(parameterName, x);
-    }
-
-    public void setLong(String parameterName, long x) throws SQLException {
-        to.setLong(parameterName, x);
-    }
-
-    public void setNull(String parameterName, int sqlType) throws SQLException {
-        to.setNull(parameterName, sqlType);
-    }
-
-    public void setNull(String parameterName, int sqlType, String typeName) throws SQLException {
-        to.setNull(parameterName, sqlType, typeName);
-    }
-
-    public void setObject(String parameterName, Object x) throws SQLException {
-        to.setObject(parameterName, x);
-    }
-
-    public void setObject(String parameterName, Object x, int targetSqlType) throws SQLException {
-        to.setObject(parameterName, x, targetSqlType);
-    }
-
-    public void setObject(String parameterName, Object x, int targetSqlType, int scale) throws SQLException {
-        to.setObject(parameterName, x, targetSqlType, scale);
-    }
-
-    public void setShort(String parameterName, short x) throws SQLException {
-        to.setShort(parameterName, x);
-    }
-
-    public void setString(String parameterName, String x) throws SQLException {
-        to.setString(parameterName, x);
-    }
-
-    public void setTime(String parameterName, Time x) throws SQLException {
-        to.setTime(parameterName, x);
-    }
-
-    public void setTime(String parameterName, Time x, Calendar cal) throws SQLException {
-        to.setTime(parameterName, x, cal);
-    }
-
-    public void setTimestamp(String parameterName, Timestamp x) throws SQLException {
-        to.setTimestamp(parameterName, x);
-    }
-
-    public void setTimestamp(String parameterName, Timestamp x, Calendar cal) throws SQLException {
-        to.setTimestamp(parameterName, x, cal);
-    }
-
-    public void setURL(String parameterName, URL val) throws SQLException {
-        to.setURL(parameterName, val);
-    }
-
-    //implements java.sql.CallableStatement output parameters
+    //implements java.sql.CallableStatement output parameters: registerOutParam + getXX
     // -------------------------------------------------------------
 
     public void registerOutParameter(int parameterIndex, int sqlType) throws SQLException {
-        ParamInfo p = new ParamInfo(true, sqlType);
-        registerOut(parameterIndex, p);
+        doRegisterOutputParamInfo(parameterIndex).sqlType(sqlType);
         to.registerOutParameter(parameterIndex, sqlType);
     }
 
     public void registerOutParameter(int parameterIndex, int sqlType, int scale) throws SQLException {
-        ParamInfo p = new ParamInfo(true, sqlType);
-        p.setScale(scale);
-        registerOut(parameterIndex, p);
+        doRegisterOutputParamInfo(parameterIndex).sqlType(sqlType).scale(scale);
         to.registerOutParameter(parameterIndex, sqlType);
     }
 
     public void registerOutParameter(int parameterIndex, int sqlType, String typeName) throws SQLException {
-        ParamInfo p = new ParamInfo(true, sqlType);
-        p.setTypeName(typeName);
-        registerOut(parameterIndex, p);
+        doRegisterOutputParamInfo(parameterIndex).sqlType(sqlType).typeName(typeName);
         to.registerOutParameter(parameterIndex, sqlType);
     }
 
     public void registerOutParameter(String parameterName, int sqlType) throws SQLException {
+        doRegisterOutputParamInfo(parameterName).sqlType(sqlType);
         to.registerOutParameter(parameterName, sqlType);
     }
 
     public void registerOutParameter(String parameterName, int sqlType, int scale) throws SQLException {
+        doRegisterOutputParamInfo(parameterName).sqlType(sqlType).scale(scale);
         to.registerOutParameter(parameterName, sqlType, scale);
     }
 
     public void registerOutParameter(String parameterName, int sqlType, String typeName) throws SQLException {
+        doRegisterOutputParamInfo(parameterName).sqlType(sqlType).typeName(typeName);
         to.registerOutParameter(parameterName, sqlType, typeName);
     }
 
+    
+    //implements java.sql.CallableStatement get parameters by index
+    // ------------------------------------------------------------------------
 
-    public Reader getCharacterStream(int parameterIndex) throws SQLException {
-        return to.getCharacterStream(parameterIndex);
+    public String getString(int parameterIndex) throws SQLException {
+        try {
+            String res = to.getString(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
     }
 
-    public Reader getCharacterStream(String parameterName) throws SQLException {
-        return to.getCharacterStream(parameterName);
+    public boolean getBoolean(int parameterIndex) throws SQLException {
+        try {
+            boolean res = to.getBoolean(parameterIndex);
+            onGetParamReturn(parameterIndex, Boolean.valueOf(res));
+            return res;
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public byte getByte(int parameterIndex) throws SQLException {
+        try {
+            byte res = to.getByte(parameterIndex);
+            onGetParamReturn(parameterIndex, Byte.valueOf(res));
+            return res;
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public short getShort(int parameterIndex) throws SQLException {
+        try {
+            short res = to.getShort(parameterIndex);
+            onGetParamReturn(parameterIndex, Short.valueOf(res));
+            return res;
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public int getInt(int parameterIndex) throws SQLException {
+        try {
+            int res = to.getInt(parameterIndex);
+            onGetParamReturn(parameterIndex, Integer.valueOf(res));
+            return res;
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public long getLong(int parameterIndex) throws SQLException {
+        try {
+            long res = to.getLong(parameterIndex);
+            onGetParamReturn(parameterIndex, Long.valueOf(res));
+            return res;
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public float getFloat(int parameterIndex) throws SQLException {
+        try {
+            float res = to.getFloat(parameterIndex);
+            onGetParamReturn(parameterIndex, new Float(res));
+            return res;
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public double getDouble(int parameterIndex) throws SQLException {
+        try {
+            double res = to.getDouble(parameterIndex);
+            onGetParamReturn(parameterIndex, new Double(res));
+            return res;
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    @Deprecated
+    public BigDecimal getBigDecimal(int parameterIndex, int scale) throws SQLException {
+        try {
+            BigDecimal res = to.getBigDecimal(parameterIndex, scale);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public byte[] getBytes(int parameterIndex) throws SQLException {
+        try {
+            byte[] res = to.getBytes(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Date getDate(int parameterIndex) throws SQLException {
+        try {
+            Date res = to.getDate(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Time getTime(int parameterIndex) throws SQLException {
+        try {
+            Time res = to.getTime(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Timestamp getTimestamp(int parameterIndex) throws SQLException {
+        try {
+            Timestamp res = to.getTimestamp(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Object getObject(int parameterIndex) throws SQLException {
+        try {
+            Object res = to.getObject(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public BigDecimal getBigDecimal(int parameterIndex) throws SQLException {
+        try {
+            BigDecimal res = to.getBigDecimal(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Object getObject(int parameterIndex, Map<String, Class<?>> map) throws SQLException {
+        try {
+            Object res = to.getObject(parameterIndex, map);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Ref getRef(int parameterIndex) throws SQLException {
+        try {
+            Ref res = to.getRef(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Blob getBlob(int parameterIndex) throws SQLException {
+        try {
+            Blob res = to.getBlob(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Clob getClob(int parameterIndex) throws SQLException {
+        try {
+            Clob res = to.getClob(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Array getArray(int parameterIndex) throws SQLException {
+        try {
+            Array res = to.getArray(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Date getDate(int parameterIndex, Calendar cal) throws SQLException {
+        try {
+            Date res = to.getDate(parameterIndex, cal);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Time getTime(int parameterIndex, Calendar cal) throws SQLException {
+        try {
+            Time res = to.getTime(parameterIndex, cal);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Timestamp getTimestamp(int parameterIndex, Calendar cal) throws SQLException {
+        try {
+            Timestamp res = to.getTimestamp(parameterIndex, cal);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public URL getURL(int parameterIndex) throws SQLException {
+        try {
+            URL res = to.getURL(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+    public Reader getCharacterStream(int parameterIndex) throws SQLException {
+        try {
+            Reader res = to.getCharacterStream(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
     }
 
     public Reader getNCharacterStream(int parameterIndex) throws SQLException {
-        return to.getNCharacterStream(parameterIndex);
-    }
-
-    public Reader getNCharacterStream(String parameterName) throws SQLException {
-        return to.getNCharacterStream(parameterName);
+        try {
+            Reader res = to.getNCharacterStream(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
     }
 
     public NClob getNClob(int parameterIndex) throws SQLException {
-        return to.getNClob(parameterIndex);
-    }
-
-    public NClob getNClob(String parameterName) throws SQLException {
-        return to.getNClob(parameterName);
+        try {
+            NClob res = to.getNClob(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
     }
 
     public String getNString(int parameterIndex) throws SQLException {
-        return to.getNString(parameterIndex);
+        try {
+            String res = to.getNString(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
     }
 
-    public String getNString(String parameterName) throws SQLException {
-        return to.getNString(parameterName);
-    }
-    
     public RowId getRowId(int parameterIndex) throws SQLException {
-        return to.getRowId(parameterIndex);
+        try {
+            RowId res = to.getRowId(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
     }
 
-    public void setRowId(String parameterName, RowId x) throws SQLException {
-        to.setRowId(parameterName, x);
-    }
-
-    public RowId getRowId(String parameterName) throws SQLException {
-        return to.getRowId(parameterName);
-    }
-    
     public SQLXML getSQLXML(int parameterIndex) throws SQLException {
-        return to.getSQLXML(parameterIndex);
-    }
-
-    public SQLXML getSQLXML(String parameterName) throws SQLException {
-        return to.getSQLXML(parameterName);
-    }
-
-    public void setAsciiStream(String parameterName, InputStream x) throws SQLException {
-        to.setAsciiStream(parameterName, x);
-    }
-
-    public void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException {
-        to.setAsciiStream(parameterName, x, length);
-    }
-
-    public void setBinaryStream(String parameterName, InputStream x) throws SQLException {
-        to.setBinaryStream(parameterName, x);
-    }
-
-    public void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException {
-        to.setBinaryStream(parameterName, x, length);
-    }
-
-    public void setBlob(String parameterName, Blob x) throws SQLException {
-        to.setBlob(parameterName, x);
-    }
-
-    public void setBlob(String parameterName, InputStream x) throws SQLException {
-        to.setBlob(parameterName, x);
-    }
-
-    public void setBlob(String parameterName, InputStream x, long length) throws SQLException {
-        to.setBlob(parameterName, x, length);
-    }
-
-    public void setCharacterStream(String parameterName, Reader x) throws SQLException {
-        to.setCharacterStream(parameterName, x);
-    }
-
-    public void setCharacterStream(String parameterName, Reader x, long length) throws SQLException {
-        to.setCharacterStream(parameterName, x, length);
-    }
-
-    public void setClob(String parameterName, Clob x) throws SQLException {
-        to.setClob(parameterName, x);
-    }
-
-    public void setClob(String parameterName, Reader x) throws SQLException {
-        to.setClob(parameterName, x);
-    }
-
-    public void setClob(String parameterName, Reader x, long length) throws SQLException {
-        to.setClob(parameterName, x, length);
-    }
-
-    public void setNCharacterStream(String parameterName, Reader x) throws SQLException {
-        to.setNCharacterStream(parameterName, x);
-    }
-
-    public void setNCharacterStream(String parameterName, Reader x, long length) throws SQLException {
-        to.setNCharacterStream(parameterName, x, length);
-    }
-
-    public void setNClob(String parameterName, NClob x) throws SQLException {
-        to.setNClob(parameterName, x);
-    }
-
-    public void setNClob(String parameterName, Reader x) throws SQLException {
-        to.setNClob(parameterName, x);
-    }
-
-    public void setNClob(String parameterName, Reader x, long length) throws SQLException {
-        to.setNClob(parameterName, x, length);
-    }
-
-    public void setNString(String parameterName, String x) throws SQLException {
-        to.setNString(parameterName, x);
-    }
-
-    public void setSQLXML(String parameterName, SQLXML x) throws SQLException {
-        to.setSQLXML(parameterName, x);
+        try {
+            SQLXML res = to.getSQLXML(parameterIndex);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
     }
 
     public <T> T getObject(int parameterIndex, Class<T> type) throws SQLException {
-        return to.getObject(parameterIndex, type);
+        try {
+            T res = to.getObject(parameterIndex, type);
+            return onGetParamReturn(parameterIndex, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterIndex, ex);
+        }
+    }
+
+
+
+    // implements java.sql.CallableStatement getXX(paramName) : get parameters by names
+    // -------------------------------------------------------------
+
+    public Object getObject(String parameterName, Map<String, Class<?>> map) throws SQLException {
+        try {
+            Object res = to.getObject(parameterName, map);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public Array getArray(String parameterName) throws SQLException {
+        try {
+            Array res = to.getArray(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public BigDecimal getBigDecimal(String parameterName) throws SQLException {
+        try {
+            BigDecimal res = to.getBigDecimal(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public Blob getBlob(String parameterName) throws SQLException {
+        try {
+            Blob res = to.getBlob(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public boolean getBoolean(String parameterName) throws SQLException {
+        try {
+            boolean res = to.getBoolean(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public byte getByte(String parameterName) throws SQLException {
+        try {
+            byte res = to.getByte(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public byte[] getBytes(String parameterName) throws SQLException {
+        try {
+            byte[] res = to.getBytes(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public Clob getClob(String parameterName) throws SQLException {
+        try {
+            Clob res = to.getClob(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public Date getDate(String parameterName) throws SQLException {
+        try {
+            Date res = to.getDate(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public Date getDate(String parameterName, Calendar cal) throws SQLException {
+        try {
+            Date res = to.getDate(parameterName, cal);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public double getDouble(String parameterName) throws SQLException {
+        try {
+            double res = to.getDouble(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public float getFloat(String parameterName) throws SQLException {
+        try {
+            float res = to.getFloat(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public int getInt(String parameterName) throws SQLException {
+        try {
+            int res = to.getInt(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public long getLong(String parameterName) throws SQLException {
+        try {
+            long res = to.getLong(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public Object getObject(String parameterName) throws SQLException {
+        try {
+            Object res = to.getObject(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public Ref getRef(String parameterName) throws SQLException {
+        try {
+            Ref res = to.getRef(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public short getShort(String parameterName) throws SQLException {
+        try {
+            short res = to.getShort(parameterName);
+            onGetParamReturn(parameterName, Short.valueOf(res));
+            return res;
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public String getString(String parameterName) throws SQLException {
+        try {
+            String res = to.getString(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public Time getTime(String parameterName) throws SQLException {
+        try {
+            Time res = to.getTime(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public Time getTime(String parameterName, Calendar cal) throws SQLException {
+        try {
+            Time res = to.getTime(parameterName, cal);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public Timestamp getTimestamp(String parameterName) throws SQLException {
+        try {
+            Timestamp res = to.getTimestamp(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public Timestamp getTimestamp(String parameterName, Calendar cal) throws SQLException {
+        try {
+            Timestamp res= to.getTimestamp(parameterName, cal);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public URL getURL(String parameterName) throws SQLException {
+        try {
+            URL res = to.getURL(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+
+    public Reader getCharacterStream(String parameterName) throws SQLException {
+        try {
+            Reader res = to.getCharacterStream(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public Reader getNCharacterStream(String parameterName) throws SQLException {
+        try {
+            Reader res = to.getNCharacterStream(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public NClob getNClob(String parameterName) throws SQLException {
+        try {
+            NClob res = to.getNClob(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public String getNString(String parameterName) throws SQLException {
+        try {
+            String res = to.getNString(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public RowId getRowId(String parameterName) throws SQLException {
+        try {
+            RowId res = to.getRowId(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
+    }
+
+    public SQLXML getSQLXML(String parameterName) throws SQLException {
+        try {
+            SQLXML res = to.getSQLXML(parameterName);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
     }
 
     public <T> T getObject(String parameterName, Class<T> type) throws SQLException {
-        return to.getObject(parameterName, type);
+        try {
+            T res = to.getObject(parameterName, type);
+            return onGetParamReturn(parameterName, res);
+        } catch (SQLException ex) {
+            throw onGetParamException(parameterName, ex);
+        }
     }
 
-    
+
+    // implements java.sql.CallableStatement setXX(paramName, value) : set parameter value by name
+    // ------------------------------------------------------------------------
+
+    public final void setNull(String parameterName, int sqlType) throws SQLException {
+        onSetParamValue(parameterName, null).sqlType(sqlType);
+        to.setNull(parameterName, sqlType);
+    }
+
+    public final void setNull(String parameterName, int sqlType, String typeName) throws SQLException {
+        onSetParamValue(parameterName, null).sqlType(sqlType).typeName(typeName);
+        to.setNull(parameterName, sqlType, typeName);
+    }
+
+
+    public final void setAsciiStream(String parameterName, InputStream x, int length) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        to.setAsciiStream(parameterName, x, length);
+    }
+
+    public final void setBigDecimal(String parameterName, BigDecimal x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setBigDecimal(parameterName, x);
+    }
+
+    public final void setBinaryStream(String parameterName, InputStream x, int length) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        to.setBinaryStream(parameterName, x, length);
+    }
+
+    public final void setBoolean(String parameterName, boolean x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setBoolean(parameterName, x);
+    }
+
+    public final void setByte(String parameterName, byte x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setByte(parameterName, x);
+    }
+
+    public final void setBytes(String parameterName, byte[] x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setBytes(parameterName, x);
+    }
+
+    public final void setCharacterStream(String parameterName, Reader x, int length) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        to.setCharacterStream(parameterName, x, length);
+    }
+
+    public final void setDate(String parameterName, Date x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setDate(parameterName, x);
+    }
+
+    public final void setDate(String parameterName, Date x, Calendar cal) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairDateWithCalendar(x, cal));
+        to.setDate(parameterName, x, cal);
+    }
+
+    public final void setDouble(String parameterName, double x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setDouble(parameterName, x);
+    }
+
+    public final void setFloat(String parameterName, float x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setFloat(parameterName, x);
+    }
+
+    public final void setInt(String parameterName, int x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setInt(parameterName, x);
+    }
+
+    public final void setLong(String parameterName, long x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setLong(parameterName, x);
+    }
+
+    public final void setObject(String parameterName, Object x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setObject(parameterName, x);
+    }
+
+    public final void setObject(String parameterName, Object x, int targetSqlType) throws SQLException {
+        onSetParamValue(parameterName, x).targetSqlType(targetSqlType);
+        to.setObject(parameterName, x, targetSqlType);
+    }
+
+    public final void setObject(String parameterName, Object x, int targetSqlType, int scale) throws SQLException {
+        onSetParamValue(parameterName, x).targetSqlType(targetSqlType).scale(scale);
+        to.setObject(parameterName, x, targetSqlType, scale);
+    }
+
+    public final void setShort(String parameterName, short x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setShort(parameterName, x);
+    }
+
+    public final void setString(String parameterName, String x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setString(parameterName, x);
+    }
+
+    public final void setTime(String parameterName, Time x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setTime(parameterName, x);
+    }
+
+    public final void setTime(String parameterName, Time x, Calendar cal) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairDateWithCalendar(x, cal));
+        to.setTime(parameterName, x, cal);
+    }
+
+    public final void setTimestamp(String parameterName, Timestamp x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setTimestamp(parameterName, x);
+    }
+
+    public final void setTimestamp(String parameterName, Timestamp x, Calendar cal) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairDateWithCalendar(x, cal));
+        to.setTimestamp(parameterName, x, cal);
+    }
+
+    public final void setURL(String parameterName, URL x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setURL(parameterName, x);
+    }
+
+    public final void setRowId(String parameterName, RowId x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setRowId(parameterName, x);
+    }
+
+    public final void setAsciiStream(String parameterName, InputStream x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setAsciiStream(parameterName, x);
+    }
+
+    public final void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        to.setAsciiStream(parameterName, x, length);
+    }
+
+    public final void setBinaryStream(String parameterName, InputStream x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setBinaryStream(parameterName, x);
+    }
+
+    public final void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        to.setBinaryStream(parameterName, x, length);
+    }
+
+    public final void setBlob(String parameterName, Blob x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setBlob(parameterName, x);
+    }
+
+    public final void setBlob(String parameterName, InputStream x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setBlob(parameterName, x);
+    }
+
+    public final void setBlob(String parameterName, InputStream x, long length) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        to.setBlob(parameterName, x, length);
+    }
+
+    public final void setCharacterStream(String parameterName, Reader x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setCharacterStream(parameterName, x);
+    }
+
+    public final void setCharacterStream(String parameterName, Reader x, long length) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        to.setCharacterStream(parameterName, x, length);
+    }
+
+    public final void setClob(String parameterName, Clob x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setClob(parameterName, x);
+    }
+
+    public final void setClob(String parameterName, Reader x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setClob(parameterName, x);
+    }
+
+    public final void setClob(String parameterName, Reader x, long length) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        to.setClob(parameterName, x, length);
+    }
+
+    public final void setNCharacterStream(String parameterName, Reader x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setNCharacterStream(parameterName, x);
+    }
+
+    public final void setNCharacterStream(String parameterName, Reader x, long length) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        to.setNCharacterStream(parameterName, x, length);
+    }
+
+    public final void setNClob(String parameterName, NClob x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setNClob(parameterName, x);
+    }
+
+    public final void setNClob(String parameterName, Reader x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setNClob(parameterName, x);
+    }
+
+    public final void setNClob(String parameterName, Reader x, long length) throws SQLException {
+        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        to.setNClob(parameterName, x, length);
+    }
+
+    public final void setNString(String parameterName, String x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setNString(parameterName, x);
+    }
+
+    public final void setSQLXML(String parameterName, SQLXML x) throws SQLException {
+        onSetParamValue(parameterName, x);
+        to.setSQLXML(parameterName, x);
+    }
+
+    // ------------------------------------------------------------------------
+
+    @Override
+    public String toString() {
+        return "SefCallableStatementProxy [to=" + to + "]";
+    }
+
 }

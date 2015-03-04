@@ -2,36 +2,60 @@ package org.sef4j.jdbc.wrappers;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * info on a sql parameter 
  */
 public class ParamInfo {
     
-    int paramIndex;
-    String paramName;
+    final int paramIndex;
+    final String paramName;
+    boolean isOutput; // default to false
     
     int sqlType;
     int targetSqlType;
     String typeName;
     int scale;
+    
+    /** input value */
     Object value; // input value.. may differ from OutputParamInfo.runTimeResValue ...
 
-    boolean isOutput; // default to false
-    boolean isRuntimeResAlreadyGet;
+    /** ouput value */
     Object outResValue;
+    boolean isRuntimeResAlreadyGet;
     Exception outResException;
 
+    
+    public static class PairValueWithLength {
+        public Object value;
+        public long length;
+        
+        public PairValueWithLength(Object value, long length) {
+            this.value = value;
+            this.length = length;
+        }
+        
+    }
+    
+    public static class PairDateWithCalendar {
+        public Date date;
+        public Calendar calendar;
+        
+        public PairDateWithCalendar(Date date, Calendar calendar) {
+            this.date = date;
+            this.calendar = calendar;
+        }
+        
+    }
+    
     // ------------------------------------------------------------------------
     
     /* Ctor */
-    public ParamInfo(Object value) {
-        this.value = value;
-    }
-
-    public ParamInfo(boolean isOutput, int sqlType) {
-        this.isOutput = isOutput;
-        this.sqlType = sqlType;
+    public ParamInfo(String paramName, int paramIndex) {
+        this.paramName = paramName;
+        this.paramIndex = paramIndex;
     }
 
     // ------------------------------------------------------------------------
@@ -44,23 +68,15 @@ public class ParamInfo {
         return paramIndex;
     }
     
-    public void setParamIndex(int paramIndex) {
-        this.paramIndex = paramIndex;
-    }
-    
     public String getParamName() {
         return paramName;
-    }
-    
-    public void setParamName(String paramName) {
-        this.paramName = paramName;
     }
     
     public String getTypeName() {
 		return typeName;
 	}
 
-    public ParamInfo withTypeName(String typeName) {
+    public ParamInfo typeName(String typeName) {
 		this.typeName = typeName;
 		return this;
 	}
@@ -69,23 +85,57 @@ public class ParamInfo {
 		return scale;
 	}
 
-	public ParamInfo withScale(int scale) {
+	public ParamInfo scale(int scale) {
 		this.scale = scale;
 		return this;
+	}
+	
+	public ParamInfo sqlType(int sqlType) {
+	    this.sqlType = sqlType;
+	    return this;
 	}
 	
     public int getTargetSqlType() {
 		return targetSqlType;
 	}
 
-	public ParamInfo withTargetSqlType(int targetSqlType) {
+	public ParamInfo targetSqlType(int targetSqlType) {
 		this.targetSqlType = targetSqlType;
 		return this;
 	}
 	
+	public Object getValue() {
+        return value;
+    }
+
+    public ParamInfo value(Object value) {
+	    this.value = value;
+	    return this;
+	}
+	
+    public boolean isOutput() {
+        return isOutput;
+    }
+    
+    public ParamInfo output(boolean isOutput) {
+        this.isOutput = isOutput;
+        return this;
+    }
+    
+    public Object getOutResValue() {
+        return outResValue;
+    }
+
+    public ParamInfo outResValue(Object value, Exception ex) {
+        this.outResValue = value;
+        this.outResException = ex;
+        return this;
+    }
+    
     // ------------------------------------------------------------------------
     
-	/** extends Object.toString */
+
+    /** extends Object.toString */
     public String toString() {
         return toStringPrePost(1);
     }

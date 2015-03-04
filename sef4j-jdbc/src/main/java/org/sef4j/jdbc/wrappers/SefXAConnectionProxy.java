@@ -8,6 +8,9 @@ import javax.sql.StatementEventListener;
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
 
+import org.sef4j.callstack.CallStackElt.StackPopper;
+import org.sef4j.callstack.LocalCallStack;
+
 /**
  * Proxy for java.sql.XAConnection + wrapp all calls with push()/pop() + set params 
  * 
@@ -17,6 +20,7 @@ public class SefXAConnectionProxy extends SefConnectionProxy implements XAConnec
     /** redundant with <code>(XAConnection)super.to</code> */
     private XAConnection toXAConnection;
     
+    protected SefConnectionProxy ownerSefConnectionProxy;
     protected SefXAResourceProxy cachedWrapperXAResource;
     protected XAResource cachedTargetXAResource;
     
@@ -24,34 +28,29 @@ public class SefXAConnectionProxy extends SefConnectionProxy implements XAConnec
     
 	// ------------------------------------------------------------------------
 	
-	public SefXAConnectionProxy(ConnectionFactoryConfig owner, XAConnection to, int connectionId) {
-		super(owner, to, connectionId);
+	public SefXAConnectionProxy(SefConnectionProxy ownerSefConnectionProxy, XAConnection to, int connectionId) {
+		super(null, connectionId); // TODO ... owner
 		this.toXAConnection = to;
+		this.ownerSefConnectionProxy = ownerSefConnectionProxy;
 	}
 	
 	// ------------------------------------------------------------------------
 	
-	/** internal accesser / downcast */
-	public XAConnection getUnderlyingXAConnection() {
-        return (XAConnection) getUnderlyingConnection();
-    }
-
-	
 	public Connection getConnection() throws SQLException {
-		// ** do not delegate to getUnderlyingXAConnection().getConnection() ! => return wrapper connection
-		return getUnderlyingConnection();
+		// ** do not delegate to   toXAConnection.getConnection() ! => return wrapper connection
+		return ownerSefConnectionProxy;
 	}
 
 	public XAResource getXAResource() throws SQLException {
 		XAResource res;
-		XAResource xaResource = getUnderlyingXAConnection().getXAResource();
+		XAResource xaResource = toXAConnection.getXAResource();
 		if (xaResource == null) return null; // should not occur
 		if (cachedTargetXAResource == xaResource && cachedWrapperXAResource != null) {
-			// ** optim: use cache fro wrapper **
-			res = cachedWrapperXAResource;
+			res = cachedWrapperXAResource; // reuse same wrapper for same target return
 		} else {
-			res = cachedWrapperXAResource = new SefXAResourceProxy(owner, logger, xaResource, spid, loggerProperties);
-			cachedTargetXAResource = xaResource;
+		    cachedTargetXAResource = xaResource;
+			cachedWrapperXAResource = new SefXAResourceProxy(this, xaResource); 
+			res = cachedWrapperXAResource;
 		}
 		return res;
 	}
@@ -59,83 +58,54 @@ public class SefXAConnectionProxy extends SefConnectionProxy implements XAConnec
 	// ------------------------------------------------------------------------
 	
 	public void addConnectionEventListener(ConnectionEventListener listener) {
-		boolean log = isCurrLogXAConnection();
-		if (log) {
-			callInfoLogger.pre("addConnectionEventListener", "" + listener);
-		}
-		try {
-			getUnderlyingXAConnection().addConnectionEventListener(listener);
-			if (log) {
-				callInfoLogger.postIgnoreVoid();
-			}
+	    StackPopper toPop = LocalCallStack.meth("addConnectionEventListener").push();
+	    try {
+			toXAConnection.addConnectionEventListener(listener);
 		} catch(RuntimeException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
+		    throw LocalCallStack.pushPopParentException(ex);
+		} finally {
+		    toPop.close();
 		}
 	}
 
 	public void removeConnectionEventListener(ConnectionEventListener listener) {
-		boolean log = isCurrLogXAConnection();
-		if (log) {
-			callInfoLogger.pre("removeConnectionEventListener", "" + listener);
-		}
-		try {
-			getUnderlyingXAConnection().removeConnectionEventListener(listener);
-			if (log) {
-				callInfoLogger.postIgnoreVoid();
-			}
-		} catch(RuntimeException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		}
+	    StackPopper toPop = LocalCallStack.meth("removeConnectionEventListener").push();
+	    try {
+	        toXAConnection.removeConnectionEventListener(listener);
+	    } catch(RuntimeException ex) {
+	        throw LocalCallStack.pushPopParentException(ex);
+	    } finally {
+	        toPop.close();
+	    }
 	}
 
 	public void addStatementEventListener(StatementEventListener listener) {
-		boolean log = isCurrLogXAConnection();
-		if (log) {
-			callInfoLogger.pre("addStatementEventListener", "" + listener);
-		}
-		try {
-			getUnderlyingXAConnection().addStatementEventListener(listener);
-			if (log) {
-				callInfoLogger.postIgnoreVoid();
-			}
-		} catch(RuntimeException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		}
+	    StackPopper toPop = LocalCallStack.meth("addStatementEventListener").push();
+        try {
+            toXAConnection.addStatementEventListener(listener);
+        } catch(RuntimeException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
 
 	public void removeStatementEventListener(StatementEventListener listener) {
-		boolean log = isCurrLogXAConnection();
-		if (log) {
-			callInfoLogger.pre("removeStatementEventListener", "" + listener);
-		}
-		try {
-			getUnderlyingXAConnection().removeStatementEventListener(listener);
-			if (log) {
-				callInfoLogger.postIgnoreVoid();
-			}
-		} catch(RuntimeException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		}
+        StackPopper toPop = LocalCallStack.meth("removeStatementEventListener").push();
+        try {
+            toXAConnection.removeStatementEventListener(listener);
+        } catch(RuntimeException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
-
 
 	// ------------------------------------------------------------------------
 	
 	@Override
 	public String toString() {
-		return "XASefWrappedConnection[" + super.toString() + "]";
+		return "SefXAConnectionProxy[to=" + toXAConnection + "]";
 	}
 	
 }

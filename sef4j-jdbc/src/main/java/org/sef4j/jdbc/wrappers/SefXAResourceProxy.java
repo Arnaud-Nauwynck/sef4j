@@ -15,11 +15,14 @@ public class SefXAResourceProxy implements XAResource {
 	/** underlying for proxy */
     private final XAResource to;
 
+    private SefXAConnectionProxy owner;
+    
     // ------------------------------------------------------------------------
 
-	public SefXAResourceProxy(XAResource to, int connectionId) {
+	public SefXAResourceProxy(SefXAConnectionProxy owner, XAResource to) {
 		// super(owner, connectionId);
 		this.to = to;
+		this.owner = owner;
 	}
 
 	// ------------------------------------------------------------------------

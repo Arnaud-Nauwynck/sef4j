@@ -37,7 +37,7 @@ public class SefConnectionProxy implements Connection {
     /** underlying for proxy */
     private final Connection to;
 	
-    private int connId;
+    protected int connId;
     
     // constructor
     // ------------------------------------------------------------------------

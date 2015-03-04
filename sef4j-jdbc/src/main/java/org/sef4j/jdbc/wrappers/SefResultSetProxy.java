@@ -100,7 +100,9 @@ public class SefResultSetProxy implements ResultSet {
         try {
             boolean res = to.next();
             
-            return LocalCallStack.pushPopParentReturn(res);
+            // for separate stats ?... (knowing which "next()" will trigger a lazy "fetch()" would be more interresting!!) 
+            String returnEltName = (res)? "return_true" : "return_false"; 
+            return LocalCallStack.pushPopParentReturn(returnEltName, res);
         } catch(SQLException ex) {
             throw LocalCallStack.pushPopParentException(ex);
         } catch(RuntimeException ex) {

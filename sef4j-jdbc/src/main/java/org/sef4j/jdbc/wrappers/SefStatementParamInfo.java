@@ -8,7 +8,7 @@ import java.util.Date;
 /**
  * info on a sql parameter 
  */
-public class ParamInfo {
+public class SefStatementParamInfo {
     
     final int paramIndex;
     final String paramName;
@@ -53,7 +53,7 @@ public class ParamInfo {
     // ------------------------------------------------------------------------
     
     /* Ctor */
-    public ParamInfo(String paramName, int paramIndex) {
+    public SefStatementParamInfo(String paramName, int paramIndex) {
         this.paramName = paramName;
         this.paramIndex = paramIndex;
     }
@@ -76,7 +76,7 @@ public class ParamInfo {
 		return typeName;
 	}
 
-    public ParamInfo typeName(String typeName) {
+    public SefStatementParamInfo typeName(String typeName) {
 		this.typeName = typeName;
 		return this;
 	}
@@ -85,12 +85,12 @@ public class ParamInfo {
 		return scale;
 	}
 
-	public ParamInfo scale(int scale) {
+	public SefStatementParamInfo scale(int scale) {
 		this.scale = scale;
 		return this;
 	}
 	
-	public ParamInfo sqlType(int sqlType) {
+	public SefStatementParamInfo sqlType(int sqlType) {
 	    this.sqlType = sqlType;
 	    return this;
 	}
@@ -99,7 +99,7 @@ public class ParamInfo {
 		return targetSqlType;
 	}
 
-	public ParamInfo targetSqlType(int targetSqlType) {
+	public SefStatementParamInfo targetSqlType(int targetSqlType) {
 		this.targetSqlType = targetSqlType;
 		return this;
 	}
@@ -108,7 +108,7 @@ public class ParamInfo {
         return value;
     }
 
-    public ParamInfo value(Object value) {
+    public SefStatementParamInfo value(Object value) {
 	    this.value = value;
 	    return this;
 	}
@@ -117,7 +117,7 @@ public class ParamInfo {
         return isOutput;
     }
     
-    public ParamInfo output(boolean isOutput) {
+    public SefStatementParamInfo output(boolean isOutput) {
         this.isOutput = isOutput;
         return this;
     }
@@ -126,7 +126,7 @@ public class ParamInfo {
         return outResValue;
     }
 
-    public ParamInfo outResValue(Object value, Exception ex) {
+    public SefStatementParamInfo outResValue(Object value, Exception ex) {
         this.outResValue = value;
         this.outResException = ex;
         return this;

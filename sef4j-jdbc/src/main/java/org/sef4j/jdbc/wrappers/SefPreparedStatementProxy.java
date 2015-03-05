@@ -38,9 +38,9 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     private String sqlQuery;
 
     /** param by index (lazy created and filled by <code>paramFor(index)</code> */
-    private Map<Integer,ParamInfo> paramByIndex;
+    private Map<Integer,SefStatementParamInfo> paramByIndex;
     /** param by index (lazy created and filled by <code>paramFor(name)</code> */
-    private Map<String,ParamInfo> paramByName;
+    private Map<String,SefStatementParamInfo> paramByName;
 
 
     // constructor
@@ -81,36 +81,36 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
     
     /** internal */
-    protected ParamInfo paramInfoFor(int index) {
+    protected SefStatementParamInfo paramInfoFor(int index) {
         if (paramByIndex == null) {
-            this.paramByIndex = new LinkedHashMap<Integer,ParamInfo>();
+            this.paramByIndex = new LinkedHashMap<Integer,SefStatementParamInfo>();
         }
-        ParamInfo paramInfo = paramByIndex.get(index);
+        SefStatementParamInfo paramInfo = paramByIndex.get(index);
         if (paramInfo == null) {
-            paramInfo = new ParamInfo(null, index);
+            paramInfo = new SefStatementParamInfo(null, index);
             paramByIndex.put(index, paramInfo);
         }
         return paramInfo;
     }
 
     /** internal */
-    protected ParamInfo paramInfoFor(String name) {
+    protected SefStatementParamInfo paramInfoFor(String name) {
         if (paramByName == null) {
-            this.paramByName = new LinkedHashMap<String,ParamInfo>();
+            this.paramByName = new LinkedHashMap<String,SefStatementParamInfo>();
         }
-        ParamInfo paramInfo = paramByName.get(name);
+        SefStatementParamInfo paramInfo = paramByName.get(name);
         if (paramInfo == null) {
-            paramInfo = new ParamInfo(name, 0);
+            paramInfo = new SefStatementParamInfo(name, 0);
             paramByName.put(name, paramInfo);
         }
         return paramInfo;
     }
 
-    protected ParamInfo onSetParamValue(int index, Object value) {
+    protected SefStatementParamInfo onSetParamValue(int index, Object value) {
         return paramInfoFor(index).value(value);
     }
 
-    protected ParamInfo onSetParamValue(String name, Object value) {
+    protected SefStatementParamInfo onSetParamValue(String name, Object value) {
         return paramInfoFor(name).value(value);
     }
     
@@ -309,17 +309,17 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final void setDate(int parameterIndex, Date x, Calendar cal) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairDateWithCalendar(x, cal));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairDateWithCalendar(x, cal));
         to.setDate(parameterIndex, x, cal);
     }
 
     public final void setTime(int parameterIndex, Time x, Calendar cal) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairDateWithCalendar(x, cal));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairDateWithCalendar(x, cal));
         to.setTime(parameterIndex, x, cal);
     }
 
     public final void setTimestamp(int parameterIndex, Timestamp x, Calendar cal) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairDateWithCalendar(x, cal));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairDateWithCalendar(x, cal));
         to.setTimestamp(parameterIndex, x, cal);
     }
 
@@ -349,23 +349,23 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final void setAsciiStream(int parameterIndex, InputStream x, int length) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setAsciiStream(parameterIndex, x, length);
     }
 
     @Deprecated
     public final void setUnicodeStream(int parameterIndex, InputStream x, int length) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setUnicodeStream(parameterIndex, x, length); // deprecated
     }
 
     public final void setBinaryStream(int parameterIndex, InputStream x, int length) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setBinaryStream(parameterIndex, x, length);
     }
 
     public final void setCharacterStream(int parameterIndex, Reader reader, int length) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairValueWithLength(reader, length));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairValueWithLength(reader, length));
         to.setCharacterStream(parameterIndex, reader, length);
     }
 
@@ -405,7 +405,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final void setAsciiStream(int parameterIndex, InputStream x, long length) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setAsciiStream(parameterIndex, x, length);
     }
 
@@ -415,7 +415,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final void setBinaryStream(int parameterIndex, InputStream x, long length) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setBinaryStream(parameterIndex, x, length);
     }
 
@@ -425,7 +425,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final void setBlob(int parameterIndex, InputStream x, long length) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setBlob(parameterIndex, x, length);
     }
 
@@ -435,7 +435,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final void setCharacterStream(int parameterIndex, Reader x, long length) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setCharacterStream(parameterIndex, x, length);
     }
 
@@ -445,7 +445,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final void setClob(int parameterIndex, Reader x, long length) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setClob(parameterIndex, x, length);
     }
 
@@ -455,7 +455,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final void setNCharacterStream(int parameterIndex, Reader x, long length) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setNCharacterStream(parameterIndex, x, length);
     }
 
@@ -470,7 +470,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final void setNClob(int parameterIndex, Reader x, long length) throws SQLException {
-        onSetParamValue(parameterIndex, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterIndex, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setNClob(parameterIndex, x, length);
     }
 

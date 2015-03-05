@@ -1,111 +1,66 @@
 package org.sef4j.jdbc.wrappers;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
-import javax.sql.ConnectionEventListener;
-import javax.sql.StatementEventListener;
 import javax.sql.XAConnection;
 import javax.transaction.xa.XAResource;
 
-import org.sef4j.callstack.CallStackElt.StackPopper;
 import org.sef4j.callstack.LocalCallStack;
+import org.sef4j.callstack.CallStackElt.StackPopper;
 
 /**
- * Proxy for java.sql.XAConnection + wrapp all calls with push()/pop() + set params 
+ * Proxy for java.sql.XAConnection + wrapp all calls with push()/pop() + return wrapped object
  * 
  */
-public class SefXAConnectionProxy extends SefConnectionProxy implements XAConnection {
+public class SefXAConnectionProxy extends SefPooledConnectionProxy implements XAConnection {
 
     /** redundant with <code>(XAConnection)super.to</code> */
-    private XAConnection toXAConnection;
+    private XAConnection to;
     
-    protected SefConnectionProxy ownerSefConnectionProxy;
     protected SefXAResourceProxy cachedWrapperXAResource;
     protected XAResource cachedTargetXAResource;
     
-    protected boolean logXAConnection = true;
-    
 	// ------------------------------------------------------------------------
 	
-	public SefXAConnectionProxy(SefConnectionProxy ownerSefConnectionProxy, XAConnection to, int connectionId) {
-		super(null, connectionId); // TODO ... owner
-		this.toXAConnection = to;
-		this.ownerSefConnectionProxy = ownerSefConnectionProxy;
+	public SefXAConnectionProxy(SefConnectionProxy ownerSefConnectionProxy, XAConnection to) {
+		super(to); // TOADD ... owner
+		this.to = to;
 	}
 	
 	// ------------------------------------------------------------------------
 	
-	public Connection getConnection() throws SQLException {
-		// ** do not delegate to   toXAConnection.getConnection() ! => return wrapper connection
-		return ownerSefConnectionProxy;
+	public XAResource getXAResource() throws SQLException {
+        StackPopper toPop = LocalCallStack.meth("getXAResource").push();
+        try {
+    		XAResource tmpres = to.getXAResource();  		
+    		SefXAResourceProxy res = wrapOrReuseWrapper(tmpres);
+    		return LocalCallStack.pushPopParentReturn(res);
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
 
-	public XAResource getXAResource() throws SQLException {
-		XAResource res;
-		XAResource xaResource = toXAConnection.getXAResource();
-		if (xaResource == null) return null; // should not occur
-		if (cachedTargetXAResource == xaResource && cachedWrapperXAResource != null) {
+	private SefXAResourceProxy wrapOrReuseWrapper(XAResource tmpres) {
+		// wrap result or reuse last wrapper... TODO may use Map<XAResource,SefXAResourceProxy>
+		if (tmpres == null) return null; // should not occur
+		SefXAResourceProxy res;
+		if (cachedTargetXAResource == tmpres && cachedWrapperXAResource != null) {
 			res = cachedWrapperXAResource; // reuse same wrapper for same target return
 		} else {
-		    cachedTargetXAResource = xaResource;
-			cachedWrapperXAResource = new SefXAResourceProxy(this, xaResource); 
+		    cachedTargetXAResource = tmpres;
+			cachedWrapperXAResource = new SefXAResourceProxy(this, tmpres); 
 			res = cachedWrapperXAResource;
 		}
 		return res;
-	}
-	
-	// ------------------------------------------------------------------------
-	
-	public void addConnectionEventListener(ConnectionEventListener listener) {
-	    StackPopper toPop = LocalCallStack.meth("addConnectionEventListener").push();
-	    try {
-			toXAConnection.addConnectionEventListener(listener);
-		} catch(RuntimeException ex) {
-		    throw LocalCallStack.pushPopParentException(ex);
-		} finally {
-		    toPop.close();
-		}
-	}
-
-	public void removeConnectionEventListener(ConnectionEventListener listener) {
-	    StackPopper toPop = LocalCallStack.meth("removeConnectionEventListener").push();
-	    try {
-	        toXAConnection.removeConnectionEventListener(listener);
-	    } catch(RuntimeException ex) {
-	        throw LocalCallStack.pushPopParentException(ex);
-	    } finally {
-	        toPop.close();
-	    }
-	}
-
-	public void addStatementEventListener(StatementEventListener listener) {
-	    StackPopper toPop = LocalCallStack.meth("addStatementEventListener").push();
-        try {
-            toXAConnection.addStatementEventListener(listener);
-        } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
-        } finally {
-            toPop.close();
-        }
-	}
-
-	public void removeStatementEventListener(StatementEventListener listener) {
-        StackPopper toPop = LocalCallStack.meth("removeStatementEventListener").push();
-        try {
-            toXAConnection.removeStatementEventListener(listener);
-        } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
-        } finally {
-            toPop.close();
-        }
 	}
 
 	// ------------------------------------------------------------------------
 	
 	@Override
 	public String toString() {
-		return "SefXAConnectionProxy[to=" + toXAConnection + "]";
+		return "SefXAConnectionProxy[to=" + to + "]";
 	}
 	
 }

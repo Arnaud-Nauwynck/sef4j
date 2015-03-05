@@ -60,11 +60,11 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     // ------------------------------------------------------------------------
 
     /** internal */
-    protected ParamInfo doRegisterOutputParamInfo(int parameterIndex) {
+    protected SefStatementParamInfo doRegisterOutputParamInfo(int parameterIndex) {
         return paramInfoFor(parameterIndex).output(true);
     }
 
-    protected ParamInfo doRegisterOutputParamInfo(String parameterName) {
+    protected SefStatementParamInfo doRegisterOutputParamInfo(String parameterName) {
         return paramInfoFor(parameterName).output(true);
     }
 
@@ -787,7 +787,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
 
 
     public final void setAsciiStream(String parameterName, InputStream x, int length) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setAsciiStream(parameterName, x, length);
     }
 
@@ -797,7 +797,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public final void setBinaryStream(String parameterName, InputStream x, int length) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setBinaryStream(parameterName, x, length);
     }
 
@@ -817,7 +817,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public final void setCharacterStream(String parameterName, Reader x, int length) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setCharacterStream(parameterName, x, length);
     }
 
@@ -827,7 +827,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public final void setDate(String parameterName, Date x, Calendar cal) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairDateWithCalendar(x, cal));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairDateWithCalendar(x, cal));
         to.setDate(parameterName, x, cal);
     }
 
@@ -882,7 +882,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public final void setTime(String parameterName, Time x, Calendar cal) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairDateWithCalendar(x, cal));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairDateWithCalendar(x, cal));
         to.setTime(parameterName, x, cal);
     }
 
@@ -892,7 +892,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public final void setTimestamp(String parameterName, Timestamp x, Calendar cal) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairDateWithCalendar(x, cal));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairDateWithCalendar(x, cal));
         to.setTimestamp(parameterName, x, cal);
     }
 
@@ -912,7 +912,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public final void setAsciiStream(String parameterName, InputStream x, long length) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setAsciiStream(parameterName, x, length);
     }
 
@@ -922,7 +922,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public final void setBinaryStream(String parameterName, InputStream x, long length) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setBinaryStream(parameterName, x, length);
     }
 
@@ -937,7 +937,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public final void setBlob(String parameterName, InputStream x, long length) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setBlob(parameterName, x, length);
     }
 
@@ -947,7 +947,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public final void setCharacterStream(String parameterName, Reader x, long length) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setCharacterStream(parameterName, x, length);
     }
 
@@ -962,7 +962,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public final void setClob(String parameterName, Reader x, long length) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setClob(parameterName, x, length);
     }
 
@@ -972,7 +972,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public final void setNCharacterStream(String parameterName, Reader x, long length) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setNCharacterStream(parameterName, x, length);
     }
 
@@ -987,7 +987,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public final void setNClob(String parameterName, Reader x, long length) throws SQLException {
-        onSetParamValue(parameterName, new ParamInfo.PairValueWithLength(x, length));
+        onSetParamValue(parameterName, new SefStatementParamInfo.PairValueWithLength(x, length));
         to.setNClob(parameterName, x, length);
     }
 

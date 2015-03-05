@@ -4,7 +4,8 @@ import javax.transaction.xa.XAException;
 import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
-import java.util.Properties;
+import org.sef4j.callstack.CallStackElt.StackPopper;
+import org.sef4j.callstack.LocalCallStack;
 
 /**
  * Proxy for java.sql.XAConnection + wrapp all calls with push()/post() + set params 
@@ -26,209 +27,159 @@ public class SefXAResourceProxy implements XAResource {
 	}
 
 	// ------------------------------------------------------------------------
+	
+	public XAResource getUnderlyingXAResource() {
+		return to;
+	}
+	
+	public SefXAConnectionProxy getOwner() {
+		return owner;
+	}
+	
+	// ------------------------------------------------------------------------
 
 	public void start(Xid xid, int flags) throws XAException {
-		boolean log = isCurrLogXAConnection();
-		if (log) {
-			callInfoLogger.pre("start", "" + xid + " " + flags);
-		}
-		try {
-			to.start(xid, flags);
-			if (log) {
-				callInfoLogger.postIgnoreVoid();
-			}
-		} catch(XAException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		} catch(RuntimeException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		}
+        StackPopper toPop = LocalCallStack.meth("start")
+        		.withParam("xid", xid)
+        		.withParam("flags", flags)
+        		.push();
+        try {
+    		to.start(xid, flags);
+        } catch(XAException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
-	
 
 	public int prepare(Xid xid) throws XAException {
-		int res;
-		boolean log = isCurrLogXAConnection();
-		if (log) {
-			callInfoLogger.pre("prepare", "" + xid);
-		}
-		try {
-			res = to.prepare(xid);
-			if (log) {
-				callInfoLogger.postDefaultRes(res);
-			}
-		} catch(XAException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		} catch(RuntimeException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		}
-		return res;
+        StackPopper toPop = LocalCallStack.meth("prepare")
+        		.withParam("xid", xid)
+        		.push();
+        try {
+    		int res = to.prepare(xid);
+    		return LocalCallStack.pushPopParentReturn(res);
+        } catch(XAException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
 
-	
-	public void commit(Xid arg0, boolean arg1) throws XAException {
-		boolean log = isCurrLogXAConnection();
-		if (log) {
-			callInfoLogger.pre("commit", "" + arg0 + " " + arg1);
-		}
-		try {
-			to.commit(arg0, arg1);
-			if (log) {
-				callInfoLogger.postIgnoreVoid();
-			}
-		} catch(XAException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		} catch(RuntimeException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		}
+	public void commit(Xid xid, boolean onePhase) throws XAException {
+        StackPopper toPop = LocalCallStack.meth("commit")
+        		.withParam("xid", xid)
+        		.withParam("onePhase", onePhase)
+        		.push();
+        try {
+    		to.commit(xid, onePhase);
+        } catch(XAException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
 	
-
-	public void rollback(Xid arg0) throws XAException {
-		boolean log = isCurrLogXAConnection();
-		if (log) {
-			callInfoLogger.pre("rollback", "" + arg0);
-		}
-		try {
-			to.rollback(arg0);
-			if (log) {
-				callInfoLogger.postIgnoreVoid();
-			}
-		} catch(XAException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		} catch(RuntimeException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		}
+	public void rollback(Xid xid) throws XAException {
+        StackPopper toPop = LocalCallStack.meth("rollback")
+        		.withParam("xid", xid)
+        		.push();
+        try {
+    		to.rollback(xid);
+        } catch(XAException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
-	
 
-	public void end(Xid arg0, int arg1) throws XAException {
-		boolean log = isCurrLogXAConnection();
-		if (log) {
-			callInfoLogger.pre("end", "" + arg0 + " " + arg1);
-		}
-		try {
-			to.end(arg0, arg1);
-			if (log) {
-				callInfoLogger.postIgnoreVoid();
-			}
-		} catch(XAException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		} catch(RuntimeException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		}
+	public void end(Xid xid, int flag) throws XAException {
+        StackPopper toPop = LocalCallStack.meth("end")
+        		.withParam("xid", xid)
+        		.withParam("flag", flag)
+        		.push();
+        try {
+    		to.end(xid, flag);
+        } catch(XAException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
 
 	public void forget(Xid xid) throws XAException {
-		boolean log = isCurrLogXAConnection();
-		if (log) {
-			callInfoLogger.pre("forget", "" + xid);
-		}
-		try {
-			to.forget(xid);
-			if (log) {
-				callInfoLogger.postIgnoreVoid();
-			}
-		} catch(XAException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		} catch(RuntimeException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		}
+        StackPopper toPop = LocalCallStack.meth("forget")
+        		.withParam("xid", xid)
+        		.push();
+        try {
+    		to.forget(xid);
+        } catch(XAException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
-
 
 	public Xid[] recover(int xid) throws XAException {
-		Xid[] res;
-		boolean log = isCurrLogXAConnection();
-		if (log) {
-			callInfoLogger.pre("recover", "" + xid);
-		}
-		try {
-			res = to.recover(xid);
-			if (log) {
-				callInfoLogger.postRes(res);
-			}
-		} catch(XAException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		} catch(RuntimeException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		}
-		return res;
+        StackPopper toPop = LocalCallStack.meth("recover")
+        		.withParam("xid", xid)
+        		.push();
+        try {
+    		Xid[] res = to.recover(xid);
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(XAException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
 
-	
-	public boolean isSameRM(XAResource arg0) throws XAException {
-		return to.isSameRM(arg0);
+	public boolean isSameRM(XAResource xares) throws XAException {
+        StackPopper toPop = LocalCallStack.meth("isSameRM")
+        		.withParam("xares", xares)
+        		.push();
+        try {
+        	XAResource xaresUnwrapped = (xares instanceof SefXAResourceProxy)? 
+        			((SefXAResourceProxy)xares).to : xares;
+    		boolean res = to.isSameRM(xaresUnwrapped);
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(XAException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
 
 	public int getTransactionTimeout() throws XAException {
-		return to.getTransactionTimeout();
+        StackPopper toPop = LocalCallStack.meth("getTransactionTimeout").push();
+        try {
+    		int res = to.getTransactionTimeout();
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(XAException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
 
-	public boolean setTransactionTimeout(int arg0) throws XAException {
-		boolean res;
-		boolean log = isCurrLogXAConnection();
-		if (log) {
-			callInfoLogger.pre("setTransactionTimeout", "" + arg0);
-		}
-		try {
-			res = to.setTransactionTimeout(arg0);
-			if (log) {
-				callInfoLogger.postIgnoreRes(res);
-			}
-		} catch(XAException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		} catch(RuntimeException ex) {
-			if (log) {
-				callInfoLogger.postEx(ex);
-			}
-			throw ex;
-		}
-		return res;
+	public boolean setTransactionTimeout(int seconds) throws XAException {
+        StackPopper toPop = LocalCallStack.meth("setTransactionTimeout")
+        		.withParam("seconds", seconds).push();
+        try {
+    		boolean res = to.setTransactionTimeout(seconds);
+            return LocalCallStack.pushPopParentReturnTrueFalse(res);
+        } catch(XAException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
 	}
-	
+
+	// ------------------------------------------------------------------------
+
+	@Override
+	public String toString() {
+		return "SefXAResourceProxy [to=" + to + "]";
+	}
+
 }

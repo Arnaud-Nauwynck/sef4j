@@ -217,4 +217,9 @@ public class LocalCallStack {
         return resValue;
     }
 
+    /** type-safe overload of pushPopParentReturn(Object), for avoiding boxing/unboxing + use callEltName="returnTrue" or "returnFalse" */
+    public static boolean pushPopParentReturnTrueFalse(boolean res) {
+    	return pushPopParentReturn(res? "returnTrue" : "returnFalse", res);
+    }
+    
 }

@@ -1,6 +1,7 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
-	
+
 	<parent>
 		<groupId>org.sef4j</groupId>
 		<artifactId>sef4j-parent</artifactId>
@@ -9,7 +10,7 @@
 
 	<artifactId>sef4j-jdbc</artifactId>
 	<packaging>jar</packaging>
-	
+
 	<name>SEF4J - Jdbc</name>
 	<description>SEF4J - Jdbc wrapper for instrumenting code with Jdbc performance metrics</description>
 
@@ -31,28 +32,20 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 
+		<!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc16</artifactId> 
+			<version>10.2.0.5.0</version> <scope>provided</scope> </dependency> <dependency> 
+			<groupId>com.oracle</groupId> <artifactId>orai18n</artifactId> <version>10.2.0.5.0</version> 
+			<scope>provided</scope> </dependency> -->
+
 <!-- 
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>ojdbc16</artifactId>
-            <version>10.2.0.5.0</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>com.oracle</groupId>
-            <artifactId>orai18n</artifactId>
-            <version>10.2.0.5.0</version>
-            <scope>provided</scope>
-        </dependency>
- -->
-        
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>org.springframework.jdbc</artifactId>
 			<version>3.0.2.RELEASE</version>
 			<scope>provided</scope>
 		</dependency>
-
+ -->
+ 
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>junit</groupId>
@@ -60,5 +53,5 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	
+
 </project>

@@ -34,6 +34,8 @@ import org.sef4j.jdbc.util.ConnectionUtils;
  */
 public class SefConnectionProxy implements Connection {
 
+    private SefDataSourceProxy owner;
+    
     /** underlying for proxy */
     private final Connection to;
 	
@@ -42,16 +44,21 @@ public class SefConnectionProxy implements Connection {
     // constructor
     // ------------------------------------------------------------------------
         
-    public SefConnectionProxy(Connection to) {
-        this(to, -1);
+    public SefConnectionProxy(SefDataSourceProxy owner, Connection to) {
+        this(owner, to, -1);
     }
     
-    public SefConnectionProxy(Connection to, int connId) {
+    public SefConnectionProxy(SefDataSourceProxy owner, Connection to, int connId) {
+        this.owner = owner;
         this.to = to;
         this.connId = connId;
     }
 
     // ------------------------------------------------------------------------
+    
+    public SefDataSourceProxy getOwner() {
+        return owner;
+    }
     
     public Connection getUnderlyingConnection() {
         return to;
@@ -62,6 +69,18 @@ public class SefConnectionProxy implements Connection {
     }
 
 
+    public void onChildStatementClose(SefStatementProxy statement) {
+        StackPopper toPop = LocalCallStack.meth("onChildStatementClose")
+                .withParam("statement", statement)
+                .push();
+        try {
+            // TOADD: may decrement counter, update child List ...
+        } finally {
+            toPop.close();
+        }
+    }
+    
+    
     // implements java.sql.Connection
     // ------------------------------------------------------------------------
 
@@ -69,11 +88,13 @@ public class SefConnectionProxy implements Connection {
         StackPopper toPop = LocalCallStack.meth("close").push();
         try {
             to.close();
-            
         } catch(SQLException ex) {
             throw LocalCallStack.pushPopParentException(ex);
         } finally {
             toPop.close();
+        }
+        if (owner != null) {
+            owner.onChildConnectionClose(this);
         }
     }
 
@@ -87,46 +108,125 @@ public class SefConnectionProxy implements Connection {
     // ------------------------------------------------------------------------
 
     public Statement createStatement() throws SQLException {
-        Statement p = to.createStatement();
-        return new SefStatementProxy(this, p);
+        StackPopper toPop = LocalCallStack.meth("createStatment").push();
+        try {
+            Statement tmpres = to.createStatement();
+            SefStatementProxy res = new SefStatementProxy(this, tmpres);
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        PreparedStatement p = to.prepareStatement(sql);
-        return new SefPreparedStatementProxy(this, p, sql);
+        StackPopper toPop = LocalCallStack.meth("prepareStatement").push();
+        try {
+            PreparedStatement p = to.prepareStatement(sql);
+            SefPreparedStatementProxy res = new SefPreparedStatementProxy(this, p, sql);
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
     public CallableStatement prepareCall(String sql) throws SQLException {
-        CallableStatement p = to.prepareCall(sql);
-        return new SefCallableStatementProxy(this, p, sql);
+        StackPopper toPop = LocalCallStack.meth("prepareCall").push();
+        try {
+            CallableStatement tmpres = to.prepareCall(sql);
+            SefCallableStatementProxy res = new SefCallableStatementProxy(this, tmpres, sql);
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
-        Statement p = to.createStatement(resultSetType, resultSetConcurrency);
-        return new SefStatementProxy(this, p, resultSetType, resultSetConcurrency);
+        StackPopper toPop = LocalCallStack.meth("createStatment(int,int)")
+                .withParam("resultSetType", resultSetType)
+                .withParam("resultSetConcurrency", resultSetConcurrency)
+                .push();
+        try {
+            Statement p = to.createStatement(resultSetType, resultSetConcurrency);
+            SefStatementProxy res = new SefStatementProxy(this, p, resultSetType, resultSetConcurrency);
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
+
     }
 
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        PreparedStatement p = to.prepareStatement(sql, resultSetType, resultSetConcurrency);
-        return new SefPreparedStatementProxy(this, p, sql, resultSetType, resultSetConcurrency);
+        StackPopper toPop = LocalCallStack.meth("prepareStatement(String,int,int)")
+                .withParam("resultSetType", resultSetType)
+                .withParam("resultSetConcurrency", resultSetConcurrency)
+                .push();
+        try {
+            PreparedStatement tmpres = to.prepareStatement(sql, resultSetType, resultSetConcurrency);
+            SefPreparedStatementProxy res = new SefPreparedStatementProxy(this, tmpres, sql, resultSetType, resultSetConcurrency);
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }        
     }
 
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        CallableStatement p = to.prepareCall(sql, resultSetType, resultSetConcurrency);
-        return new SefCallableStatementProxy(this, p, sql, resultSetType, resultSetConcurrency);
+        StackPopper toPop = LocalCallStack.meth("prepareCall(String,int,int)")
+                .withParam("resultSetType", resultSetType)
+                .withParam("resultSetConcurrency", resultSetConcurrency)
+                .push();
+        try {
+            CallableStatement tmpres = to.prepareCall(sql, resultSetType, resultSetConcurrency);
+            SefCallableStatementProxy res = new SefCallableStatementProxy(this, tmpres, sql, resultSetType, resultSetConcurrency);
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        Statement p = to.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
-        return new SefStatementProxy(this, p, resultSetType, resultSetConcurrency); // TODO, resultSetHoldability;
+        StackPopper toPop = LocalCallStack.meth("createStatement(int,int,int)")
+                .withParam("resultSetType", resultSetType)
+                .withParam("resultSetConcurrency", resultSetConcurrency)
+                .withParam("resultSetHoldability", resultSetHoldability)
+                .push();
+        try {
+            Statement tmpres = to.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
+            SefStatementProxy res = new SefStatementProxy(this, tmpres, resultSetType, resultSetConcurrency, resultSetHoldability);
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
-    public CallableStatement prepareCall(String sql,
-                                         int resultSetType,
-                                         int resultSetConcurrency,
-                                         int resultSetHoldability) throws SQLException {
-        CallableStatement stmt = to.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
-        return new SefCallableStatementProxy(this, stmt, sql, resultSetType, resultSetConcurrency);
+    public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
+        StackPopper toPop = LocalCallStack.meth("prepareCall(String,int,int,int)")
+                .withParam("resultSetType", resultSetType)
+                .withParam("resultSetConcurrency", resultSetConcurrency)
+                .withParam("resultSetHoldability", resultSetHoldability)
+                .push();
+        try {
+            CallableStatement tmpres = to.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+            SefCallableStatementProxy res = new SefCallableStatementProxy(this, tmpres, sql, resultSetType, resultSetConcurrency, resultSetHoldability);
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
     public PreparedStatement prepareStatement(String sql, int autoGeneratedKeys) throws SQLException {
@@ -438,5 +538,6 @@ public class SefConnectionProxy implements Connection {
     public String toString() {
         return "SefConnectionProxy[" + connId + "]";
     }
+
     
 }

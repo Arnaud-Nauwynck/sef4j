@@ -34,10 +34,9 @@ public class SefDataSourceProxy extends SefCommonDataSourceProxy implements Data
 	public Connection getConnection() throws SQLException {
 	    StackPopper toPop = LocalCallStack.meth("getConnection").push();
 	    try {
-    	    
 	        Connection toConn = to.getConnection();
-    		SefConnectionProxy res = new SefConnectionProxy(toConn);
-    		
+
+	        SefConnectionProxy res = new SefConnectionProxy(this, toConn);
     		return LocalCallStack.pushPopParentReturn(res);
         } catch(SQLException ex) {
             throw LocalCallStack.pushPopParentException(ex);
@@ -49,12 +48,14 @@ public class SefDataSourceProxy extends SefCommonDataSourceProxy implements Data
 	}
 
 	public Connection getConnection(String username, String password) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getConnection_user").push();
+        StackPopper toPop = LocalCallStack.meth("getConnection(String,String)")
+                .withParam("username", username)
+                // .withParam("password", password) ... security hidden param!
+                .push();
         try {
-            
             Connection toConn = to.getConnection(username, password);
-            SefConnectionProxy res = new SefConnectionProxy(toConn);
             
+            SefConnectionProxy res = new SefConnectionProxy(this, toConn);
             return LocalCallStack.pushPopParentReturn(res);
         } catch(SQLException ex) {
             throw LocalCallStack.pushPopParentException(ex);
@@ -64,5 +65,15 @@ public class SefDataSourceProxy extends SefCommonDataSourceProxy implements Data
             toPop.close();
         }
 	}
+
+    public void onChildConnectionClose(SefConnectionProxy connection) {
+        StackPopper toPop = LocalCallStack.meth("onChildConnectionClose")
+                .withParam("connection", connection).push();
+        try {
+            // TOADD: may decrement counter, update child List ... 
+        } finally {
+            toPop.close();
+        }
+    }
 
 }

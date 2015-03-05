@@ -6,6 +6,10 @@ import java.sql.SQLException;
 import java.sql.SQLWarning;
 import java.sql.Statement;
 
+import org.sef4j.callstack.CallStackElt.StackPopper;
+import org.sef4j.callstack.LocalCallStack;
+import org.sef4j.jdbc.util.StatementUtils;
+
 /**
  * Proxy for java.sql.Statement + wrapp all calls with push()/pop()
  *
@@ -15,35 +19,37 @@ public class SefStatementProxy implements Statement {
     /** underlying of proxy */
     protected Statement to;
 
-
     /** parent/owner connection */
-    protected SefConnectionProxy ownerSefWrappedConnection;
+    protected SefConnectionProxy owner;
 
-    /* may be set by ctor or method.. (redondant with to.getXXX ) */
-    private int localResultSetType;
-
-    private int localResultSetConcurrency;
-
+    /* may be set by ctor */
+    private int ctorResultSetType;
+    private int ctorResultSetConcurrency;
+    private int ctorResultSetHoldability;
+    
     // ------------------------------------------------------------------------
 
     /** Ctor */
     public SefStatementProxy(SefConnectionProxy owner, Statement to) {
+        this.owner = owner;
         this.to = to;
-        this.ownerSefWrappedConnection = owner;
-        callInfo.setLogMsgPrefix("[" + owner.getSpid() + "] ");
-        callInfoLogger = new CallInfoLoggerHelper(callInfo, owner.getLogger());
-        owner.onOpenStatement(this);
     }
 
     /** Ctor */
     public SefStatementProxy(SefConnectionProxy owner, Statement to, int resultSetType, int resultSetConcurrency) {
+        this.owner = owner;
         this.to = to;
-        this.ownerSefWrappedConnection = owner;
-        this.localResultSetType = resultSetType;
-        this.localResultSetConcurrency = resultSetConcurrency;
-        callInfo.setLogMsgPrefix("[" + owner.getSpid() + "] ");
-        callInfoLogger = new CallInfoLoggerHelper(callInfo, owner.getLogger());
-        owner.onOpenStatement(this);
+        this.ctorResultSetType = resultSetType;
+        this.ctorResultSetConcurrency = resultSetConcurrency;
+    }
+
+    /** Ctor */
+    public SefStatementProxy(SefConnectionProxy owner, Statement to, int resultSetType, int resultSetConcurrency, int resultSetHoldability) {
+        this.owner = owner;
+        this.to = to;
+        this.ctorResultSetType = resultSetType;
+        this.ctorResultSetConcurrency = resultSetConcurrency;
+        this.ctorResultSetHoldability = resultSetHoldability;
     }
 
     // ------------------------------------------------------------------------
@@ -53,158 +59,169 @@ public class SefStatementProxy implements Statement {
     }
 
     public final SefConnectionProxy getSefWrappedConnection() {
-        return ownerSefWrappedConnection;
+        return owner;
     }
 
-    public final int getLocalResultSetConcurrency() {
-        return localResultSetConcurrency;
+    public final int getCtorResultSetConcurrency() {
+        return ctorResultSetConcurrency;
     }
     
-    public final int getLocalResultSetType() {
-        return localResultSetType;
+    public final int getCtorResultSetType() {
+        return ctorResultSetType;
     }
     
-    // ------------------------------------------------------------------------
-    
-    /** internal : fill + call logger logStatementPre */
-    protected void pre(String meth, String arg) {
-        callInfoLogger.pre(meth, arg);
+    public int getCtorResultSetHoldability() {
+        return ctorResultSetHoldability;
     }
-
-    /** internal : fill + call logger logStatementPost */
-    protected void postVoid() {
-        callInfoLogger.postVoid();
-    }
-
-    protected void postRes(Object res) {
-        callInfoLogger.postRes(res);
-    }
-
-    protected void postDefaultRes(Object res) {
-        callInfoLogger.postDefaultRes(res);
-    }
-
-    protected void postDefaultRes() {
-        callInfoLogger.postDefaultRes();
-    }
-
-    /** internal : fill + call logger logStatementEx  */
-    protected void postEx(SQLException ex) throws SQLException {
-        callInfoLogger.postEx(ex);
-    }
-
-    /** internal : fill + call logger logStatementPre */
-    protected void preIgnoreMsg(String meth, String arg) {
-        //        callInfoLogger.preIgnore(meth, arg);
-    }
-
-    protected void postIgnoreVoid() {
-        callInfoLogger.postIgnoreVoid();
-    }
-
-    protected void postIgnoreRes(Object res) {
-        callInfoLogger.postIgnoreRes(res);
-    }
-
-    /**
-     * NOT USED YET
-     */
-    protected ResultSet wrapResultSet(ResultSet res) {
-        return res;
-    }
-
     
     
     // Implements java.sql.Statement
     // ------------------------------------------------------------------------
-    
 
-    /** see also getOwnerSefWrappedConnection() */
+    
     public final Connection getConnection() throws SQLException {
-        return ownerSefWrappedConnection;
+        return owner; // return owner wrapper instead of target.getConnection()  
     }
 
     public final void close() throws SQLException {
-        to.close();
-        ownerSefWrappedConnection.onCloseStatement(this);
-        // **** TODO ****
-        // Log here results for output Params / count ResultSet rows ... (after read!)
-
+        StackPopper toPop = LocalCallStack.meth("close").push();
+        try {
+            to.close();
+        } catch(SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
+        // also notify parent wrapper of closed resource
+        if (owner != null) {
+            owner.onChildStatementClose(this);
+        }
     }
 
-    public final ResultSet executeQuery(String sql) throws SQLException {
-        ResultSet res;
-        pre("executeQuery", sql);
+    public boolean isClosed() throws SQLException {
+        return to.isClosed();
+    }
+
+    public boolean isPoolable() throws SQLException {
+        return to.isPoolable();
+    }
+
+    public void setPoolable(boolean poolable) throws SQLException {
+        to.setPoolable(poolable);
+    }
+
+    public void closeOnCompletion() throws SQLException {
+        to.closeOnCompletion();
+    }
+
+    public boolean isCloseOnCompletion() throws SQLException {
+        return to.isCloseOnCompletion();
+    }
+
+    
+    // ------------------------------------------------------------------------
+    
+    public final ResultSet getResultSet() throws SQLException {
+        StackPopper toPop = LocalCallStack.meth("getResultSet").push();
         try {
-            res = to.executeQuery(sql);
-            if (res != null)
-                postDefaultRes(res);
-            else
-                postRes("NULL");
+            ResultSet tmpres = to.getResultSet();
+            SefResultSetProxy res = new SefResultSetProxy(this, tmpres);
+            return LocalCallStack.pushPopParentReturn(res);
         } catch (SQLException ex) {
-            postEx(ex);
-            throw ex;
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
-        return wrapResultSet(res);
+    }
+
+    public final boolean getMoreResults() throws SQLException {
+        StackPopper toPop = LocalCallStack.meth("getMoreResults").push();
+        try {
+            boolean res = to.getMoreResults();
+            String resEltName = res? "returnTrue" : "returnFalse";
+            return LocalCallStack.pushPopParentReturn(resEltName, res);
+        } catch (SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
+    }
+
+    
+    public final ResultSet executeQuery(String sql) throws SQLException {
+        StackPopper toPop = LocalCallStack.meth("executeQuery")
+                .withParam("sql",  sql)
+                .push();
+        try {
+            ResultSet tmpres = to.executeQuery(sql);
+            SefResultSetProxy res = new SefResultSetProxy(this, tmpres);
+            return LocalCallStack.pushPopParentReturn(res);
+        } catch (SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
     public final boolean execute(String sql) throws SQLException {
-        boolean res;
-        pre("execute", sql);
+        StackPopper toPop = LocalCallStack.meth("execute")
+                .withParam("sql",  sql)
+                .push();
         try {
-            res = to.execute(sql);
-            ownerSefWrappedConnection.incrCountExecute(sql);
-            if (res)
-                postDefaultRes();
-            else
-                postRes("false");
+            boolean res = to.execute(sql);
+            return LocalCallStack.pushPopParentReturn(res);
         } catch (SQLException ex) {
-            postEx(ex);
-            throw ex;
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
-        return res;
     }
 
     public final boolean execute(String sql, int[] columnIndexes) throws SQLException {
-        boolean res;
-        pre("execute", sql);
+        StackPopper toPop = LocalCallStack.meth("execute(String,int[])")
+                .withParam("sql",  sql)
+                .withParam("columnIndexes", columnIndexes)
+                .push();
         try {
-            res = to.execute(sql, columnIndexes);
-            ownerSefWrappedConnection.incrCountExecute(sql);
-            postRes(Boolean.valueOf(res));
+            boolean res = to.execute(sql, columnIndexes);
+            return LocalCallStack.pushPopParentReturn(res);
         } catch (SQLException ex) {
-            postEx(ex);
-            throw ex;
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
-        return res;
     }
 
     public final boolean execute(String sql, String[] columnNames) throws SQLException {
-        boolean res;
-        pre("execute", sql);
+        StackPopper toPop = LocalCallStack.meth("execute(String,String[])")
+                .withParam("sql",  sql)
+                .withParam("columnNames", columnNames)
+                .push();
         try {
-            res = to.execute(sql, columnNames);
-            ownerSefWrappedConnection.incrCountExecute(sql);
-            postRes(Boolean.valueOf(res));
+            boolean res = to.execute(sql, columnNames);
+            return LocalCallStack.pushPopParentReturn(res);
         } catch (SQLException ex) {
-            postEx(ex);
-            throw ex;
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
-        return res;
     }
 
+    
     public final boolean execute(String sql, int autoGeneratedKeys) throws SQLException {
-        boolean res;
-        pre("execute", sql);
+        String meth = "execute(String," + StatementUtils.autoGeneratedKeysToString(autoGeneratedKeys);
+        StackPopper toPop = LocalCallStack.meth(meth)
+                .withParam("sql",  sql)
+                .withParam("autoGeneratedKeys", autoGeneratedKeys)
+                .push();
         try {
-            res = to.execute(sql, autoGeneratedKeys);
-            ownerSefWrappedConnection.incrCountExecute(sql);
-            postRes(Boolean.valueOf(res));
+            boolean res = to.execute(sql, autoGeneratedKeys);
+            return LocalCallStack.pushPopParentReturn(res);
         } catch (SQLException ex) {
-            postEx(ex);
-            throw ex;
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
-        return res;
     }
 
     public final int executeUpdate(String sql) throws SQLException {
@@ -212,12 +229,12 @@ public class SefStatementProxy implements Statement {
         pre("executeUpdate", sql);
         try {
             res = to.executeUpdate(sql);
-            ownerSefWrappedConnection.incrCountExecuteUpdate(sql);
+            owner.incrCountExecuteUpdate(sql);
             postRes(new Integer(res));
         } catch (SQLException ex) {
-            if (ownerSefWrappedConnection.getConnectionFactoryConfig().isCurrentInterceptExceptionDuplicateKey()
+            if (owner.getConnectionFactoryConfig().isCurrentInterceptExceptionDuplicateKey()
                             && ex.getMessage().equals("ORA-0001")) {
-                ownerSefWrappedConnection.getLogger().log("INTERCEPTED ORA-0001 ... silently catched, return 1");
+                owner.getLogger().log("INTERCEPTED ORA-0001 ... silently catched, return 1");
                 postRes(new Integer(1));
                 return 1; // replace by return, ignore, no rethrow!!
             }
@@ -228,107 +245,64 @@ public class SefStatementProxy implements Statement {
     }
 
     public final int executeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
-        int res;
-        pre("execute", sql);
+        String meth = "executeUpdate(String," + StatementUtils.autoGeneratedKeysToString(autoGeneratedKeys);
+        StackPopper toPop = LocalCallStack.meth(meth)
+                .withParam("sql",  sql)
+                .withParam("autoGeneratedKeys", autoGeneratedKeys)
+                .push();
         try {
-            res = to.executeUpdate(sql, autoGeneratedKeys);
-            ownerSefWrappedConnection.incrCountExecuteUpdate(sql);
-            postRes(new Integer(res));
+            int res = to.executeUpdate(sql, autoGeneratedKeys);
+            return LocalCallStack.pushPopParentReturn(res);
         } catch (SQLException ex) {
-            if (ownerSefWrappedConnection.getConnectionFactoryConfig().isCurrentInterceptExceptionDuplicateKey()
-                            && ex.getMessage().equals("ORA-0001")) {
-                ownerSefWrappedConnection.getLogger().log("INTERCEPTED ORA-0001 ... silently catched, return 1");
-                postRes(new Integer(1));
-                return 1; // replace by return, ignore, no rethrow!!
-            }
-            postEx(ex);
-            throw ex;
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
-        return res;
     }
 
     public final int executeUpdate(String sql, int[] columnIndexes) throws SQLException {
-        int res;
-        pre("execute", sql);
+        StackPopper toPop = LocalCallStack.meth("executeUpdate(String,int[])")
+                .withParam("sql",  sql)
+                .withParam("columnIndexes", columnIndexes)
+                .push();
         try {
-            res = to.executeUpdate(sql, columnIndexes);
-            ownerSefWrappedConnection.incrCountExecuteUpdate(sql);
-            postRes(new Integer(res));
+            int res = to.executeUpdate(sql, columnIndexes);
+            return LocalCallStack.pushPopParentReturn(res);
         } catch (SQLException ex) {
-            if (ownerSefWrappedConnection.getConnectionFactoryConfig().isCurrentInterceptExceptionDuplicateKey()
-                            && ex.getMessage().equals("ORA-0001")) {
-                ownerSefWrappedConnection.getLogger().log("INTERCEPTED ORA-0001 ... silently catched, return 1");
-                postRes(new Integer(1));
-                return 1; // replace by return, ignore, no rethrow!!
-            }
-            postEx(ex);
-            throw ex;
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
-        return res;
     }
 
     public final int executeUpdate(String sql, String[] columnNames) throws SQLException {
-        int res;
-        pre("execute", sql);
+        StackPopper toPop = LocalCallStack.meth("executeUpdate(String,String[])")
+                .withParam("sql",  sql)
+                .withParam("columnNames", columnNames)
+                .push();
         try {
-            res = to.executeUpdate(sql, columnNames);
-            ownerSefWrappedConnection.incrCountExecuteUpdate(sql);
-            postRes(new Integer(res));
+            int res = to.executeUpdate(sql, columnNames);
+            return LocalCallStack.pushPopParentReturn(res);
         } catch (SQLException ex) {
-            postEx(ex);
-            throw ex;
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
-        return res;
     }
 
     public final int[] executeBatch() throws SQLException {
-        int res[];
-        pre("executeBatch", "");
+        StackPopper toPop = LocalCallStack.meth("executeBatch")
+                .push();
         try {
-            res = to.executeBatch();
-            ownerSefWrappedConnection.incrCountExecuteBatch(null);
-            postRes(res);
+            int[] res = to.executeBatch();
+            return LocalCallStack.pushPopParentReturn(res);
         } catch (SQLException ex) {
-            if (ownerSefWrappedConnection.getConnectionFactoryConfig().isCurrentInterceptExceptionDuplicateKey()
-                            && ex.getMessage().equals("ORA-0001")) {
-                ownerSefWrappedConnection.getLogger().log("INTERCEPTED ORA-0001 ... silently catched, return new int[0]");
-                postRes(new Integer(1));
-                return new int[0]; // replace by return, ignore, no rethrow!!
-            }
-            postEx(ex);
-            throw ex;
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
-        return res;
     }
 
-    // TODO???  wrap ResultSet in ResultSetLog for adding rows counter...
-    // => usable only after ResultSet.close() / Statement.close() ... !!!
-    public final ResultSet getResultSet() throws SQLException {
-        // special code to make no log on normal case: return non null ResultSet....
-        //    long t1 = System.currentTimeMillis();
-        ResultSet res = to.getResultSet();
-        //    if (res == null) {
-        //      // unnormmal case (=> pre+post)
-        //      pre("getResultSet", "");
-        //      //? super.setTimePre (t1); // <= restore time as in normal case
-        //      postRes("NULL");
-        //    } // else normal case! no log...
-        return wrapResultSet(res);
-    }
-
-    public final boolean getMoreResults() throws SQLException {
-        boolean res = to.getMoreResults();
-        // No log here ??
-        //    pre("getMoreResults", "");
-        //    try {
-        //      res =
-        //      if (res)
-        //        postRes("true");
-        //      else
-        //        postDefaultRes("false");
-        //    } catch (SQLException ex) { postEx(ex); throw ex; }
-        return res;
-    }
 
     public final int getMaxFieldSize() throws SQLException {
         int res;
@@ -614,24 +588,5 @@ public class SefStatementProxy implements Statement {
         return to.unwrap(iface);
     }
 
-    public boolean isClosed() throws SQLException {
-        return to.isClosed();
-    }
-
-    public boolean isPoolable() throws SQLException {
-        return to.isPoolable();
-    }
-
-    public void setPoolable(boolean poolable) throws SQLException {
-        to.setPoolable(poolable);
-    }
-
-    public void closeOnCompletion() throws SQLException {
-        to.closeOnCompletion();
-    }
-
-    public boolean isCloseOnCompletion() throws SQLException {
-        return to.isCloseOnCompletion();
-    }
     
 }

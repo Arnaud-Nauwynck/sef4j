@@ -62,6 +62,18 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
         this.sqlQuery = sql;
     }
 
+    public SefPreparedStatementProxy(SefConnectionProxy owner,
+            PreparedStatement to,
+            String sql,
+            int resultSetType,
+            int resultSetConcurrency,
+            int resultSetHoldability) {
+        super(owner, to, resultSetType, resultSetConcurrency, resultSetHoldability);
+        this.to = to;
+        this.sqlQuery = sql;
+    }
+
+
     // ------------------------------------------------------------------------
 
     public final String getSqlQuery() {

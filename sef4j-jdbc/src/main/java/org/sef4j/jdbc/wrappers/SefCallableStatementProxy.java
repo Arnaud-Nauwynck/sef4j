@@ -19,6 +19,9 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Map;
 
+import org.sef4j.callstack.CallStackElt.StackPopper;
+import org.sef4j.callstack.LocalCallStack;
+
 /**
  * Proxy for java.sql.Statement + wrapp all calls with push()/pop() + set params 
  */
@@ -41,6 +44,15 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
             int resultSetType,
             int resultSetConcurrency) {
         super(owner, to, sql, resultSetType, resultSetConcurrency);
+        this.to = to;
+    }
+
+    public SefCallableStatementProxy(SefConnectionProxy owner,
+            CallableStatement to,
+            String sql,
+            int resultSetType,
+            int resultSetConcurrency, int resultSetHoldability) {
+        super(owner, to, sql, resultSetType, resultSetConcurrency, resultSetHoldability);
         this.to = to;
     }
 
@@ -77,23 +89,20 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
 
-    // implements java.sql.CallableStatement, wrapp by logging / storing param..
+    // implements java.sql.CallableStatement
     // ------------------------------------------------------------------------
 
     public boolean wasNull() throws SQLException {
-        boolean res;
-        pre("wasNull", "");
+        StackPopper toPop = LocalCallStack.meth("wasNull").push();
         try {
-            res = to.wasNull();
-            if (res)
-                postRes("true");
-            else
-                postDefaultRes("false");
+            boolean res = to.wasNull();
+            LocalCallStack.pushPopParentReturn(res);
+            return res;
         } catch (SQLException ex) {
-            postEx(ex);
-            throw ex;
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
         }
-        return res;
     }
 
     
@@ -101,33 +110,97 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     // -------------------------------------------------------------
 
     public void registerOutParameter(int parameterIndex, int sqlType) throws SQLException {
-        doRegisterOutputParamInfo(parameterIndex).sqlType(sqlType);
-        to.registerOutParameter(parameterIndex, sqlType);
+        StackPopper toPop = LocalCallStack.meth("registerOutParameter(int,int)")
+                .withParam("parameterIndex", parameterIndex)
+                .withParam("sqlType", sqlType)
+                .push();
+        try {
+            to.registerOutParameter(parameterIndex, sqlType);
+            doRegisterOutputParamInfo(parameterIndex).sqlType(sqlType);
+        } catch (SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
     public void registerOutParameter(int parameterIndex, int sqlType, int scale) throws SQLException {
-        doRegisterOutputParamInfo(parameterIndex).sqlType(sqlType).scale(scale);
-        to.registerOutParameter(parameterIndex, sqlType);
+        StackPopper toPop = LocalCallStack.meth("registerOutParameter(int,int,int)")
+                .withParam("parameterIndex", parameterIndex)
+                .withParam("sqlType", sqlType)
+                .withParam("scale", scale)
+                .push();
+        try {
+            to.registerOutParameter(parameterIndex, sqlType, scale);
+            doRegisterOutputParamInfo(parameterIndex).sqlType(sqlType).scale(scale);
+        } catch (SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
     public void registerOutParameter(int parameterIndex, int sqlType, String typeName) throws SQLException {
-        doRegisterOutputParamInfo(parameterIndex).sqlType(sqlType).typeName(typeName);
-        to.registerOutParameter(parameterIndex, sqlType);
+        StackPopper toPop = LocalCallStack.meth("registerOutParameter(int,int,String)")
+                .withParam("parameterIndex", parameterIndex)
+                .withParam("sqlType", sqlType)
+                .withParam("typeName", typeName)
+                .push();
+        try {
+            to.registerOutParameter(parameterIndex, sqlType, typeName);
+            doRegisterOutputParamInfo(parameterIndex).sqlType(sqlType).typeName(typeName);
+        } catch (SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
     public void registerOutParameter(String parameterName, int sqlType) throws SQLException {
-        doRegisterOutputParamInfo(parameterName).sqlType(sqlType);
-        to.registerOutParameter(parameterName, sqlType);
+        StackPopper toPop = LocalCallStack.meth("registerOutParameter(String,int)")
+                .withParam("parameterName", parameterName)
+                .withParam("sqlType", sqlType)
+                .push();
+        try {
+            to.registerOutParameter(parameterName, sqlType);
+            doRegisterOutputParamInfo(parameterName).sqlType(sqlType);
+        } catch (SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
     public void registerOutParameter(String parameterName, int sqlType, int scale) throws SQLException {
-        doRegisterOutputParamInfo(parameterName).sqlType(sqlType).scale(scale);
-        to.registerOutParameter(parameterName, sqlType, scale);
+        StackPopper toPop = LocalCallStack.meth("registerOutParameter(String,int,int)")
+                .withParam("parameterName", parameterName)
+                .withParam("sqlType", sqlType)
+                .withParam("scale", scale)
+                .push();
+        try {
+            to.registerOutParameter(parameterName, sqlType, scale);
+            doRegisterOutputParamInfo(parameterName).sqlType(sqlType).scale(scale);
+        } catch (SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
     public void registerOutParameter(String parameterName, int sqlType, String typeName) throws SQLException {
-        doRegisterOutputParamInfo(parameterName).sqlType(sqlType).typeName(typeName);
-        to.registerOutParameter(parameterName, sqlType, typeName);
+        StackPopper toPop = LocalCallStack.meth("registerOutParameter(String,int,String)")
+                .withParam("parameterName", parameterName)
+                .withParam("sqlType", sqlType)
+                .withParam("typeName", typeName)
+                .push();
+        try {
+            to.registerOutParameter(parameterName, sqlType, typeName);
+            doRegisterOutputParamInfo(parameterName).sqlType(sqlType).typeName(typeName);
+        } catch (SQLException ex) {
+            throw LocalCallStack.pushPopParentException(ex);
+        } finally {
+            toPop.close();
+        }
     }
 
     

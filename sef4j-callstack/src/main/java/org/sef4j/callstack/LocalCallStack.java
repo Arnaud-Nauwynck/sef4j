@@ -126,7 +126,7 @@ public class LocalCallStack {
 
     /** idem pushPopParentReturn(T) with custom CallStackElt name, instead of default="return" */
     public static <T> T pushPopParentReturn(String eltName, T resValue) {
-        StackPopper toPop = meth("eltName").withParam("res", resValue).pushWithParentStartTime();
+        StackPopper toPop = meth(eltName).withParam("res", resValue).pushWithParentStartTime();
         toPop.close();
         return resValue;
     }

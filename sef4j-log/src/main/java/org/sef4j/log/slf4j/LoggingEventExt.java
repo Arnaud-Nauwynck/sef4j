@@ -9,7 +9,8 @@ import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 
 /**
- * 
+ * immutable serializable event representing an enriched Logback event 
+ * with additionnal CallStack info  (applicative CallStackElt path, CallStackElt parameter and inherited properties)
  */
 public class LoggingEventExt implements Serializable {
 

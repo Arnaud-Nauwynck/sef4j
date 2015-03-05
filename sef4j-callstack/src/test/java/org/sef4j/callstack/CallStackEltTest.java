@@ -12,7 +12,7 @@ import org.sef4j.callstack.stats.ThreadTimeUtilsTest;
 
 public class CallStackEltTest {
 
-	private static final long PREC_MILLIS = 30;
+	private static final long PREC_MILLIS = 40;
 	
 	@Test
 	public void testAddRootCallStackHandler() {

@@ -494,7 +494,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public boolean isValid(int timeout) throws SQLException {
-        return isValid(timeout);
+        return to.isValid(timeout);
     }
     
     public boolean isWrapperFor(Class<?> iface) throws SQLException {

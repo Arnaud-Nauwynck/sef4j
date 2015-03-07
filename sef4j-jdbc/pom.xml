@@ -32,6 +32,8 @@
 			<artifactId>slf4j-api</artifactId>
 		</dependency>
 
+
+		<!-- optional thirdparty dependencies : scope provided -->
 		<!-- <dependency> <groupId>com.oracle</groupId> <artifactId>ojdbc16</artifactId> 
 			<version>10.2.0.5.0</version> <scope>provided</scope> </dependency> <dependency> 
 			<groupId>com.oracle</groupId> <artifactId>orai18n</artifactId> <version>10.2.0.5.0</version> 
@@ -46,6 +48,14 @@
 		</dependency>
  -->
  
+ 		
+		<dependency>
+ 			<groupId>com.zaxxer</groupId>
+			<artifactId>HikariCP</artifactId>
+			<version>2.2.5</version>
+ 			<scope>provided</scope>
+ 		</dependency>
+ 			
 		<!-- Test dependencies -->
 		<dependency>
 			<groupId>junit</groupId>

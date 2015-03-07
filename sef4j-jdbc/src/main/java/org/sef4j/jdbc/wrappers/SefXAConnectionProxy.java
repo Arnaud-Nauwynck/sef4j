@@ -34,9 +34,9 @@ public class SefXAConnectionProxy extends SefPooledConnectionProxy implements XA
         try {
     		XAResource tmpres = to.getXAResource();  		
     		SefXAResourceProxy res = wrapOrReuseWrapper(tmpres);
-    		return LocalCallStack.pushPopParentReturn(res);
+    		return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }

@@ -70,14 +70,7 @@ public class SefConnectionProxy implements Connection {
 
 
     public void onChildStatementClose(SefStatementProxy statement) {
-        StackPopper toPop = LocalCallStack.meth("onChildStatementClose")
-                .withParam("statement", statement)
-                .push();
-        try {
-            // TOADD: may decrement counter, update child List ...
-        } finally {
-            toPop.close();
-        }
+        // TOADD: may decrement counter, update child List ...
     }
     
     
@@ -89,7 +82,7 @@ public class SefConnectionProxy implements Connection {
         try {
             to.close();
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -112,9 +105,9 @@ public class SefConnectionProxy implements Connection {
         try {
             Statement tmpres = to.createStatement();
             SefStatementProxy res = new SefStatementProxy(this, tmpres);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -125,9 +118,9 @@ public class SefConnectionProxy implements Connection {
         try {
             PreparedStatement p = to.prepareStatement(sql);
             SefPreparedStatementProxy res = new SefPreparedStatementProxy(this, p, sql);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -138,9 +131,9 @@ public class SefConnectionProxy implements Connection {
         try {
             CallableStatement tmpres = to.prepareCall(sql);
             SefCallableStatementProxy res = new SefCallableStatementProxy(this, tmpres, sql);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -154,9 +147,9 @@ public class SefConnectionProxy implements Connection {
         try {
             Statement p = to.createStatement(resultSetType, resultSetConcurrency);
             SefStatementProxy res = new SefStatementProxy(this, p, resultSetType, resultSetConcurrency);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -171,9 +164,9 @@ public class SefConnectionProxy implements Connection {
         try {
             PreparedStatement tmpres = to.prepareStatement(sql, resultSetType, resultSetConcurrency);
             SefPreparedStatementProxy res = new SefPreparedStatementProxy(this, tmpres, sql, resultSetType, resultSetConcurrency);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }        
@@ -187,9 +180,9 @@ public class SefConnectionProxy implements Connection {
         try {
             CallableStatement tmpres = to.prepareCall(sql, resultSetType, resultSetConcurrency);
             SefCallableStatementProxy res = new SefCallableStatementProxy(this, tmpres, sql, resultSetType, resultSetConcurrency);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -204,9 +197,9 @@ public class SefConnectionProxy implements Connection {
         try {
             Statement tmpres = to.createStatement(resultSetType, resultSetConcurrency, resultSetHoldability);
             SefStatementProxy res = new SefStatementProxy(this, tmpres, resultSetType, resultSetConcurrency, resultSetHoldability);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -221,9 +214,9 @@ public class SefConnectionProxy implements Connection {
         try {
             CallableStatement tmpres = to.prepareCall(sql, resultSetType, resultSetConcurrency, resultSetHoldability);
             SefCallableStatementProxy res = new SefCallableStatementProxy(this, tmpres, sql, resultSetType, resultSetConcurrency, resultSetHoldability);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -260,9 +253,9 @@ public class SefConnectionProxy implements Connection {
         try {
             String res = to.nativeSQL(sql);
             
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -276,7 +269,7 @@ public class SefConnectionProxy implements Connection {
             to.setAutoCommit(autoCommit);
             
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -293,7 +286,7 @@ public class SefConnectionProxy implements Connection {
             to.setTransactionIsolation(level);
             
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -309,7 +302,7 @@ public class SefConnectionProxy implements Connection {
             to.commit();
             
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -321,7 +314,7 @@ public class SefConnectionProxy implements Connection {
             to.rollback();
             
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -333,7 +326,7 @@ public class SefConnectionProxy implements Connection {
             to.releaseSavepoint(savepoint);
             
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -345,7 +338,7 @@ public class SefConnectionProxy implements Connection {
             to.rollback(savepoint);
             
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -357,7 +350,7 @@ public class SefConnectionProxy implements Connection {
             return to.setSavepoint();
             
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -369,7 +362,7 @@ public class SefConnectionProxy implements Connection {
             return to.setSavepoint(name);
             
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -383,7 +376,7 @@ public class SefConnectionProxy implements Connection {
             to.abort(executor);
             
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -396,7 +389,7 @@ public class SefConnectionProxy implements Connection {
             to.setReadOnly(readOnly);
             
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -417,7 +410,7 @@ public class SefConnectionProxy implements Connection {
             to.setHoldability(holdability);
             
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }

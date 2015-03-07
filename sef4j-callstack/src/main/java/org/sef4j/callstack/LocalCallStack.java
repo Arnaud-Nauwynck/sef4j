@@ -83,17 +83,24 @@ public class LocalCallStack {
 		toPop.close();
 	}
 
-	/** alias for progressStep(+1, null) */
-	public static void progressStep() {
-		progressStep(+1, null);
-	}
-	
+	/**
+	 * deprecated??  see StackPopper.progressStep()
+	 * @param incr
+	 * @param progressMessage
+	 */
 	public static void progressStep(int incr, String progressMessage) {
 		CallStackElt currStackElt = currThreadStackElt();
 		currStackElt.onProgressStep(incr, progressMessage);
 	}
+	
+	/** deprecated??  alias for progressStep(+1, null) */
+	public static void progressStep() {
+		progressStep(+1, null);
+	}
 
 	/**
+	 * @Deprecated ?? see  StackPopper.returnValue(value);
+	 * 
 	 * method for adding a CallStackElt corresponding to a return result value of a parent CallStackElt method
 	 * this is ~equivalent to <code>push().withParam() + immediate pop()</code>
 	 * but the pushed elt "start time" is taken from the parent call elt, to count statistics of correct method return
@@ -132,33 +139,8 @@ public class LocalCallStack {
     }
     
     /** 
-     * method for adding a CallStackElt corresponding to a void return of a parent CallStackElt method
-     * this is ~equivalent to <code>push() + immediate pop()</code>
-     * but the pushed elt "start time" is taken from the parent call elt, to count statistics of correct method return
+     * @Deprecated ... cf CallStackPopper.returnException()
      * 
-     * see also pushPopParentResValue()
-     * typical code usage:
-     * <code>
-     * public void foo() throws SQLException {
-     *  StackPopper toPop = LocalCallStack.meth("foo").push();
-     *  try {
-     *      // ... do foo
-     *      
-     *      LocalCallStack.pushPopParentReturn();
-     *  } catch(RuntimeException ex) {
-     *      throw LocalCallStack.pushPopParentException(ex);
-     *  } finally {
-     *      toPop.close();
-     *  }
-     * </code>
-     * 
-     */
-    public static void pushPopParentReturn() {
-        StackPopper toPop = meth("return").pushWithParentStartTime();
-        toPop.close();
-    }
-
-    /** 
      * method for adding a CallStackElt corresponding to a exception exit of a parent CallStackElt method
      * this is ~equivalent to <code>push() + immediate pop()</code>
      * but the pushed elt "start time" is taken from the parent call elt, to count statistics of correct method return

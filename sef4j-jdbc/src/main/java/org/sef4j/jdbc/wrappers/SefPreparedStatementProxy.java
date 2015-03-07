@@ -130,11 +130,11 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
             ResultSet tmpres = to.executeQuery();
 
             SefResultSetProxy res = new SefResultSetProxy(this, tmpres);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -145,11 +145,11 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
         try {
             int res = to.executeUpdate();
 
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -160,11 +160,11 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
         try {
             boolean res = to.execute();
 
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -176,9 +176,9 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
             to.addBatch();
 
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -192,9 +192,9 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
             // may wrap ... new SefResultSetMetaDataProxy(tmpres);
             return tmpres;
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -207,9 +207,9 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
 
             // may wrap ... new SefParameterMetaDataProxy(tmpres);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -225,9 +225,9 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
             clearParameters(); // also clear in-memory ParamInfo
 
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }

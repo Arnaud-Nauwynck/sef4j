@@ -37,9 +37,9 @@ public class SefDriverProxy implements Driver {
         	Connection tmpres = to.connect(url, info);
 
             SefConnectionProxy res = new SefConnectionProxy(null, tmpres);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -54,7 +54,7 @@ public class SefDriverProxy implements Driver {
         	boolean res = to.acceptsURL(url);
             return LocalCallStack.pushPopParentReturn(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -103,9 +103,9 @@ public class SefDriverProxy implements Driver {
         StackPopper toPop = LocalCallStack.meth("getParentLogger").push();
         try {
         	Logger res = to.getParentLogger();
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLFeatureNotSupportedException ex) {
-        	throw LocalCallStack.pushPopParentException(ex);
+        	throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }

@@ -49,9 +49,9 @@ public class SefResultSetProxy implements ResultSet {
         try {
             to.close();
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -99,14 +99,11 @@ public class SefResultSetProxy implements ResultSet {
         StackPopper toPop = LocalCallStack.meth("next").push();
         try {
             boolean res = to.next();
-            
-            // for separate stats ?... (knowing which "next()" will trigger a lazy "fetch()" would be more interresting!!) 
-            String returnEltName = (res)? "return_true" : "return_false"; 
-            return LocalCallStack.pushPopParentReturn(returnEltName, res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }

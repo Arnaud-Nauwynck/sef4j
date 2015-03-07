@@ -43,9 +43,9 @@ public class SefPooledConnectionProxy implements PooledConnection {
         	lastConnection = tmpres;
         	lastSefConnectionProxy = res;
         	
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -56,7 +56,7 @@ public class SefPooledConnectionProxy implements PooledConnection {
         try {
         	to.close();
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -69,7 +69,7 @@ public class SefPooledConnectionProxy implements PooledConnection {
 	    try {
 			to.addConnectionEventListener(listener);
 		} catch(RuntimeException ex) {
-		    throw LocalCallStack.pushPopParentException(ex);
+		    throw toPop.returnException(ex);
 		} finally {
 		    toPop.close();
 		}
@@ -80,7 +80,7 @@ public class SefPooledConnectionProxy implements PooledConnection {
 	    try {
 	        to.removeConnectionEventListener(listener);
 	    } catch(RuntimeException ex) {
-	        throw LocalCallStack.pushPopParentException(ex);
+	        throw toPop.returnException(ex);
 	    } finally {
 	        toPop.close();
 	    }
@@ -91,7 +91,7 @@ public class SefPooledConnectionProxy implements PooledConnection {
         try {
             to.addStatementEventListener(listener);
         } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -102,7 +102,7 @@ public class SefPooledConnectionProxy implements PooledConnection {
         try {
             to.removeStatementEventListener(listener);
         } catch(RuntimeException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }

@@ -87,7 +87,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
             to.close();
         } catch(SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -105,9 +105,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("isPoolable").push();
         try {
         	boolean res = to.isPoolable();
-            return LocalCallStack.pushPopParentReturnTrueFalse(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -120,7 +120,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
         	to.setPoolable(poolable);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -131,7 +131,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
         	to.closeOnCompletion();
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -141,9 +141,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("isCloseOnCompletion").push();
         try {
         	boolean res = to.isCloseOnCompletion();
-            return LocalCallStack.pushPopParentReturnTrueFalse(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -157,9 +157,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
             ResultSet tmpres = to.getResultSet();
             SefResultSetProxy res = new SefResultSetProxy(this, tmpres);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -169,9 +169,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("getMoreResults").push();
         try {
             boolean res = to.getMoreResults();
-            return LocalCallStack.pushPopParentReturnTrueFalse(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -185,9 +185,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
             ResultSet tmpres = to.executeQuery(sql);
             SefResultSetProxy res = new SefResultSetProxy(this, tmpres);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -199,9 +199,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
                 .push();
         try {
             boolean res = to.execute(sql);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -211,9 +211,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("getUpdateCount").push();
         try {
         	int res = to.getUpdateCount();
-        	return LocalCallStack.pushPopParentReturn(res);
+        	return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -226,9 +226,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
                 .push();
         try {
             boolean res = to.execute(sql, columnIndexes);
-            return LocalCallStack.pushPopParentReturnTrueFalse(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -241,9 +241,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
                 .push();
         try {
             boolean res = to.execute(sql, columnNames);
-            return LocalCallStack.pushPopParentReturnTrueFalse(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -258,9 +258,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
                 .push();
         try {
             boolean res = to.execute(sql, autoGeneratedKeys);
-            return LocalCallStack.pushPopParentReturnTrueFalse(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -272,9 +272,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
                 .push();
         try {
             int res = to.executeUpdate(sql);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -288,9 +288,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
                 .push();
         try {
             int res = to.executeUpdate(sql, autoGeneratedKeys);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -303,9 +303,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
                 .push();
         try {
             int res = to.executeUpdate(sql, columnIndexes);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -318,9 +318,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
                 .push();
         try {
             int res = to.executeUpdate(sql, columnNames);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -333,7 +333,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
             to.addBatch(sql);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -344,7 +344,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
             to.clearBatch();
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -354,9 +354,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("executeBatch").push();
         try {
             int[] res = to.executeBatch();
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -366,9 +366,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("getMaxFieldSize").push();
         try {
             int res = to.getMaxFieldSize();
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -381,7 +381,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
             to.setMaxFieldSize(max);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -391,9 +391,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("getMaxRows").push();
         try {
             int res = to.getMaxRows();
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -406,7 +406,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
             to.setMaxRows(max);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -419,7 +419,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
             to.setEscapeProcessing(enable);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -429,9 +429,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("getQueryTimeout").push();
         try {
             int res = to.getQueryTimeout();
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -444,7 +444,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
             to.setQueryTimeout(seconds);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -455,7 +455,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
             to.cancel();
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -466,9 +466,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
         	SQLWarning  tmpres = to.getWarnings();
         	SQLWarning res = tmpres; // TODO may wrap with SefSQLWarningProxy()
-        	return LocalCallStack.pushPopParentReturn(res);
+        	return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -479,7 +479,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
             to.clearWarnings();
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -492,7 +492,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     	try {
     		to.setCursorName(name);
     	} catch (SQLException ex) {
-    		throw LocalCallStack.pushPopParentException(ex);
+    		throw toPop.returnException(ex);
     	} finally {
     		toPop.close();
     	}
@@ -505,7 +505,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     	try {
     		to.setFetchDirection(direction);
     	} catch (SQLException ex) {
-    		throw LocalCallStack.pushPopParentException(ex);
+    		throw toPop.returnException(ex);
     	} finally {
     		toPop.close();
     	}
@@ -515,9 +515,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("getFetchDirection").push();
         try {
         	int res = to.getFetchDirection();
-        	return LocalCallStack.pushPopParentReturn(res);
+        	return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -530,7 +530,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     	try {
     		to.setFetchSize(rows);
     	} catch (SQLException ex) {
-    		throw LocalCallStack.pushPopParentException(ex);
+    		throw toPop.returnException(ex);
     	} finally {
     		toPop.close();
     	}
@@ -540,9 +540,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("getFetchSize").push();
         try {
         	int res = to.getFetchSize();
-        	return LocalCallStack.pushPopParentReturn(res);
+        	return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -552,9 +552,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("getResultSetConcurrency").push();
         try {
         	int res = to.getResultSetConcurrency();
-        	return LocalCallStack.pushPopParentReturn(res);
+        	return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -564,9 +564,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("getResultSetType").push();
         try {
         	int res = to.getResultSetType();
-        	return LocalCallStack.pushPopParentReturn(res);
+        	return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -577,9 +577,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         try {
         	ResultSet tmpres = to.getGeneratedKeys();
         	ResultSet res = new SefResultSetProxy(this, tmpres);
-        	return LocalCallStack.pushPopParentReturn(res);
+        	return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -591,9 +591,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         		.push();
         try {
         	boolean res = to.getMoreResults(current);
-        	return LocalCallStack.pushPopParentReturnTrueFalse(res);
+        	return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -603,9 +603,9 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
         StackPopper toPop = LocalCallStack.meth("getResultSetHoldability").push();
         try {
         	int res = to.getResultSetHoldability();
-        	return LocalCallStack.pushPopParentReturn(res);
+        	return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }

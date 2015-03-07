@@ -46,7 +46,7 @@ public class SefXAResourceProxy implements XAResource {
         try {
     		to.start(xid, flags);
         } catch(XAException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -58,9 +58,9 @@ public class SefXAResourceProxy implements XAResource {
         		.push();
         try {
     		int res = to.prepare(xid);
-    		return LocalCallStack.pushPopParentReturn(res);
+    		return toPop.returnValue(res);
         } catch(XAException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -74,7 +74,7 @@ public class SefXAResourceProxy implements XAResource {
         try {
     		to.commit(xid, onePhase);
         } catch(XAException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -87,7 +87,7 @@ public class SefXAResourceProxy implements XAResource {
         try {
     		to.rollback(xid);
         } catch(XAException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -101,7 +101,7 @@ public class SefXAResourceProxy implements XAResource {
         try {
     		to.end(xid, flag);
         } catch(XAException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -114,7 +114,7 @@ public class SefXAResourceProxy implements XAResource {
         try {
     		to.forget(xid);
         } catch(XAException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -126,9 +126,9 @@ public class SefXAResourceProxy implements XAResource {
         		.push();
         try {
     		Xid[] res = to.recover(xid);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(XAException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -142,9 +142,9 @@ public class SefXAResourceProxy implements XAResource {
         	XAResource xaresUnwrapped = (xares instanceof SefXAResourceProxy)? 
         			((SefXAResourceProxy)xares).to : xares;
     		boolean res = to.isSameRM(xaresUnwrapped);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(XAException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -154,9 +154,9 @@ public class SefXAResourceProxy implements XAResource {
         StackPopper toPop = LocalCallStack.meth("getTransactionTimeout").push();
         try {
     		int res = to.getTransactionTimeout();
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(XAException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -167,9 +167,9 @@ public class SefXAResourceProxy implements XAResource {
         		.withParam("seconds", seconds).push();
         try {
     		boolean res = to.setTransactionTimeout(seconds);
-            return LocalCallStack.pushPopParentReturnTrueFalse(res);
+            return toPop.returnValue(res);
         } catch(XAException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }

@@ -96,10 +96,9 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
         StackPopper toPop = LocalCallStack.meth("wasNull").push();
         try {
             boolean res = to.wasNull();
-            LocalCallStack.pushPopParentReturn(res);
-            return res;
+            return toPop.returnValue(res);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -118,7 +117,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
             to.registerOutParameter(parameterIndex, sqlType);
             doRegisterOutputParamInfo(parameterIndex).sqlType(sqlType);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -134,7 +133,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
             to.registerOutParameter(parameterIndex, sqlType, scale);
             doRegisterOutputParamInfo(parameterIndex).sqlType(sqlType).scale(scale);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -150,7 +149,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
             to.registerOutParameter(parameterIndex, sqlType, typeName);
             doRegisterOutputParamInfo(parameterIndex).sqlType(sqlType).typeName(typeName);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -165,7 +164,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
             to.registerOutParameter(parameterName, sqlType);
             doRegisterOutputParamInfo(parameterName).sqlType(sqlType);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -181,7 +180,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
             to.registerOutParameter(parameterName, sqlType, scale);
             doRegisterOutputParamInfo(parameterName).sqlType(sqlType).scale(scale);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }
@@ -197,7 +196,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
             to.registerOutParameter(parameterName, sqlType, typeName);
             doRegisterOutputParamInfo(parameterName).sqlType(sqlType).typeName(typeName);
         } catch (SQLException ex) {
-            throw LocalCallStack.pushPopParentException(ex);
+            throw toPop.returnException(ex);
         } finally {
             toPop.close();
         }

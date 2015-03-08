@@ -1,5 +1,7 @@
 package org.sef4j.callstack.stats;
 
+import java.util.concurrent.Callable;
+
 
 /**
  * performance time statistics and counters using small Log-based histogram
@@ -43,6 +45,13 @@ public final class BasicTimeStatsLogHistogram {
 	public BasicTimeStatsLogHistogram() {
 	}
 
+	public static final Callable<BasicTimeStatsLogHistogram> FACTORY = new Callable<BasicTimeStatsLogHistogram>() {
+        @Override
+        public BasicTimeStatsLogHistogram call() throws Exception {
+            return new BasicTimeStatsLogHistogram();
+        }
+    };
+    
 	// ------------------------------------------------------------------------
 
 	public void incr(long value) {

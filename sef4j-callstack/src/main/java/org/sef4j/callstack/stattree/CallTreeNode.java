@@ -1,5 +1,7 @@
 package org.sef4j.callstack.stattree;
 
+import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -56,7 +58,11 @@ public class CallTreeNode {
 	public LinkedHashMap<String, CallTreeNode> getChildMap() {
 		return childMap;
 	}
-	
+
+	public Collection<CallTreeNode> getChildList() {
+	    return childMap.values();
+	}
+
 	public PerfStats getStats() {
 		return stats;
 	}
@@ -168,6 +174,11 @@ public class CallTreeNode {
 		return res;
 	}
 
+	/** @return unmodifiable Map, and immutable (owner use copy-on-write, so new Map is created) */
+	public Map<String,Object> getPropsMap() {
+	    return Collections.unmodifiableMap(propsMap);
+	}
+	
 	// ------------------------------------------------------------------------
 	
 

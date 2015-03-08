@@ -31,6 +31,8 @@ import org.sef4j.callstack.LocalCallStack;
  */
 public class SefPreparedStatementProxy extends SefStatementProxy implements PreparedStatement {
 
+	private static final String CNAME = SefPreparedStatementProxy.class.getName();
+	
     /** redondant with ((PreparedStatement)super.to) */
     private PreparedStatement to;
 
@@ -125,7 +127,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     // ------------------------------------------------------------------------
 
     public final ResultSet executeQuery() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("executeQuery").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "executeQuery").push();
         try {
             ResultSet tmpres = to.executeQuery();
 
@@ -141,7 +143,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final int executeUpdate() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("executeUpdate").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "executeUpdate").push();
         try {
             int res = to.executeUpdate();
 
@@ -156,7 +158,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final boolean execute() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("execute").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "execute").push();
         try {
             boolean res = to.execute();
 
@@ -171,7 +173,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final void addBatch() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("addBatch").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "addBatch").push();
         try {
             to.addBatch();
 
@@ -185,7 +187,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final ResultSetMetaData getMetaData() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getMetaData").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getMetaData").push();
         try {
             ResultSetMetaData tmpres = to.getMetaData();
 
@@ -201,7 +203,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     }
 
     public final ParameterMetaData getParameterMetaData() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getParameterMetaData").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getParameterMetaData").push();
         try {
             return to.getParameterMetaData();
 
@@ -219,7 +221,7 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     // -------------------------------------------------------------------------
 
     public final void clearParameters() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("clearParameters").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "clearParameters").push();
         try {
             to.clearParameters();
             clearParameters(); // also clear in-memory ParamInfo

@@ -14,6 +14,8 @@ public class CallStackEltTest {
 
 	private static final long PREC_MILLIS = 40;
 	
+	private static final String CNAME = CallStackEltTest.class.getName();
+	
 	@Test
 	public void testAddRootCallStackHandler() {
 		// Prepare
@@ -67,7 +69,7 @@ public class CallStackEltTest {
 		currCallStack.curr().addRootCallStackHandler(handler);
 		long threadSleepMillis = 50;
 		// Perform
-		StackPopper toPop = LocalCallStack.meth("test").push();
+		StackPopper toPop = LocalCallStack.meth(CNAME, "test").push();
 		try {
 			Thread.sleep(threadSleepMillis);
 		} finally {
@@ -100,7 +102,7 @@ public class CallStackEltTest {
 		long cpuLoopCount = ThreadCpuTstUtils.cpuLoopCountForMillis(cpuLoopMillis);
 		
 		// Perform
-		StackPopper toPop = LocalCallStack.meth("test").push();
+		StackPopper toPop = LocalCallStack.meth(CNAME, "test").push();
 		try {
 			ThreadCpuTstUtils.cpuLoop(cpuLoopCount);
 		} finally {

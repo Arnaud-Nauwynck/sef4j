@@ -3,20 +3,21 @@ package org.sef4j.jdbc.wrappers;
 import java.sql.Connection;
 import java.sql.Driver;
 import java.sql.DriverPropertyInfo;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.SQLFeatureNotSupportedException;
 import java.util.Properties;
 import java.util.logging.Logger;
 
-import org.sef4j.callstack.LocalCallStack;
 import org.sef4j.callstack.CallStackElt.StackPopper;
+import org.sef4j.callstack.LocalCallStack;
 
 /**
  * java.sql.Driver proxy instrumented for using LocalCallStack.push()/pop() + return wrapped Connection
  */
 public class SefDriverProxy implements Driver {
 
+	private static final String CNAME = SefDriverProxy.class.getName();
+	
 	private Driver to;
 
 	// ------------------------------------------------------------------------
@@ -29,7 +30,7 @@ public class SefDriverProxy implements Driver {
 	
 	@Override
 	public Connection connect(String url, Properties info) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("connect")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "connect")
         		.withParam("url", url)
         		.withParam("info", info) // NOTICE: may contains security credentials!...
         		.push();
@@ -47,12 +48,12 @@ public class SefDriverProxy implements Driver {
 
 	@Override
 	public boolean acceptsURL(String url) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("acceptsURL")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "acceptsURL")
         		.withParam("url", url)
         		.push();
         try {
         	boolean res = to.acceptsURL(url);
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } catch(SQLException ex) {
             throw toPop.returnException(ex);
         } finally {
@@ -67,10 +68,10 @@ public class SefDriverProxy implements Driver {
 
 	@Override
 	public int getMajorVersion() {
-        StackPopper toPop = LocalCallStack.meth("getMajorVersion").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getMajorVersion").push();
         try {
         	int res = to.getMajorVersion();
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } finally {
             toPop.close();
         }
@@ -78,10 +79,10 @@ public class SefDriverProxy implements Driver {
 
 	@Override
 	public int getMinorVersion() {
-        StackPopper toPop = LocalCallStack.meth("getMinorVersion").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getMinorVersion").push();
         try {
         	int res = to.getMinorVersion();
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } finally {
             toPop.close();
         }
@@ -89,10 +90,10 @@ public class SefDriverProxy implements Driver {
 
 	@Override
 	public boolean jdbcCompliant() {
-        StackPopper toPop = LocalCallStack.meth("jdbcCompliant").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "jdbcCompliant").push();
         try {
         	boolean res = to.jdbcCompliant();
-            return LocalCallStack.pushPopParentReturn(res);
+            return toPop.returnValue(res);
         } finally {
             toPop.close();
         }
@@ -100,7 +101,7 @@ public class SefDriverProxy implements Driver {
 
 	@Override
 	public Logger getParentLogger() throws SQLFeatureNotSupportedException {
-        StackPopper toPop = LocalCallStack.meth("getParentLogger").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getParentLogger").push();
         try {
         	Logger res = to.getParentLogger();
             return toPop.returnValue(res);

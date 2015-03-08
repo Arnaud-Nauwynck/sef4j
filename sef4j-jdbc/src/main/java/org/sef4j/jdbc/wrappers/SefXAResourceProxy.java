@@ -13,6 +13,8 @@ import org.sef4j.callstack.LocalCallStack;
  */
 public class SefXAResourceProxy implements XAResource {
 
+	private static final String CNAME = SefXAResourceProxy.class.getName();
+	
 	/** underlying for proxy */
     private final XAResource to;
 
@@ -39,7 +41,7 @@ public class SefXAResourceProxy implements XAResource {
 	// ------------------------------------------------------------------------
 
 	public void start(Xid xid, int flags) throws XAException {
-        StackPopper toPop = LocalCallStack.meth("start")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "start")
         		.withParam("xid", xid)
         		.withParam("flags", flags)
         		.push();
@@ -53,7 +55,7 @@ public class SefXAResourceProxy implements XAResource {
 	}
 
 	public int prepare(Xid xid) throws XAException {
-        StackPopper toPop = LocalCallStack.meth("prepare")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "prepare")
         		.withParam("xid", xid)
         		.push();
         try {
@@ -67,7 +69,7 @@ public class SefXAResourceProxy implements XAResource {
 	}
 
 	public void commit(Xid xid, boolean onePhase) throws XAException {
-        StackPopper toPop = LocalCallStack.meth("commit")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "commit")
         		.withParam("xid", xid)
         		.withParam("onePhase", onePhase)
         		.push();
@@ -81,7 +83,7 @@ public class SefXAResourceProxy implements XAResource {
 	}
 	
 	public void rollback(Xid xid) throws XAException {
-        StackPopper toPop = LocalCallStack.meth("rollback")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "rollback")
         		.withParam("xid", xid)
         		.push();
         try {
@@ -94,7 +96,7 @@ public class SefXAResourceProxy implements XAResource {
 	}
 
 	public void end(Xid xid, int flag) throws XAException {
-        StackPopper toPop = LocalCallStack.meth("end")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "end")
         		.withParam("xid", xid)
         		.withParam("flag", flag)
         		.push();
@@ -108,7 +110,7 @@ public class SefXAResourceProxy implements XAResource {
 	}
 
 	public void forget(Xid xid) throws XAException {
-        StackPopper toPop = LocalCallStack.meth("forget")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "forget")
         		.withParam("xid", xid)
         		.push();
         try {
@@ -121,7 +123,7 @@ public class SefXAResourceProxy implements XAResource {
 	}
 
 	public Xid[] recover(int xid) throws XAException {
-        StackPopper toPop = LocalCallStack.meth("recover")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "recover")
         		.withParam("xid", xid)
         		.push();
         try {
@@ -135,7 +137,7 @@ public class SefXAResourceProxy implements XAResource {
 	}
 
 	public boolean isSameRM(XAResource xares) throws XAException {
-        StackPopper toPop = LocalCallStack.meth("isSameRM")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "isSameRM")
         		.withParam("xares", xares)
         		.push();
         try {
@@ -151,7 +153,7 @@ public class SefXAResourceProxy implements XAResource {
 	}
 
 	public int getTransactionTimeout() throws XAException {
-        StackPopper toPop = LocalCallStack.meth("getTransactionTimeout").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getTransactionTimeout").push();
         try {
     		int res = to.getTransactionTimeout();
             return toPop.returnValue(res);
@@ -163,7 +165,7 @@ public class SefXAResourceProxy implements XAResource {
 	}
 
 	public boolean setTransactionTimeout(int seconds) throws XAException {
-        StackPopper toPop = LocalCallStack.meth("setTransactionTimeout")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "setTransactionTimeout")
         		.withParam("seconds", seconds).push();
         try {
     		boolean res = to.setTransactionTimeout(seconds);

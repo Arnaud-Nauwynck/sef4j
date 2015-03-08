@@ -7,6 +7,8 @@ import org.sef4j.callstack.CallStackElt.StackPopper;
 
 public class LocalCallStackTest {
 
+	private static final String CNAME = LocalCallStackTest.class.getName();
+	
 	@Test
 	public void testGet() {
 		CallStack currCallStack = LocalCallStack.get();
@@ -35,7 +37,7 @@ public class LocalCallStackTest {
 		CallStackElt currCallStackElt = currCallStack.curr();
 		
 		// Perform
-		StackPopper toPop = LocalCallStack.meth("test").push();
+		StackPopper toPop = LocalCallStack.meth(CNAME, "test").push();
 		try {
 			// do nothing
 		} finally {

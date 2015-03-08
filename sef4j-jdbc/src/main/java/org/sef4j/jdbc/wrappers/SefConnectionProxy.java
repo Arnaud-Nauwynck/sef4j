@@ -34,6 +34,8 @@ import org.sef4j.jdbc.util.ConnectionUtils;
  */
 public class SefConnectionProxy implements Connection {
 
+	private static final String CNAME = SefConnectionProxy.class.getName();
+	
     private SefDataSourceProxy owner;
     
     /** underlying for proxy */
@@ -78,7 +80,7 @@ public class SefConnectionProxy implements Connection {
     // ------------------------------------------------------------------------
 
     public void close() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("close").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "close").push();
         try {
             to.close();
         } catch(SQLException ex) {
@@ -101,7 +103,7 @@ public class SefConnectionProxy implements Connection {
     // ------------------------------------------------------------------------
 
     public Statement createStatement() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("createStatment").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "createStatment").push();
         try {
             Statement tmpres = to.createStatement();
             SefStatementProxy res = new SefStatementProxy(this, tmpres);
@@ -114,7 +116,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public PreparedStatement prepareStatement(String sql) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("prepareStatement").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "prepareStatement").push();
         try {
             PreparedStatement p = to.prepareStatement(sql);
             SefPreparedStatementProxy res = new SefPreparedStatementProxy(this, p, sql);
@@ -127,7 +129,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public CallableStatement prepareCall(String sql) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("prepareCall").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "prepareCall").push();
         try {
             CallableStatement tmpres = to.prepareCall(sql);
             SefCallableStatementProxy res = new SefCallableStatementProxy(this, tmpres, sql);
@@ -140,7 +142,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public Statement createStatement(int resultSetType, int resultSetConcurrency) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("createStatment(int,int)")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "createStatment(int,int)")
                 .withParam("resultSetType", resultSetType)
                 .withParam("resultSetConcurrency", resultSetConcurrency)
                 .push();
@@ -157,7 +159,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public PreparedStatement prepareStatement(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("prepareStatement(String,int,int)")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "prepareStatement(String,int,int)")
                 .withParam("resultSetType", resultSetType)
                 .withParam("resultSetConcurrency", resultSetConcurrency)
                 .push();
@@ -173,7 +175,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("prepareCall(String,int,int)")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "prepareCall(String,int,int)")
                 .withParam("resultSetType", resultSetType)
                 .withParam("resultSetConcurrency", resultSetConcurrency)
                 .push();
@@ -189,7 +191,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public Statement createStatement(int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("createStatement(int,int,int)")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "createStatement(int,int,int)")
                 .withParam("resultSetType", resultSetType)
                 .withParam("resultSetConcurrency", resultSetConcurrency)
                 .withParam("resultSetHoldability", resultSetHoldability)
@@ -206,7 +208,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public CallableStatement prepareCall(String sql, int resultSetType, int resultSetConcurrency, int resultSetHoldability) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("prepareCall(String,int,int,int)")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "prepareCall(String,int,int,int)")
                 .withParam("resultSetType", resultSetType)
                 .withParam("resultSetConcurrency", resultSetConcurrency)
                 .withParam("resultSetHoldability", resultSetHoldability)
@@ -249,7 +251,7 @@ public class SefConnectionProxy implements Connection {
     // ------------------------------------------------------------------------
 
     public String nativeSQL(String sql) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("nativeSQL").withParam("sql", sql).push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "nativeSQL").withParam("sql", sql).push();
         try {
             String res = to.nativeSQL(sql);
             
@@ -264,7 +266,7 @@ public class SefConnectionProxy implements Connection {
     public void setAutoCommit(boolean autoCommit) throws SQLException {
         // distinguish true/false as pseudo method name for stats
         String pseudoMeth = (autoCommit)? "setAutoCommit_true" : "setAutoCommit_false";
-        StackPopper toPop = LocalCallStack.meth(pseudoMeth).push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, pseudoMeth).push();
         try {
             to.setAutoCommit(autoCommit);
             
@@ -281,7 +283,7 @@ public class SefConnectionProxy implements Connection {
 
     public void setTransactionIsolation(int level) throws SQLException {
         String pseudoMeth = "setTransactionIsolation_" + ConnectionUtils.transactionLevelToString(level);
-        StackPopper toPop = LocalCallStack.meth(pseudoMeth).push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, pseudoMeth).push();
         try {
             to.setTransactionIsolation(level);
             
@@ -297,7 +299,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public void commit() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("commit").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "commit").push();
         try {
             to.commit();
             
@@ -309,7 +311,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public void rollback() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("rollback").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "rollback").push();
         try {
             to.rollback();
             
@@ -321,7 +323,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public void releaseSavepoint(Savepoint savepoint) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("releaseSavepoint").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "releaseSavepoint").push();
         try {
             to.releaseSavepoint(savepoint);
             
@@ -333,7 +335,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public void rollback(Savepoint savepoint) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("rollback_savepoint").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "rollback_savepoint").push();
         try {
             to.rollback(savepoint);
             
@@ -345,7 +347,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public Savepoint setSavepoint() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("setSavepoint").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "setSavepoint").push();
         try {
             return to.setSavepoint();
             
@@ -357,7 +359,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public Savepoint setSavepoint(String name) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("setSavepoint_name").withParam("name", name).push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "setSavepoint_name").withParam("name", name).push();
         try {
             return to.setSavepoint(name);
             
@@ -369,7 +371,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public void abort(Executor executor) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("abort")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "abort")
                 // .withParam("executor", executor)
                 .push();
         try {
@@ -384,7 +386,7 @@ public class SefConnectionProxy implements Connection {
 
     public void setReadOnly(boolean readOnly) throws SQLException {
         String pseudoMeth = (readOnly)? "setReadOnly_true" : "setReadOnly_false";
-        StackPopper toPop = LocalCallStack.meth(pseudoMeth).push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, pseudoMeth).push();
         try {
             to.setReadOnly(readOnly);
             
@@ -405,7 +407,7 @@ public class SefConnectionProxy implements Connection {
     }
 
     public void setHoldability(int holdability) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("setHoldability").withParam("holdability", holdability).push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "setHoldability").withParam("holdability", holdability).push();
         try {
             to.setHoldability(holdability);
             

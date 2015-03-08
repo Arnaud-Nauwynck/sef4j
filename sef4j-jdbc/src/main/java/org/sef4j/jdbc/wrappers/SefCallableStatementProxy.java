@@ -27,6 +27,8 @@ import org.sef4j.callstack.LocalCallStack;
  */
 public class SefCallableStatementProxy extends SefPreparedStatementProxy implements CallableStatement {
 
+	private static final String CNAME = SefCallableStatementProxy.class.getName();
+	
     /** redondant with <code>((CallableStatement)super.to)</code> */
     protected final CallableStatement to;
 
@@ -93,7 +95,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     // ------------------------------------------------------------------------
 
     public boolean wasNull() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("wasNull").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "wasNull").push();
         try {
             boolean res = to.wasNull();
             return toPop.returnValue(res);
@@ -109,7 +111,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     // -------------------------------------------------------------
 
     public void registerOutParameter(int parameterIndex, int sqlType) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("registerOutParameter(int,int)")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "registerOutParameter(int,int)")
                 .withParam("parameterIndex", parameterIndex)
                 .withParam("sqlType", sqlType)
                 .push();
@@ -124,7 +126,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public void registerOutParameter(int parameterIndex, int sqlType, int scale) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("registerOutParameter(int,int,int)")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "registerOutParameter(int,int,int)")
                 .withParam("parameterIndex", parameterIndex)
                 .withParam("sqlType", sqlType)
                 .withParam("scale", scale)
@@ -140,7 +142,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public void registerOutParameter(int parameterIndex, int sqlType, String typeName) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("registerOutParameter(int,int,String)")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "registerOutParameter(int,int,String)")
                 .withParam("parameterIndex", parameterIndex)
                 .withParam("sqlType", sqlType)
                 .withParam("typeName", typeName)
@@ -156,7 +158,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public void registerOutParameter(String parameterName, int sqlType) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("registerOutParameter(String,int)")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "registerOutParameter(String,int)")
                 .withParam("parameterName", parameterName)
                 .withParam("sqlType", sqlType)
                 .push();
@@ -171,7 +173,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public void registerOutParameter(String parameterName, int sqlType, int scale) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("registerOutParameter(String,int,int)")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "registerOutParameter(String,int,int)")
                 .withParam("parameterName", parameterName)
                 .withParam("sqlType", sqlType)
                 .withParam("scale", scale)
@@ -187,7 +189,7 @@ public class SefCallableStatementProxy extends SefPreparedStatementProxy impleme
     }
 
     public void registerOutParameter(String parameterName, int sqlType, String typeName) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("registerOutParameter(String,int,String)")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "registerOutParameter(String,int,String)")
                 .withParam("parameterName", parameterName)
                 .withParam("sqlType", sqlType)
                 .withParam("typeName", typeName)

@@ -14,6 +14,8 @@ import org.sef4j.callstack.CallStackElt.StackPopper;
  */
 public class SefXAConnectionProxy extends SefPooledConnectionProxy implements XAConnection {
 
+	private static final String CNAME = SefXAConnectionProxy.class.getName();
+	
     /** redundant with <code>(XAConnection)super.to</code> */
     private XAConnection to;
     
@@ -30,7 +32,7 @@ public class SefXAConnectionProxy extends SefPooledConnectionProxy implements XA
 	// ------------------------------------------------------------------------
 	
 	public XAResource getXAResource() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getXAResource").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getXAResource").push();
         try {
     		XAResource tmpres = to.getXAResource();  		
     		SefXAResourceProxy res = wrapOrReuseWrapper(tmpres);

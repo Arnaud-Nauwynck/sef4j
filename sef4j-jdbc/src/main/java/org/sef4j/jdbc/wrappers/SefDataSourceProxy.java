@@ -13,6 +13,8 @@ import org.sef4j.callstack.LocalCallStack;
  */
 public class SefDataSourceProxy extends SefCommonDataSourceProxy implements DataSource {
 
+	private static final String CNAME = SefDataSourceProxy.class.getName();
+	
 	protected DataSource to;
 	
 	// ------------------------------------------------------------------------
@@ -32,7 +34,7 @@ public class SefDataSourceProxy extends SefCommonDataSourceProxy implements Data
 	// ------------------------------------------------------------------------
 
 	public Connection getConnection() throws SQLException {
-	    StackPopper toPop = LocalCallStack.meth("getConnection").push();
+	    StackPopper toPop = LocalCallStack.meth(CNAME, "getConnection").push();
 	    try {
 	        Connection toConn = to.getConnection();
 
@@ -48,7 +50,7 @@ public class SefDataSourceProxy extends SefCommonDataSourceProxy implements Data
 	}
 
 	public Connection getConnection(String username, String password) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getConnection(String,String)")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getConnection(String,String)")
                 .withParam("username", username)
                 // .withParam("password", password) ... security hidden param!
                 .push();

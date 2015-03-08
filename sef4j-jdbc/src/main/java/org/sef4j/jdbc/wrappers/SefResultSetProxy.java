@@ -31,6 +31,8 @@ import org.sef4j.callstack.CallStackElt.StackPopper;
  */
 public class SefResultSetProxy implements ResultSet {
 
+	private static final String CNAME = SefResultSetProxy.class.getName();
+	
     private ResultSet to;
     private SefStatementProxy parent;
     
@@ -45,7 +47,7 @@ public class SefResultSetProxy implements ResultSet {
     // ------------------------------------------------------------------------
 
     public void close() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("next").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "next").push();
         try {
             to.close();
         } catch(SQLException ex) {
@@ -96,7 +98,7 @@ public class SefResultSetProxy implements ResultSet {
     
     
     public boolean next() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("next").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "next").push();
         try {
             boolean res = to.next();
             return toPop.returnValue(res);

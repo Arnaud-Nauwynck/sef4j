@@ -6,6 +6,8 @@ import org.sef4j.callstack.ThreadCpuTstUtils;
 
 public class InstrumentedRecurseCallStackFoo {
 
+	private static final String CNAME = InstrumentedRecurseCallStackFoo.class.getName();
+	
 	public int repeatFooCount = 1;
 	public long fooThreadSleep = 0;
 	public long fooThreadCpuLoop = 0; 
@@ -16,7 +18,7 @@ public class InstrumentedRecurseCallStackFoo {
 	public long bazThreadCpuLoop = 0;
 
 	public void fooBar() {
-		StackPopper toPop = LocalCallStack.meth("foo").push();
+		StackPopper toPop = LocalCallStack.meth(CNAME, "foo").push();
 		try {
 			bar();
 		} finally {
@@ -25,7 +27,7 @@ public class InstrumentedRecurseCallStackFoo {
 	}
 
 	public void bar() {
-		StackPopper toPop = LocalCallStack.meth("bar").push();
+		StackPopper toPop = LocalCallStack.meth(CNAME, "bar").push();
 		try {
 		} finally {
 			toPop.close();
@@ -34,12 +36,12 @@ public class InstrumentedRecurseCallStackFoo {
 
 
 	public void fooProgress(int progressCount) {
-		StackPopper toPop = LocalCallStack.meth("foo")
+		StackPopper toPop = LocalCallStack.meth(CNAME, "foo")
 				.withProgressExpectedCount(progressCount)
 				.push();
 		try {
 			for (int i = 0; i < progressCount; i++) {
-				LocalCallStack.progressStep(1, null);
+				toPop.progressStep(1, null);
 			}
 		} finally {
 			toPop.close();
@@ -49,7 +51,7 @@ public class InstrumentedRecurseCallStackFoo {
 	
 	public void fooRecurseBarBaz() {
 		for(int i = 0; i < repeatFooCount; i++) {
-			StackPopper toPop = LocalCallStack.meth("foo").push();
+			StackPopper toPop = LocalCallStack.meth(CNAME, "foo").push();
 			try {
 				ThreadCpuTstUtils.sleepAndCpu(fooThreadSleep, fooThreadCpuLoop);
 				for (int j = 0; j < repeatBarRecurseCount; j++) {
@@ -62,7 +64,7 @@ public class InstrumentedRecurseCallStackFoo {
 	}
 
 	public void recurseBar(int recurse) {
-		StackPopper toPop = LocalCallStack.meth("recurseBar").push();
+		StackPopper toPop = LocalCallStack.meth(CNAME, "recurseBar").push();
 		try {
 			if (recurse > 0) {
 				// *** recurse ***
@@ -76,7 +78,7 @@ public class InstrumentedRecurseCallStackFoo {
 	}
 
 	public void barBaz() {
-		StackPopper toPop = LocalCallStack.meth("bar").push();
+		StackPopper toPop = LocalCallStack.meth(CNAME, "bar").push();
 		try {
 			for(int i = 0; i < repeatBazCount; i++) {
 				baz();
@@ -87,7 +89,7 @@ public class InstrumentedRecurseCallStackFoo {
 	}
 
 	private void baz() {
-		StackPopper toPop = LocalCallStack.meth("baz").push();
+		StackPopper toPop = LocalCallStack.meth(CNAME, "baz").push();
 		try {
 			ThreadCpuTstUtils.sleepAndCpu(bazThreadSleep, bazThreadCpuLoop);
 		} finally {

@@ -16,6 +16,8 @@ import org.sef4j.jdbc.util.StatementUtils;
  */
 public class SefStatementProxy implements Statement { // .. implements Wrapper, AutoCloseable
 
+	private static final String CNAME = SefStatementProxy.class.getName();
+	
     /** underlying of proxy */
     protected Statement to;
 
@@ -83,7 +85,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final void close() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("close").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "close").push();
         try {
             to.close();
         } catch(SQLException ex) {
@@ -102,7 +104,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public boolean isPoolable() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("isPoolable").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "isPoolable").push();
         try {
         	boolean res = to.isPoolable();
             return toPop.returnValue(res);
@@ -114,7 +116,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public void setPoolable(boolean poolable) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("setPoolable")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "setPoolable")
         		.withParam("poolable", poolable)
         		.push();
         try {
@@ -127,7 +129,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public void closeOnCompletion() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("closeOnCompletion").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "closeOnCompletion").push();
         try {
         	to.closeOnCompletion();
         } catch (SQLException ex) {
@@ -138,7 +140,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public boolean isCloseOnCompletion() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("isCloseOnCompletion").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "isCloseOnCompletion").push();
         try {
         	boolean res = to.isCloseOnCompletion();
             return toPop.returnValue(res);
@@ -153,7 +155,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     // ------------------------------------------------------------------------
     
     public final ResultSet getResultSet() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getResultSet").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getResultSet").push();
         try {
             ResultSet tmpres = to.getResultSet();
             SefResultSetProxy res = new SefResultSetProxy(this, tmpres);
@@ -166,7 +168,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final boolean getMoreResults() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getMoreResults").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getMoreResults").push();
         try {
             boolean res = to.getMoreResults();
             return toPop.returnValue(res);
@@ -179,7 +181,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
 
     
     public final ResultSet executeQuery(String sql) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("executeQuery")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "executeQuery")
                 .withParam("sql",  sql)
                 .push();
         try {
@@ -194,7 +196,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final boolean execute(String sql) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("execute")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "execute")
                 .withParam("sql",  sql)
                 .push();
         try {
@@ -208,7 +210,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int getUpdateCount() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getUpdateCount").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getUpdateCount").push();
         try {
         	int res = to.getUpdateCount();
         	return toPop.returnValue(res);
@@ -220,7 +222,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final boolean execute(String sql, int[] columnIndexes) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("execute(String,int[])")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "execute(String,int[])")
                 .withParam("sql",  sql)
                 .withParam("columnIndexes", columnIndexes)
                 .push();
@@ -235,7 +237,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final boolean execute(String sql, String[] columnNames) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("execute(String,String[])")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "execute(String,String[])")
                 .withParam("sql",  sql)
                 .withParam("columnNames", columnNames)
                 .push();
@@ -252,7 +254,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     
     public final boolean execute(String sql, int autoGeneratedKeys) throws SQLException {
         String meth = "execute(String," + StatementUtils.autoGeneratedKeysToString(autoGeneratedKeys) +")";
-        StackPopper toPop = LocalCallStack.meth(meth)
+        StackPopper toPop = LocalCallStack.meth(CNAME, meth)
                 .withParam("sql",  sql)
                 .withParam("autoGeneratedKeys", autoGeneratedKeys)
                 .push();
@@ -267,7 +269,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int executeUpdate(String sql) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("executeUpdate")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "executeUpdate")
                 .withParam("sql",  sql)
                 .push();
         try {
@@ -282,7 +284,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
 
     public final int executeUpdate(String sql, int autoGeneratedKeys) throws SQLException {
         String meth = "executeUpdate(String," + StatementUtils.autoGeneratedKeysToString(autoGeneratedKeys);
-        StackPopper toPop = LocalCallStack.meth(meth)
+        StackPopper toPop = LocalCallStack.meth(CNAME, meth)
                 .withParam("sql",  sql)
                 .withParam("autoGeneratedKeys", autoGeneratedKeys)
                 .push();
@@ -297,7 +299,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int executeUpdate(String sql, int[] columnIndexes) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("executeUpdate(String,int[])")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "executeUpdate(String,int[])")
                 .withParam("sql",  sql)
                 .withParam("columnIndexes", columnIndexes)
                 .push();
@@ -312,7 +314,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int executeUpdate(String sql, String[] columnNames) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("executeUpdate(String,String[])")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "executeUpdate(String,String[])")
                 .withParam("sql",  sql)
                 .withParam("columnNames", columnNames)
                 .push();
@@ -327,7 +329,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
     
     public final void addBatch(String sql) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("addBatch")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "addBatch")
                 .withParam("sql",  sql)
                 .push();
         try {
@@ -340,7 +342,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final void clearBatch() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("clearBatch").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "clearBatch").push();
         try {
             to.clearBatch();
         } catch (SQLException ex) {
@@ -351,7 +353,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int[] executeBatch() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("executeBatch").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "executeBatch").push();
         try {
             int[] res = to.executeBatch();
             return toPop.returnValue(res);
@@ -363,7 +365,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int getMaxFieldSize() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getMaxFieldSize").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getMaxFieldSize").push();
         try {
             int res = to.getMaxFieldSize();
             return toPop.returnValue(res);
@@ -375,7 +377,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final void setMaxFieldSize(int max) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("setMaxFieldSize")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "setMaxFieldSize")
         		.withParam("max", max)
         		.push();
         try {
@@ -388,7 +390,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int getMaxRows() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getMaxRows").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getMaxRows").push();
         try {
             int res = to.getMaxRows();
             return toPop.returnValue(res);
@@ -400,7 +402,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final void setMaxRows(int max) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("setMaxRows")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "setMaxRows")
         		.withParam("max", max)
         		.push();
         try {
@@ -413,7 +415,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final void setEscapeProcessing(boolean enable) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("setEscapeProcessing")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "setEscapeProcessing")
         		.withParam("enable", enable)
         		.push();
         try {
@@ -426,7 +428,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int getQueryTimeout() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getQueryTimeout").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getQueryTimeout").push();
         try {
             int res = to.getQueryTimeout();
             return toPop.returnValue(res);
@@ -438,7 +440,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final void setQueryTimeout(int seconds) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("setQueryTimeout")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "setQueryTimeout")
         		.withParam("seconds", seconds)
         		.push();
         try {
@@ -451,7 +453,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final void cancel() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("cancel").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "cancel").push();
         try {
             to.cancel();
         } catch (SQLException ex) {
@@ -462,7 +464,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final SQLWarning getWarnings() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getWarnings").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getWarnings").push();
         try {
         	SQLWarning  tmpres = to.getWarnings();
         	SQLWarning res = tmpres; // TODO may wrap with SefSQLWarningProxy()
@@ -475,7 +477,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final void clearWarnings() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("clearWarnings").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "clearWarnings").push();
         try {
             to.clearWarnings();
         } catch (SQLException ex) {
@@ -486,7 +488,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final void setCursorName(String name) throws SQLException {
-    	StackPopper toPop = LocalCallStack.meth("setCursorName")
+    	StackPopper toPop = LocalCallStack.meth(CNAME, "setCursorName")
     			.withParam("name", name)
     			.push();
     	try {
@@ -499,7 +501,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final void setFetchDirection(int direction) throws SQLException {
-    	StackPopper toPop = LocalCallStack.meth("setFetchDirection")
+    	StackPopper toPop = LocalCallStack.meth(CNAME, "setFetchDirection")
     			.withParam("direction", direction)
     			.push();
     	try {
@@ -512,7 +514,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int getFetchDirection() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getFetchDirection").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getFetchDirection").push();
         try {
         	int res = to.getFetchDirection();
         	return toPop.returnValue(res);
@@ -524,7 +526,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final void setFetchSize(int rows) throws SQLException {
-    	StackPopper toPop = LocalCallStack.meth("setFetchSize")
+    	StackPopper toPop = LocalCallStack.meth(CNAME, "setFetchSize")
     			.withParam("rows", rows)
     			.push();
     	try {
@@ -537,7 +539,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int getFetchSize() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getFetchSize").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getFetchSize").push();
         try {
         	int res = to.getFetchSize();
         	return toPop.returnValue(res);
@@ -549,7 +551,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int getResultSetConcurrency() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getResultSetConcurrency").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getResultSetConcurrency").push();
         try {
         	int res = to.getResultSetConcurrency();
         	return toPop.returnValue(res);
@@ -561,7 +563,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int getResultSetType() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getResultSetType").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getResultSetType").push();
         try {
         	int res = to.getResultSetType();
         	return toPop.returnValue(res);
@@ -573,7 +575,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final ResultSet getGeneratedKeys() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getGeneratedKeys").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getGeneratedKeys").push();
         try {
         	ResultSet tmpres = to.getGeneratedKeys();
         	ResultSet res = new SefResultSetProxy(this, tmpres);
@@ -586,7 +588,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final boolean getMoreResults(int current) throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getMoreResults")
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getMoreResults")
         		.withParam("current", current)
         		.push();
         try {
@@ -600,7 +602,7 @@ public class SefStatementProxy implements Statement { // .. implements Wrapper, 
     }
 
     public final int getResultSetHoldability() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getResultSetHoldability").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getResultSetHoldability").push();
         try {
         	int res = to.getResultSetHoldability();
         	return toPop.returnValue(res);

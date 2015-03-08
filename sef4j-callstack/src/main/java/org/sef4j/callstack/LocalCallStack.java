@@ -60,148 +60,22 @@ public class LocalCallStack {
 	 * @param name
 	 * @return
 	 */
-	public static StackPusher meth(String name) {
+	public static StackPusher meth(String className, String methodName) {
 		CallStackElt currThreadStackElt = currThreadStackElt();
-		return currThreadStackElt.pusher(name);
+		return currThreadStackElt.pusher(className, methodName);
 	}
 	
-	/** alias for <code>meth(name).push()</code> 
+	/** alias for <code>meth(className, name).push()</code> 
 	 * using this shor tsyntax, it is not possible to configure StackElt with parameters,properties,logger...
 	 * sample code:
 	 * <code>
-	 * try (StackPopper toPop = LocalCallStack.push("methodName")) {
+	 * try (StackPopper toPop = LocalCallStack.push(getClass().getName(), "methodName")) {
 	 * 
 	 * }
 	 * </code>
 	 */
-	public static StackPopper push(String name) {
-		return meth(name).push();
+	public static StackPopper push(String className, String methodName) {
+		return meth(className, methodName).push();
 	}
-
-	/** alias for StackPopper.close() */
-	public static void pop(StackPopper toPop) {
-		toPop.close();
-	}
-
-	/**
-	 * deprecated??  see StackPopper.progressStep()
-	 * @param incr
-	 * @param progressMessage
-	 */
-	public static void progressStep(int incr, String progressMessage) {
-		CallStackElt currStackElt = currThreadStackElt();
-		currStackElt.onProgressStep(incr, progressMessage);
-	}
-	
-	/** deprecated??  alias for progressStep(+1, null) */
-	public static void progressStep() {
-		progressStep(+1, null);
-	}
-
-	/**
-	 * @Deprecated ?? see  StackPopper.returnValue(value);
-	 * 
-	 * method for adding a CallStackElt corresponding to a return result value of a parent CallStackElt method
-	 * this is ~equivalent to <code>push().withParam() + immediate pop()</code>
-	 * but the pushed elt "start time" is taken from the parent call elt, to count statistics of correct method return
-	 * ... cf also <code>pushPopParentResVoid()</code> and <code>pushPopParentResEx()</code> 
-	 * @param resEltName
-	 * @param resParamName
-	 * @param resValue
-	 * 
-	 * typical code usage:
-	 * <code>
-	 * public Xyz foo() throws SQLException {
-	 *  StackPopper toPop = LocalCallStack.meth("foo").push();
-	 *  try {
-	 *      // ... do foo
-	 *      Xyz res = ... 
-	 *      
-	 *      return LocalCallStack.pushPopParentReturn(res);
-	 *  } catch(RuntimeException ex) {
-     *      throw LocalCallStack.pushPopParentException(ex);
-	 *  } finally {
-	 *      toPop.close();
-	 *  }
-	 * </code>
-	 */
-    public static <T> T pushPopParentReturn(T resValue) {
-        StackPopper toPop = meth("return").withParam("res", resValue).pushWithParentStartTime();
-        toPop.close();
-        return resValue;
-    }
-
-    /** idem pushPopParentReturn(T) with custom CallStackElt name, instead of default="return" */
-    public static <T> T pushPopParentReturn(String eltName, T resValue) {
-        StackPopper toPop = meth(eltName).withParam("res", resValue).pushWithParentStartTime();
-        toPop.close();
-        return resValue;
-    }
-    
-    /** 
-     * @Deprecated ... cf CallStackPopper.returnException()
-     * 
-     * method for adding a CallStackElt corresponding to a exception exit of a parent CallStackElt method
-     * this is ~equivalent to <code>push() + immediate pop()</code>
-     * but the pushed elt "start time" is taken from the parent call elt, to count statistics of correct method return
-     * 
-     * see also pushPopParentResValue(), pushPopParentReturnVoid()
-     * typical code usage:
-     * <code>
-     * public void foo() throws SQLException {
-     *  StackPopper toPop = LocalCallStack.meth("foo").push();
-     *  try {
-     *      // ... do foo
-     *      
-     *      LocalCallStack.pushPopParentReturn();
-     *  } catch(RuntimeException ex) {
-     *      throw LocalCallStack.pushPopParentException(ex);
-     *  } finally {
-     *      toPop.close();
-     *  }
-     * </code>
-     */
-    public static <T extends Throwable> T pushPopParentException(T ex) {
-        String eltName = "exception-" + ex.getClass().getSimpleName();
-        pushPopParentException(eltName, ex);
-        return ex;
-    }
-
-    /** idem pushPopParentException() but using custom exception eltName instead of default (<code>eltName= "exception-" + ex.getClass().getSimpleName()</code>) */
-    public static void pushPopParentException(String eltName, Throwable ex) {
-        StackPopper toPop = meth(eltName).withParam("ex", ex).pushWithParentStartTime();
-        toPop.close();
-    }
-    
-
-    /** type-safe overload of pushPopParentReturn(Object), for avoiding boxing/unboxing */
-    public static int pushPopParentReturn(int resValue) {
-        StackPopper toPop = meth("return").withParam("res", resValue).pushWithParentStartTime();
-        toPop.close();
-        return resValue;
-    }
-    /** type-safe overload of pushPopParentReturn(Object), for avoiding boxing/unboxing */
-    public static long pushPopParentReturn(long resValue) {
-        StackPopper toPop = meth("return").withParam("res", resValue).pushWithParentStartTime();
-        toPop.close();
-        return resValue;
-    }
-    /** type-safe overload of pushPopParentReturn(Object), for avoiding boxing/unboxing */
-    public static double pushPopParentReturn(double resValue) {
-        StackPopper toPop = meth("return").withParam("res", resValue).pushWithParentStartTime();
-        toPop.close();
-        return resValue;
-    }
-    /** type-safe overload of pushPopParentReturn(Object), for avoiding boxing/unboxing */
-    public static boolean pushPopParentReturn(boolean resValue) {
-        StackPopper toPop = meth("return").withParam("res", resValue).pushWithParentStartTime();
-        toPop.close();
-        return resValue;
-    }
-
-    /** type-safe overload of pushPopParentReturn(Object), for avoiding boxing/unboxing + use callEltName="returnTrue" or "returnFalse" */
-    public static boolean pushPopParentReturnTrueFalse(boolean res) {
-    	return pushPopParentReturn(res? "returnTrue" : "returnFalse", res);
-    }
     
 }

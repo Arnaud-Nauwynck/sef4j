@@ -18,6 +18,8 @@ import org.sef4j.callstack.LocalCallStack;
  */
 public class SefPooledConnectionProxy implements PooledConnection {
 
+	private static final String CNAME = SefPooledConnectionProxy.class.getName();
+	
 	private PooledConnection to;
 
 	private Connection lastConnection;
@@ -33,7 +35,7 @@ public class SefPooledConnectionProxy implements PooledConnection {
 	// ------------------------------------------------------------------------
 	
 	public final Connection getConnection() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("getConnection").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "getConnection").push();
         try {
         	Connection tmpres = to.getConnection();
         	
@@ -52,7 +54,7 @@ public class SefPooledConnectionProxy implements PooledConnection {
 	}
 
 	public final void close() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth("close").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "close").push();
         try {
         	to.close();
         } catch(SQLException ex) {
@@ -65,7 +67,7 @@ public class SefPooledConnectionProxy implements PooledConnection {
 
 	
 	public void addConnectionEventListener(ConnectionEventListener listener) {
-	    StackPopper toPop = LocalCallStack.meth("addConnectionEventListener").push();
+	    StackPopper toPop = LocalCallStack.meth(CNAME, "addConnectionEventListener").push();
 	    try {
 			to.addConnectionEventListener(listener);
 		} catch(RuntimeException ex) {
@@ -76,7 +78,7 @@ public class SefPooledConnectionProxy implements PooledConnection {
 	}
 
 	public void removeConnectionEventListener(ConnectionEventListener listener) {
-	    StackPopper toPop = LocalCallStack.meth("removeConnectionEventListener").push();
+	    StackPopper toPop = LocalCallStack.meth(CNAME, "removeConnectionEventListener").push();
 	    try {
 	        to.removeConnectionEventListener(listener);
 	    } catch(RuntimeException ex) {
@@ -87,7 +89,7 @@ public class SefPooledConnectionProxy implements PooledConnection {
 	}
 
 	public void addStatementEventListener(StatementEventListener listener) {
-	    StackPopper toPop = LocalCallStack.meth("addStatementEventListener").push();
+	    StackPopper toPop = LocalCallStack.meth(CNAME, "addStatementEventListener").push();
         try {
             to.addStatementEventListener(listener);
         } catch(RuntimeException ex) {
@@ -98,7 +100,7 @@ public class SefPooledConnectionProxy implements PooledConnection {
 	}
 
 	public void removeStatementEventListener(StatementEventListener listener) {
-        StackPopper toPop = LocalCallStack.meth("removeStatementEventListener").push();
+        StackPopper toPop = LocalCallStack.meth(CNAME, "removeStatementEventListener").push();
         try {
             to.removeStatementEventListener(listener);
         } catch(RuntimeException ex) {

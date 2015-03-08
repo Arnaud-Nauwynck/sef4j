@@ -40,6 +40,7 @@ public final class CallStackElt {
 	private final CallStackElt parentCallStackElt;
 	private final int stackEltIndex;
 	
+	private String className;
 	private String name;
 
 	private Map<String,Object> params;
@@ -79,8 +80,8 @@ public final class CallStackElt {
 	
 	// ------------------------------------------------------------------------
 	
-	/*pp*/ StackPusher pusher(String name) {
-		return pusher.withName(name);
+	/*pp*/ StackPusher pusher(String className, String name) {
+		return pusher.withName(className, name);
 	}
 
 	/*pp*/ void onPush() {
@@ -238,7 +239,11 @@ public final class CallStackElt {
 	public int getStackEltIndex() {
 		return stackEltIndex;
 	}
-	
+
+	public String getClassName() {
+		return className;
+	}
+
 	public String getName() {
 		return name;
 	}
@@ -247,7 +252,7 @@ public final class CallStackElt {
 		String[] res = new String[stackEltIndex+1];
 		CallStackElt curr = this;
 		for (int i = stackEltIndex; i >= 0; i--, curr = curr.getParentCallStackElt()) {
-			res[i] = curr.getName();
+			res[i] = curr.getClassName() + ":" + curr.getName();
 		}
 		return res;
 	}
@@ -368,7 +373,8 @@ public final class CallStackElt {
 	    }
 
 		/*pp?*/ 
-		public StackPusher withName(String name) {
+		public StackPusher withName(String className, String name) {
+			pushedElt.className = className;
 			pushedElt.name = name;
 			return this;
 		}
@@ -420,7 +426,7 @@ public final class CallStackElt {
 			callStackElt.ownerStack.doPop(callStackElt);
 		}
 
-		public StackPopper withProgressStep(int incr, String progressMessage) {
+		public StackPopper progressStep(int incr, String progressMessage) {
 			callStackElt.onProgressStep(incr, progressMessage);
 			return this;
 		}
@@ -472,7 +478,8 @@ public final class CallStackElt {
 
 	    /** idem pushPopParentException() but using custom exception eltName instead of default (<code>eltName= "exception-" + ex.getClass().getSimpleName()</code>) */
 	    public void returnException(String eltName, Throwable ex) {
-	        StackPopper toPop = LocalCallStack.meth(eltName).withParam("ex", ex).pushWithParentStartTime();
+			String className = callStackElt.className;
+	        StackPopper toPop = callStackElt.pusher(className, eltName).withParam("ex", ex).pushWithParentStartTime();
 	        toPop.close();
 	    }
 

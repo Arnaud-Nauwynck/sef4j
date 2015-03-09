@@ -103,6 +103,22 @@ public class CallTreeNode {
 	}
 
 	/**
+     * @return path for element from root to self
+     */
+    public String getPathStr() {
+        String[] tmpres = getPath();
+        StringBuilder sb = new StringBuilder();
+        final int len = tmpres.length;
+        for (int i = 0; i < len; i++) {
+            sb.append(tmpres[i]);
+            if (i + 1 < len) {
+                sb.append("/");
+            }
+        }
+        return sb.toString();
+    }
+    
+	/**
 	 * @return reverse path names for element from self to root
 	 */
 	public String[] getReversePath() {

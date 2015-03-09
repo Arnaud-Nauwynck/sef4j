@@ -12,18 +12,18 @@ import org.junit.Test;
 import org.sef4j.callstack.stattree.CallTreeNode;
 import org.sef4j.callstack.stattree.CallTreeNodeTstBuilder;
 
-public class TextCallTreePrinterTest {
+public class PathJsonCallTreePrinterTest {
 
     protected ByteArrayOutputStream buffer;
     protected PrintWriter out;
-    protected TextCallTreePrinter sut;
+    protected PathJsonCallTreePrinter sut;
     
     @Before
     public void setup() {
         this.buffer = new ByteArrayOutputStream();
         this.out = new PrintWriter(buffer);
-        TextCallTreePrinter.Builder builder = new TextCallTreePrinter.Builder(out);
-        builder.withPropPerTypePrinter(CallTreeNodeTstBuilder.defaultPerTypePrinters(true, ":{", "}")); // upcast to abstract builder!.. cannot chain method
+        PathJsonCallTreePrinter.Builder builder = new PathJsonCallTreePrinter.Builder(out);
+        builder.withPropPerTypePrinter(CallTreeNodeTstBuilder.defaultPerTypePrinters(false, "{", "}")); // upcast to abstract builder!.. cannot chain method
         this.sut = builder.build();
     }
     
@@ -36,12 +36,10 @@ public class TextCallTreePrinterTest {
         // Post-check
         out.flush();
         String res = buffer.toString();
-        // System.out.println(res);
+        System.out.println(res);
         
-        InputStream expectedStream = getClass().getResourceAsStream("TextCallTreePrintTest-testRecursivePrintNodes.txt");
+        InputStream expectedStream = getClass().getResourceAsStream("PathJsonCallTreePrintTest-testRecursivePrintNodes.txt");
         String expectedRes = IOUtils.toString(expectedStream);
         Assert.assertEquals(expectedRes, res);
     }
-    
-    
 }

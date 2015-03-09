@@ -4,19 +4,18 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Map;
 
+import org.sef4j.callstack.export.printer.CallTreePrinter;
 import org.sef4j.callstack.export.printer.CallTreeValuePrinter;
 import org.sef4j.callstack.stattree.CallTreeNode;
 
 /**
  * 
  */
-public abstract class AbstractIndentCallTreePrinter {
+public abstract class AbstractIndentCallTreePrinter extends CallTreePrinter {
 
-    protected PrintWriter out;
-
-    protected Map<String,CallTreeValuePrinter> propPerNamePrinter;
-    protected Map<Class<?>,CallTreeValuePrinter> propPerTypePrinter;
-    protected CallTreeValuePrinter propDefaultPrinter;
+    protected Map<String,CallTreeValuePrinter<?>> propPerNamePrinter;
+    protected Map<Class<?>,CallTreeValuePrinter<?>> propPerTypePrinter;
+    protected CallTreeValuePrinter<?> propDefaultPrinter;
     
     protected boolean useIndent = true;
     protected int indentStep = 2;
@@ -25,7 +24,7 @@ public abstract class AbstractIndentCallTreePrinter {
     // ------------------------------------------------------------------------
 
     protected AbstractIndentCallTreePrinter(Builder builder) {
-        this.out = builder.out;
+        super(builder.out);
         this.propPerNamePrinter = builder.propPerNamePrinter;
         this.propPerTypePrinter = builder.propPerTypePrinter;
         this.propDefaultPrinter = builder.propDefaultPrinter;
@@ -36,35 +35,26 @@ public abstract class AbstractIndentCallTreePrinter {
     public void recursivePrintNodes(CallTreeNode node, int maxDepth) {
         printIndentNodeHeader(node);
         
-        incrIndent();
-        try {
-            // loop to print values 
-            printNodeValues(node);
-            
-            // loop to print child CallTree element
-            // **** recursive ****
-            if (maxDepth == -1 || maxDepth >= 1) {
-                Collection<CallTreeNode> childList = node.getChildList(); // ok to iterate: copy-on-write
-                if (childList != null && !childList.isEmpty()) {
-                    int newMaxDepth = (maxDepth == -1)? -1: maxDepth-1; 
-                    
-                    printIndentChildListHeader(node);
-                    incrIndent();
-                    try {
-                        for(CallTreeNode child : childList) {
-                            printChildHeader(child);
-                            recursivePrintNodes(child, newMaxDepth);
-                            printChildFooter(child);
-                        }
-                    } finally {
-                        decrIndent();
-                    }
-                    printIndentChildListFooter(node);
-                    
+        // loop to print values 
+        printNodeValues(node);
+        
+        // loop to print child CallTree element
+        // **** recursive ****
+        if (maxDepth == -1 || maxDepth >= 1) {
+            Collection<CallTreeNode> childList = node.getChildList(); // ok to iterate: copy-on-write
+            if (childList != null && !childList.isEmpty()) {
+                int newMaxDepth = (maxDepth == -1)? -1: maxDepth-1; 
+                
+                printIndentChildListHeader(node);
+
+                for(CallTreeNode child : childList) {
+                    printChildHeader(child);
+                    recursivePrintNodes(child, newMaxDepth);
+                    printChildFooter(child);
                 }
+            
+                printIndentChildListFooter(node);
             }
-        } finally {
-            decrIndent();
         }
         
         printIndentNodeFooter(node);
@@ -75,32 +65,28 @@ public abstract class AbstractIndentCallTreePrinter {
         if (! propsMap.isEmpty()) {
             printIndentNodeValueListHeader(node);
             
-            incrIndent();
-            try {
-                for(Map.Entry<String,Object> e : propsMap.entrySet()) {
-                    String propName = e.getKey();
-                    Object propValue = e.getValue();
-                    if (propValue == null) {
-                        continue; // should not occur?
-                    }
-                    // find corresponding ValuePrinter .. filter out if not found
-                    CallTreeValuePrinter valuePrinter = resolvePropValuePrinter(propName, propValue);
-                    if (valuePrinter != null) {
-                        printNodeValueHeader(node, propName);
-                        valuePrinter.printValue(node, propName, propValue);
-                        printNodeValueFooter(node, propName);
-                    }
+            for(Map.Entry<String,Object> e : propsMap.entrySet()) {
+                String propName = e.getKey();
+                Object propValue = e.getValue();
+                if (propValue == null) {
+                    continue; // should not occur?
                 }
-            } finally {
-                decrIndent();
+                // find corresponding ValuePrinter .. filter out if not found
+                CallTreeValuePrinter<Object> valuePrinter = resolvePropValuePrinter(propName, propValue);
+                if (valuePrinter != null) {
+                    printNodeValueHeader(node, propName);
+                    valuePrinter.printValue(this, node, propName, propValue);
+                    printNodeValueFooter(node, propName);
+                }
             }
-            
+
             printIndentNodeValueListFooter(node);
         }
     }
 
-    private CallTreeValuePrinter resolvePropValuePrinter(String propName, Object propValue) {
-        CallTreeValuePrinter valuePrinter = null;
+    @SuppressWarnings("unchecked")
+    private CallTreeValuePrinter<Object> resolvePropValuePrinter(String propName, Object propValue) {
+        CallTreeValuePrinter<?> valuePrinter = null;
         if (propPerNamePrinter != null) {
             valuePrinter = propPerNamePrinter.get(propName);
         }
@@ -119,7 +105,7 @@ public abstract class AbstractIndentCallTreePrinter {
                 && propDefaultPrinter != null) {
             propDefaultPrinter = valuePrinter;
         }
-        return valuePrinter;
+        return (CallTreeValuePrinter<Object>) valuePrinter;
     }
     
     // ------------------------------------------------------------------------
@@ -173,9 +159,11 @@ public abstract class AbstractIndentCallTreePrinter {
         if (useIndent) {
             println();
         }
+        incrIndent();
     }
 
     protected void printIndentChildListFooter(CallTreeNode node) {
+        decrIndent();
         if (useIndent) {
             printCurrIndent();
         }
@@ -195,9 +183,11 @@ public abstract class AbstractIndentCallTreePrinter {
         if (useIndent) {
             println();
         }
+        incrIndent();
     }
 
     protected void printIndentNodeFooter(CallTreeNode node) {
+        decrIndent();
         if (useIndent) {
             println();
             printCurrIndent();
@@ -216,14 +206,18 @@ public abstract class AbstractIndentCallTreePrinter {
         if (useIndent) {
             println();
         }
+        incrIndent();
     }
 
     protected void printIndentNodeValueListFooter(CallTreeNode node) {
+        decrIndent();
         if (useIndent) {
             printCurrIndent();
         } 
         printNodeValueListFooter(node);
-        println();
+        if (useIndent) {
+            println();
+        }
     }
 
     // ------------------------------------------------------------------------
@@ -245,26 +239,26 @@ public abstract class AbstractIndentCallTreePrinter {
     protected static abstract class Builder {
 
         protected PrintWriter out;    
-        protected Map<String,CallTreeValuePrinter> propPerNamePrinter;
-        protected Map<Class<?>,CallTreeValuePrinter> propPerTypePrinter;
-        protected CallTreeValuePrinter propDefaultPrinter;
+        protected Map<String,CallTreeValuePrinter<?>> propPerNamePrinter;
+        protected Map<Class<?>,CallTreeValuePrinter<?>> propPerTypePrinter;
+        protected CallTreeValuePrinter<?> propDefaultPrinter;
 
         
         protected Builder(PrintWriter out) {
             this.out = out;
         }
 
-        public Builder withPropPerNamePrinter(Map<String, CallTreeValuePrinter> propPerNamePrinter) {
+        public Builder withPropPerNamePrinter(Map<String, CallTreeValuePrinter<?>> propPerNamePrinter) {
             this.propPerNamePrinter = propPerNamePrinter;
             return this;
         }
 
-        public Builder withPropPerTypePrinter(Map<Class<?>, CallTreeValuePrinter> propPerTypePrinter) {
+        public Builder withPropPerTypePrinter(Map<Class<?>, CallTreeValuePrinter<?>> propPerTypePrinter) {
             this.propPerTypePrinter = propPerTypePrinter;
             return this;
         }
 
-        public Builder withPropDefaultPrinter(CallTreeValuePrinter propDefaultPrinter) {
+        public Builder withPropDefaultPrinter(CallTreeValuePrinter<?> propDefaultPrinter) {
             this.propDefaultPrinter = propDefaultPrinter;
             return this;
         }

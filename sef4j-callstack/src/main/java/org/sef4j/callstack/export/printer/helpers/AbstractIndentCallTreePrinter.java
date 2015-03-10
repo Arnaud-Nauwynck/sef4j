@@ -4,30 +4,25 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Map;
 
-import org.sef4j.callstack.export.printer.CallTreePrinter;
-import org.sef4j.callstack.export.printer.CallTreeValuePrinter;
+import org.sef4j.callstack.export.valueprinter.CallTreeValuePrinter;
 import org.sef4j.callstack.stattree.CallTreeNode;
 
 /**
  * 
  */
-public abstract class AbstractIndentCallTreePrinter extends CallTreePrinter {
+public abstract class AbstractIndentCallTreePrinter extends AbstractCallTreePrinter {
 
-    protected Map<String,CallTreeValuePrinter<?>> propPerNamePrinter;
-    protected Map<Class<?>,CallTreeValuePrinter<?>> propPerTypePrinter;
-    protected CallTreeValuePrinter<?> propDefaultPrinter;
+    protected final boolean useIndent;
+    protected final int indentStep;
     
-    protected boolean useIndent = true;
-    protected int indentStep = 2;
     protected int currIndentLevel;
     
     // ------------------------------------------------------------------------
 
-    protected AbstractIndentCallTreePrinter(Builder builder) {
-        super(builder.out);
-        this.propPerNamePrinter = builder.propPerNamePrinter;
-        this.propPerTypePrinter = builder.propPerTypePrinter;
-        this.propDefaultPrinter = builder.propDefaultPrinter;
+    protected AbstractIndentCallTreePrinter(PrintWriter out, Builder builder) {
+        super(out, builder);
+        this.useIndent = builder.useIndent;
+        this.indentStep = builder.indentStep;
     }
     
     // ------------------------------------------------------------------------
@@ -75,7 +70,7 @@ public abstract class AbstractIndentCallTreePrinter extends CallTreePrinter {
                 CallTreeValuePrinter<Object> valuePrinter = resolvePropValuePrinter(propName, propValue);
                 if (valuePrinter != null) {
                     printNodeValueHeader(node, propName);
-                    valuePrinter.printValue(this, node, propName, propValue);
+                    valuePrinter.printValue(out, node, propName, propValue);
                     printNodeValueFooter(node, propName);
                 }
             }
@@ -84,30 +79,6 @@ public abstract class AbstractIndentCallTreePrinter extends CallTreePrinter {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private CallTreeValuePrinter<Object> resolvePropValuePrinter(String propName, Object propValue) {
-        CallTreeValuePrinter<?> valuePrinter = null;
-        if (propPerNamePrinter != null) {
-            valuePrinter = propPerNamePrinter.get(propName);
-        }
-        if (valuePrinter == null 
-                && propPerTypePrinter != null && !propPerTypePrinter.isEmpty()) {
-            // search by type
-            Class<?> propClss = propValue.getClass();
-            valuePrinter = propPerTypePrinter.get(propClss);
-            // when not found, find by parent class type... until Object.class
-            while(valuePrinter == null && propClss != Object.class) {
-                propClss = propClss.getSuperclass();
-                valuePrinter = propPerTypePrinter.get(propClss);
-            }
-        }
-        if (valuePrinter == null 
-                && propDefaultPrinter != null) {
-            propDefaultPrinter = valuePrinter;
-        }
-        return (CallTreeValuePrinter<Object>) valuePrinter;
-    }
-    
     // ------------------------------------------------------------------------
 
     protected void incrIndent(int incr) {
@@ -224,10 +195,10 @@ public abstract class AbstractIndentCallTreePrinter extends CallTreePrinter {
     
     @Override
     public String toString() {
-        return "CallTreePrinter["
-                + ((propPerNamePrinter != null)? "propNames:" + propPerNamePrinter.keySet() + ", " : "")
-                + ((propPerTypePrinter != null)? "propTypes:" + propPerTypePrinter.keySet() + ", " : "")
-                + ((propDefaultPrinter != null)? "propDefault, " : "")
+        return "IndentCallTreePrinter["
+                + super.toString()
+                + ", useIndent:" + useIndent
+                + ", indentStep:" + indentStep
                 + "]";
     }
     
@@ -236,30 +207,18 @@ public abstract class AbstractIndentCallTreePrinter extends CallTreePrinter {
     /**
      * Builder design-pattern
      */
-    protected static abstract class Builder {
-
-        protected PrintWriter out;    
-        protected Map<String,CallTreeValuePrinter<?>> propPerNamePrinter;
-        protected Map<Class<?>,CallTreeValuePrinter<?>> propPerTypePrinter;
-        protected CallTreeValuePrinter<?> propDefaultPrinter;
-
+    protected static abstract class Builder extends AbstractCallTreePrinter.Builder{
         
-        protected Builder(PrintWriter out) {
-            this.out = out;
-        }
+        protected boolean useIndent = true;
+        protected int indentStep = 2;
 
-        public Builder withPropPerNamePrinter(Map<String, CallTreeValuePrinter<?>> propPerNamePrinter) {
-            this.propPerNamePrinter = propPerNamePrinter;
+        public Builder withUseIndent(boolean useIndent) {
+            this.useIndent = useIndent;
             return this;
         }
 
-        public Builder withPropPerTypePrinter(Map<Class<?>, CallTreeValuePrinter<?>> propPerTypePrinter) {
-            this.propPerTypePrinter = propPerTypePrinter;
-            return this;
-        }
-
-        public Builder withPropDefaultPrinter(CallTreeValuePrinter<?> propDefaultPrinter) {
-            this.propDefaultPrinter = propDefaultPrinter;
+        public Builder withIndentStep(int indentStep) {
+            this.indentStep = indentStep;
             return this;
         }
         

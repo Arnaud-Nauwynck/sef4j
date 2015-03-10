@@ -46,8 +46,8 @@ public class JsonCallTreePrinter extends AbstractIndentCallTreePrinter {
     
     // ------------------------------------------------------------------------
     
-    protected JsonCallTreePrinter(Builder builder) {
-        super(builder);
+    protected JsonCallTreePrinter(PrintWriter out, Builder builder) {
+        super(out, builder);
     }
 
     // ------------------------------------------------------------------------
@@ -111,12 +111,8 @@ public class JsonCallTreePrinter extends AbstractIndentCallTreePrinter {
 
     public static class Builder extends AbstractIndentCallTreePrinter.Builder {
         
-        public Builder(PrintWriter out) {
-            super(out);
-        }
-
-        public JsonCallTreePrinter build() {
-            return new JsonCallTreePrinter(this);
+        public JsonCallTreePrinter build(PrintWriter out) {
+            return new JsonCallTreePrinter(out, this);
         }
     }
     

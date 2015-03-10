@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.sef4j.callstack.export.printer.CallTreeValueFormatterPrinter;
-import org.sef4j.callstack.export.printer.CallTreeValuePrinter;
-import org.sef4j.callstack.export.valueformats.helpers.BasicTimeStatsLogHistogramFormat;
-import org.sef4j.callstack.export.valueformats.helpers.PendingPerfCountFormat;
-import org.sef4j.callstack.export.valueformats.helpers.PerfStatsFormat;
+import org.sef4j.callstack.export.valueprinter.CallTreeValuePrinter;
+import org.sef4j.callstack.export.valueprinter.CallTreeValueWrapperPrinter;
+import org.sef4j.callstack.export.valueprinter.helpers.BasicTimeStatsLogHistogramPrinter;
+import org.sef4j.callstack.export.valueprinter.helpers.PendingPerfCountPrinter;
+import org.sef4j.callstack.export.valueprinter.helpers.PerfStatsPrinter;
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
@@ -41,12 +41,12 @@ public class CallTreeNodeTstBuilder {
 
     public static Map<Class<?>, CallTreeValuePrinter<?>> defaultPerTypePrinters(boolean prefixPropName, String prefixSep, String postfixSep) {
         Map<Class<?>, CallTreeValuePrinter<?>> res = new HashMap<Class<?>, CallTreeValuePrinter<?>>();
-        res.put(BasicTimeStatsLogHistogram.class, new CallTreeValueFormatterPrinter<BasicTimeStatsLogHistogram>(
-                    BasicTimeStatsLogHistogramFormat.INSTANCE, prefixPropName, prefixSep, postfixSep));
-        res.put(PendingPerfCount.class, new CallTreeValueFormatterPrinter<PendingPerfCount>(
-                PendingPerfCountFormat.INSTANCE, prefixPropName, prefixSep, postfixSep));
-        res.put(PerfStats.class, new CallTreeValueFormatterPrinter<PerfStats>(
-                PerfStatsFormat.DEFAULT_INSTANCE, prefixPropName, prefixSep, postfixSep));
+        res.put(BasicTimeStatsLogHistogram.class, new CallTreeValueWrapperPrinter<BasicTimeStatsLogHistogram>(
+                    BasicTimeStatsLogHistogramPrinter.INSTANCE, prefixPropName, prefixSep, postfixSep));
+        res.put(PendingPerfCount.class, new CallTreeValueWrapperPrinter<PendingPerfCount>(
+                PendingPerfCountPrinter.INSTANCE, prefixPropName, prefixSep, postfixSep));
+        res.put(PerfStats.class, new CallTreeValueWrapperPrinter<PerfStats>(
+                PerfStatsPrinter.DEFAULT_INSTANCE, prefixPropName, prefixSep, postfixSep));
         return res;
     }
     

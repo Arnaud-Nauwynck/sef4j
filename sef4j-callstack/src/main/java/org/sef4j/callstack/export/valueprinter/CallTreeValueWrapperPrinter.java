@@ -1,11 +1,11 @@
-package org.sef4j.callstack.export.valueformats;
+package org.sef4j.callstack.export.valueprinter;
 
-import java.text.Format;
+import java.io.PrintWriter;
 
 import org.sef4j.callstack.stattree.CallTreeNode;
 
 /**
- * adapter implements CallTreeValueFormatter, delegate to java.text.Format.
+ * adapter implements CallTreeValuePrinter, delegate to ValuePrinter.
  *  (CallTree,name,Object) -> String text 
  *
  * using flags, you can format to "<<value>>" or "<<propName>> : { <<value>> }", 
@@ -13,14 +13,14 @@ import org.sef4j.callstack.stattree.CallTreeNode;
  *  
  * @param <T>
  */
-public class FormatCallTreeValueFormatter<T> implements CallTreeValueFormatter<T> {
+public class CallTreeValueWrapperPrinter<T> implements CallTreeValuePrinter<T> {
     
-    private final Format delegate;
+    private final ValuePrinter<T> delegate;
     private final boolean prefixPropName;
     private final String prefixSep;
     private final String postfixSep;
     
-    public FormatCallTreeValueFormatter(Format delegate, boolean prefixPropName, String prefixSep, String postfixSep) {
+    public CallTreeValueWrapperPrinter(ValuePrinter<T> delegate, boolean prefixPropName, String prefixSep, String postfixSep) {
         super();
         this.delegate = delegate;
         this.prefixPropName = prefixPropName;
@@ -28,19 +28,17 @@ public class FormatCallTreeValueFormatter<T> implements CallTreeValueFormatter<T
         this.postfixSep = postfixSep;
     }
 
-    public String formatValue(CallTreeNode node, String propName, T propValue) {
-        StringBuffer sb = new StringBuffer();
+    public void printValue(PrintWriter output, CallTreeNode node, String propName, T propValue) {
         if (prefixPropName) {
-            sb.append(propName);
+            output.print(propName);
         }
         if (prefixSep != null) {
-            sb.append(prefixSep);
+            output.print(prefixSep);
         }
-        delegate.format((Object) propValue, sb, null);
+        delegate.printValue(output, propValue);
         if (postfixSep != null) {
-            sb.append(postfixSep);
+            output.print(postfixSep);
         }
-        return sb.toString();
     }
     
 }

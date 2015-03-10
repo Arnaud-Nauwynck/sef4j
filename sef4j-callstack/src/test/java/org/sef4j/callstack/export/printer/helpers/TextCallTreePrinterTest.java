@@ -1,9 +1,9 @@
 package org.sef4j.callstack.export.printer.helpers;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
+import java.io.StringWriter;
 
 import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
@@ -14,17 +14,17 @@ import org.sef4j.callstack.stattree.CallTreeNodeTstBuilder;
 
 public class TextCallTreePrinterTest {
 
-    protected ByteArrayOutputStream buffer;
+    protected StringWriter buffer;
     protected PrintWriter out;
     protected TextCallTreePrinter sut;
     
     @Before
     public void setup() {
-        this.buffer = new ByteArrayOutputStream();
-        this.out = new PrintWriter(buffer);
-        TextCallTreePrinter.Builder builder = new TextCallTreePrinter.Builder(out);
+        buffer = new StringWriter();
+        out = new PrintWriter(buffer);
+        TextCallTreePrinter.Builder builder = new TextCallTreePrinter.Builder();
         builder.withPropPerTypePrinter(CallTreeNodeTstBuilder.defaultPerTypePrinters(true, ":{", "}")); // upcast to abstract builder!.. cannot chain method
-        this.sut = builder.build();
+        this.sut = builder.build(out);
     }
     
     @Test

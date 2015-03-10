@@ -23,12 +23,12 @@ import org.sef4j.callstack.stattree.CallTreeNode;
  */
 public class TextCallTreePrinter extends AbstractIndentCallTreePrinter {
 
-    private boolean useOpenClose;
+    private boolean useOpenClose; // FOR debug only?
     
     // ------------------------------------------------------------------------
     
-    protected TextCallTreePrinter(Builder builder) {
-        super(builder);
+    protected TextCallTreePrinter(PrintWriter out, Builder builder) {
+        super(out, builder);
     }
 
     // ------------------------------------------------------------------------
@@ -123,12 +123,11 @@ public class TextCallTreePrinter extends AbstractIndentCallTreePrinter {
 
     public static class Builder extends AbstractIndentCallTreePrinter.Builder {
         
-        public Builder(PrintWriter out) {
-            super(out);
+        public Builder() {
         }
 
-        public TextCallTreePrinter build() {
-            return new TextCallTreePrinter(this);
+        public TextCallTreePrinter build(PrintWriter out) {
+            return new TextCallTreePrinter(out, this);
         }
     }
     

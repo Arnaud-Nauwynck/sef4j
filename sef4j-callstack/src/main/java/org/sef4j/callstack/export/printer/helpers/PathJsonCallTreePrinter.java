@@ -29,14 +29,12 @@ import org.sef4j.callstack.stattree.CallTreeNode;
  */
 public class PathJsonCallTreePrinter extends AbstractIndentCallTreePrinter {
 
-    private boolean printComment = false;
     private String currNodePath;
     
     // ------------------------------------------------------------------------
     
-    protected PathJsonCallTreePrinter(Builder builder) {
-        super(builder);
-        super.useIndent = false;
+    protected PathJsonCallTreePrinter(PrintWriter out, Builder builder) {
+        super(out, builder);
     }
 
     // ------------------------------------------------------------------------
@@ -88,12 +86,13 @@ public class PathJsonCallTreePrinter extends AbstractIndentCallTreePrinter {
 
     public static class Builder extends AbstractIndentCallTreePrinter.Builder {
         
-        public Builder(PrintWriter out) {
-            super(out);
+        public Builder() {
+            super();
+            this.useIndent = false; // ovewrite to skip use of indentation
         }
 
-        public PathJsonCallTreePrinter build() {
-            return new PathJsonCallTreePrinter(this);
+        public PathJsonCallTreePrinter build(PrintWriter out) {
+            return new PathJsonCallTreePrinter(out, this);
         }
     }
     

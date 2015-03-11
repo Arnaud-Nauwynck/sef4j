@@ -1,0 +1,4 @@
+build
+influxdb-latest.amd64.tar.gz
+influxdb-data
+log.txt

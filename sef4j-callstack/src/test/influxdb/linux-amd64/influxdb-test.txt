@@ -1,0 +1,40 @@
+#
+# basic InfluxDB tests  (manual + script)
+#
+
+# to check it is running ...
+# netstat -nlapute | grep 8083
+
+# see docs: http://influxdb.com/docs/v0.8/introduction/getting_started.html
+
+# open browser on http://localhost:8083/
+# enter user=root, password=root
+# create database: enter database details="db1",  click "Create button"
+# click select database
+# explore data
+
+
+# submit data from curl:
+INFLUXDB_URL="http://localhost:8086/db/db1/series?u=root&p=root"
+curl -X POST -d '[ { "name" : "metric1", "columns" : ["field1", "field2", "stringField1" ], "points" : [ [12.3, 23.4, "test1"] ] } ]' "$INFLUXDB_URL"
+curl -X POST -d '[ { "name" : "metric1", "columns" : ["field1", "field2", "stringField1" ], "points" : [ [12.5, 23.6, "test1"] ] } ]' "$INFLUXDB_URL"
+curl -X POST -d '[ { "name" : "metric1", "columns" : ["field1", "field2", "stringField1" ], "points" : [ [11.5, 20.6, "test1"] ] } ]' "$INFLUXDB_URL"
+
+# query data
+# see http://influxdb.com/docs/v0.7/api/query_language.html
+
+# in web dashboard ... query db1: 
+# list series
+# select * from /.*/ limit 10
+
+# querying data from curl:
+curl -G "$INFLUXDB_URL"  --data-urlencode "q=list series"
+curl -G "$INFLUXDB_URL"  --data-urlencode "q=select * from metric1 limit 10"
+curl -G "$INFLUXDB_URL"  --data-urlencode "q=select field1 from metric1 limit 10"
+curl -G "$INFLUXDB_URL"  --data-urlencode "q=select field1 from metric1 limit 10"
+curl -G "$INFLUXDB_URL"  --data-urlencode "q=select field1 from metric1 where stringField1='test1' limit 10"
+curl -G "$INFLUXDB_URL"  --data-urlencode "q=select mean(field1), min(field1) from metric1 group by time(5s) limit 10"  
+
+
+
+  

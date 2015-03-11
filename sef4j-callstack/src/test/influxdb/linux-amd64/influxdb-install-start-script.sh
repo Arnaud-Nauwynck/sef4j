@@ -2,6 +2,7 @@
 # basic InfluxDB install+start script
 # see also file "influxdb-test.txt" for manual testing
 #
+# see also https://github.com/influxdb/influxdb-java  ... for Java JUnit test starting inside Docker
 #
 
 if [ ! -e build ]
@@ -27,6 +28,7 @@ then
 # build/benchmark_config.toml
 
 
+mkdir -p influxdb-data/db
 mkdir -p influxdb-data/raft
 mkdir -p influxdb-data/wal
 
@@ -36,6 +38,9 @@ fi
 
 
 # ./build/influxdb --help
+
+# start using default configuration file:  user=root, password=root, http.port=8083, api.port=8086
+# dirs influxdb-data/{db,raft,wal} relative to current dir, instead of default /opt/influxdb/... 
 
 ./build/influxdb -config=config.toml
 

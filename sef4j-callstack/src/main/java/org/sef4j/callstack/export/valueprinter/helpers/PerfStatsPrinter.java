@@ -2,10 +2,10 @@ package org.sef4j.callstack.export.valueprinter.helpers;
 
 import java.io.PrintWriter;
 
-import org.sef4j.callstack.export.valueprinter.ValuePrinter;
 import org.sef4j.callstack.stats.BasicTimeStatsSlotInfo;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
+import org.sef4j.core.helpers.exporters.ValuePrinter;
 
 /**
  * ValuePrinter for PerfStats

@@ -1,7 +1,11 @@
 package org.sef4j.core.api;
 
-public interface EventSender {
+import java.util.Collection;
 
-	public void sendEvent(Object event);
+public interface EventSender<T> {
+
+	public void sendEvent(T event);
 	
+	public void sendEvents(Collection<T> events);
+
 }

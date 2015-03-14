@@ -15,7 +15,7 @@ public class InfluxDBExporterIT {
 
     private static InfluxDB influxDB;
 
-    private RestApiInfluxDBExporter sut = new RestApiInfluxDBExporter("http://test-influxdb", influxDB);
+    private RestApiInfluxDBSender sut = new RestApiInfluxDBSender("http://test-influxdb", influxDB);
 
     @BeforeClass
     public static void beforeClass() {

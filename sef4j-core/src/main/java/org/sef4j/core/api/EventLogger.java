@@ -21,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * because EventLogger are still "owned" by the default static EventLoggerFactory, and may be reconfigured at runtime with new appenders
  * 
  */
-public final class EventLogger implements EventSender {
+public final class EventLogger implements EventSender<Object> {
 	
 	private final Logger LOG;
 	
@@ -33,12 +33,12 @@ public final class EventLogger implements EventSender {
 	 * copy-on-write array of inherited appenders (from parent EventLogger + own appender)
 	 * this is managed from class EventLoggerContext, from configuration(at startup / re-init of context)
 	 */
-	private EventSender[] inheritedAppenders; 
+	private EventSender<Object>[] inheritedAppenders; 
 
 	// ------------------------------------------------------------------------
 	
 	/* package protected, created and managed from EventLoggerContext */
-	/* pp */ EventLogger(EventLoggerFactory eventLoggerFactory, String eventLoggerName, EventSender[] inheritedAppenders) {
+	/* pp */ EventLogger(EventLoggerFactory eventLoggerFactory, String eventLoggerName, EventSender<Object>[] inheritedAppenders) {
 		this.eventLoggerFactory = eventLoggerFactory;
 		this.eventLoggerName = eventLoggerName;
 		this.LOG = LoggerFactory.getLogger(eventLoggerName);
@@ -53,7 +53,7 @@ public final class EventLogger implements EventSender {
 		return getStatic(clss.getName());
 	}
 
-	/*pp*/ void configureInheritedAppenders(EventSender[] inheritedLoggerAppenders) {
+	/*pp*/ void configureInheritedAppenders(EventSender<Object>[] inheritedLoggerAppenders) {
 		this.inheritedAppenders = inheritedLoggerAppenders;
 	}
 	
@@ -69,7 +69,7 @@ public final class EventLogger implements EventSender {
 	
 
 	public void sendEvent(Object event) {
-		final EventSender[] appenders = inheritedAppenders; 
+		final EventSender<Object>[] appenders = inheritedAppenders; 
 		final int len = appenders.length;
 		for (int i = 0; i < len; i++) {
 			try {
@@ -82,8 +82,15 @@ public final class EventLogger implements EventSender {
 	}
 
 	public void sendEvents(Collection<Object> events) {
-		for(Object event : events) {
-			sendEvent(event);
+		final EventSender<Object>[] appenders = inheritedAppenders; 
+		final int len = appenders.length;
+		for (int i = 0; i < len; i++) {
+			try {
+				appenders[i].sendEvents(events);
+			} catch(Exception ex) {
+				LOG.error("Failed to sendEvents on eventLogger '" + eventLoggerName + "' to appender " + appenders[i] 
+						+ ", ex:" + ex.getMessage() + " ... ignore, no rethrow!");
+			}
 		}
 	}
 

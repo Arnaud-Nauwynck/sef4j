@@ -1,6 +1,7 @@
 package org.sef4j.core.helpers.appenders;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.sef4j.core.api.EventSender;
@@ -10,10 +11,10 @@ import org.sef4j.core.api.EventSender;
  * this class is thread-safe, and offer operation to atomically "clearAndGet" event list
  * 
  */
-public class InMemoryEventSender implements EventSender {
+public class InMemoryEventSender<T> implements EventSender<T> {
 
 	private Object lock = new Object();
-	private List<Object> events = new ArrayList<Object>();
+	private List<T> events = new ArrayList<T>();
 	
 	// ------------------------------------------------------------------------
 	
@@ -23,17 +24,23 @@ public class InMemoryEventSender implements EventSender {
 	// ------------------------------------------------------------------------
 	
 	@Override
-	public void sendEvent(Object event) {
+	public void sendEvent(T event) {
 		synchronized(lock) {
 			events.add(event);
 		}
 	}
 
-	public List<Object> clearAndGet() {
-		List<Object> res;
+	public void sendEvents(Collection<T> events) {
+		synchronized(lock) {
+			events.addAll(events);
+		}
+	}
+
+	public List<T> clearAndGet() {
+		List<T> res;
 		synchronized(lock) {
 			res = events;
-			this.events = new ArrayList<Object>();
+			this.events = new ArrayList<T>();
 		}
 		return res;
 	}

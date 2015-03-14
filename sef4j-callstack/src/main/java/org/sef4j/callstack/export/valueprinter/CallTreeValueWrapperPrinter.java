@@ -3,6 +3,7 @@ package org.sef4j.callstack.export.valueprinter;
 import java.io.PrintWriter;
 
 import org.sef4j.callstack.stattree.CallTreeNode;
+import org.sef4j.core.helpers.exporters.ValuePrinter;
 
 /**
  * adapter implements CallTreeValuePrinter, delegate to ValuePrinter.

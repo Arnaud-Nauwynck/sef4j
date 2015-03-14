@@ -8,7 +8,7 @@ import org.influxdb.InfluxDB;
  * (+ transitive jar dependencies:  retrofit, okio, httpok, guava, gson ... )  
  *
  */
-public class RestApiInfluxDBExporter extends InfluxDBExporter {
+public class RestApiInfluxDBSender extends InfluxDBSender {
 
     /**
      * injected in ctor... 
@@ -19,12 +19,17 @@ public class RestApiInfluxDBExporter extends InfluxDBExporter {
 
     // ------------------------------------------------------------------------
 
-    public RestApiInfluxDBExporter(String url, org.influxdb.InfluxDB influxDB) {
+    public RestApiInfluxDBSender(String url, org.influxdb.InfluxDB influxDB) {
         super(url);
         this.influxDB = influxDB;
     }
 
     // ------------------------------------------------------------------------
 
+    @Override
+    public void sendJSonBody(String json) {
+    	// TODO Auto-generated method stub
+    	
+    }
     
 }

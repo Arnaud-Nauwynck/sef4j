@@ -11,15 +11,20 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class InfluxDBExporterIT {
+public class RestApiInfluxDBSerieSenderIT {
 
-    private static InfluxDB influxDB;
+	private static final String url = "http://localhost:8086";
+	private static final String dbName = "db1";
+	private static final String username = "root";
+	private static final String password = "root";
 
-    private RestApiInfluxDBSender sut = new RestApiInfluxDBSender("http://test-influxdb", influxDB);
-
+	private static InfluxDB influxDB;
+    private static RestApiInfluxDBSerieSender sut;
+    
     @BeforeClass
     public static void beforeClass() {
-        influxDB = InfluxDBFactory.connect("http://localhost:8086", "root", "root");
+		influxDB = InfluxDBFactory.connect(url, username, password);
+		sut = new RestApiInfluxDBSerieSender(url, influxDB, dbName);
     }
     
     @Test
@@ -31,7 +36,7 @@ public class InfluxDBExporterIT {
     }
 
     @Test
-    public void testList() {
+    public void testQuery() {
         // Prepare
         // Perform
         List<Serie> res = influxDB.query("db1", "select field1, field2 from metric1 limit 10", TimeUnit.SECONDS);

@@ -48,5 +48,4 @@ public class BasicTimeStatsLogHistogramPrinter implements ValuePrinter<BasicTime
         output.print(statsInfo.getSum());
     }
 
-    
 }

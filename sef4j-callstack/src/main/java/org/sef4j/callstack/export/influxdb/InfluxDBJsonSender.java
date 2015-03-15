@@ -7,9 +7,9 @@ import org.sef4j.core.api.EventSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public abstract class InfluxDBSender implements EventSender<String> {
+public abstract class InfluxDBJsonSender implements EventSender<String> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(InfluxDBSender.class);
+	private static final Logger LOG = LoggerFactory.getLogger(InfluxDBJsonSender.class);
 	
     /**
      * displayName/url...mainly for display message... 
@@ -20,7 +20,7 @@ public abstract class InfluxDBSender implements EventSender<String> {
     
     // ------------------------------------------------------------------------
 
-    public InfluxDBSender(String url) {
+    public InfluxDBJsonSender(String url) {
     	this.url = url;
     }
 

@@ -3,7 +3,7 @@ package org.sef4j.callstack.export.influxdb;
 /**
  * 
  */
-public class HttpPostInfluxDBSender extends InfluxDBSender {
+public class HttpPostInfluxDBSender extends InfluxDBJsonSender {
 
     // ------------------------------------------------------------------------
     

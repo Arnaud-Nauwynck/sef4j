@@ -18,7 +18,7 @@ public final class BasicTimeStatsLogHistogram {
 	/**
 	 * slot count
 	 */
-	private static final int SLOT_LEN = 10;
+	public static final int SLOT_LEN = 10;
 	
 
 	/**

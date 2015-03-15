@@ -10,9 +10,10 @@ import org.sef4j.callstack.stats.BasicTimeStatsSlotInfo;
  */
 public class BasicTimeStatsLogHistogramToSerieMapper {
 
+	private static final String[] FIELD_NAMES = new String[] { "count", "sum" };
+
 	public static final BasicTimeStatsLogHistogramToSerieMapper INSTANCE = new BasicTimeStatsLogHistogramToSerieMapper("", "");
 	
-	private static final String[] FIELD_NAMES = new String[] { "count", "sum" };
 	
 	private final String[] columnNames;
 

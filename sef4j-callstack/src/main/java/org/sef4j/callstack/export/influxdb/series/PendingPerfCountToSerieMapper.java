@@ -8,9 +8,10 @@ import org.sef4j.callstack.stats.PendingPerfCount;
  */
 public class PendingPerfCountToSerieMapper {
 
+	private static final String[] FIELD_NAMES = new String[] { "pendingCount", "pendingSumStartTime" };
+
 	public static final PendingPerfCountToSerieMapper INSTANCE = new PendingPerfCountToSerieMapper("", "");
 
-	private static final String[] FIELD_NAMES = new String[] { "pendingCount", "pendingSumStartTime" };
 	
 	private final String[] columnNames;
 

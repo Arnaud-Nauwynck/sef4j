@@ -42,17 +42,17 @@ public class PerfStatsToSerieMapper {
         }
         if (printElapsed) {
         	elapsedTimeStatsToSerieMapper = new BasicTimeStatsLogHistogramToSerieMapper(
-        			SerieColNameUtil.prefixed("elapsed", prefix), suffix);
+        			SerieColNameUtil.prefixed(prefix, "elapsed"), suffix);
         	tmpColNames.addAll(Arrays.asList(elapsedTimeStatsToSerieMapper.getColumnNames()));
         }
         if (printCpu) {
         	cpuTimeStatsToSerieMapper = new BasicTimeStatsLogHistogramToSerieMapper(
-        			SerieColNameUtil.prefixed("cpu", prefix), suffix);
+        			SerieColNameUtil.prefixed(prefix, "cpu"), suffix);
         	tmpColNames.addAll(Arrays.asList(cpuTimeStatsToSerieMapper.getColumnNames()));
         }
         if (printUser) {
         	userTimeStatsToSerieMapper = new BasicTimeStatsLogHistogramToSerieMapper(
-        			SerieColNameUtil.prefixed("user", prefix), suffix);
+        			SerieColNameUtil.prefixed(prefix, "user"), suffix);
         	tmpColNames.addAll(Arrays.asList(userTimeStatsToSerieMapper.getColumnNames()));
         }
         this.columnNames = tmpColNames.toArray(new String[tmpColNames.size()]);

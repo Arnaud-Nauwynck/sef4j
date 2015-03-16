@@ -19,6 +19,66 @@ import org.slf4j.Logger;
  * log.info("text name1: ", value1, ", name2 :", value2, ", name3   :   ", value3);  // accept any whitespace before/after ':' and '=' 
  * </code> 
  *
+ *
+ * Notice that when using EventLoggerAdapterAppender the flat formatted message will be used for all appenders except param-aware appender class EventLoggerAdapterAppender 
+ * For EventLoggerAdapterAppender class, the rich event log event will use <code>Map&lt;String,Object> values</code>
+ * with params filled from LoggerExt info() arguments and overriden local stack params from LocalCallStack
+ *  
+ * Internally, message will be temporary masked for EventLoggerAdapterAppender, then unmasked and replaced by rich name-param specific for EventLoggerAdapterAppender
+ * see schema explanation below
+ * 
+ * 
+ * 
+ * <PRE>
+ *  .. cf parent caller on ThreadLocal
+ *  LocalCallStack.push("meth").withInheritedProp("parentCallingProp1", value).push();
+ *  ...                                                                             |
+ *                                                                                  |
+ *    LoggerExt.infoNV("text... param1:", value1, ", param2:", value2);             |
+ *      |                                                                           |
+ *      | build rich Log event for param-aware appenders                            \/
+ *      ----->   try { ** MASK slf4j EventLoggerAdapterAppender : put rich log event replacement as ThreadLocal 
+ *      |                                                                           |
+ *      |                                                                           |
+ *      ----------->  slf4J.info("text... param1:value1, param2:value2")  // <= formatted raw text with value substituted!
+ *      |                |   // internally ...  "text... param1:{}, param2:{}", value1, value2)  
+ *      |                |                                                          |
+ *      |                +--> loop to each slf4j appender                           |
+ *      |                         |                                                 |
+ *      |                         +--> appender1  --> append formatted log          |
+ *      |                         +--> appender2  --> append formatted log          |
+ *      |                         +--> EventLoggerAdapterAppender append i          |
+ *      |                                   DO NOT log raw formatted text!          \/
+ *      |                                   use ThreadLocal MASK event substitution instead
+ *      |                                                                            -->  append rich templateText + Map<String,Object> values
+ *      |                                                               rich event info contains  
+ *      |                                                                   param1=value1, param2=value2
+ *      |                                                                   parentCallingProp1=value, parent-parentCallingProp2=value,...
+ *      |                         +--> appenderN ...
+ *      ----->   } finally { UNMASK 
+ *      |
+ * </PRE>
+ * 
+ * 
+ * Remarks using slf4j Marker class:
+ *  we could have used slf4j Marker interface, by providing a specific NameValuesMarker sub class (or registering a NameValueMarker into SimpleMarker list)
+ *  but it seems not widely used by knwown implementation of slf4j ...  and would interfer with other markers?!  
+ * for a such implementation usage, see LogbackLogstash project, class : net.logstash.logback.marker.Marker 
+ * their implementation gives the following code style:
+ * <pre>
+ * {@code
+ * import net.logstash.logback.marker.Markers;
+ *     
+ * logger.info(Markers.append("name1", "value1"), "log message");
+ * logger.info(Markers.append("name1", "value1").with(append("name2", "value2")), "log message");
+ * logger.info(Markers.appendEntries(myMap), "log message");
+ * 
+ * // or using static import (but with potential name conflicts...)
+ * import static net.logstash.logback.marker.Markers.*;
+ * logger.info(append("name1", "value1"), "log message");
+ * }
+ * </pre>
+ * 
  */
 public class LoggerExt {
 
@@ -276,11 +336,77 @@ public class LoggerExt {
 		}
 	}
 	
+
+    public void doLog(LogLevel logLevel, String text, String templateText, Map<String,Object> values) {
+        if (logLevel == null || ! isEnabled(logLevel)) {
+            return;
+        }
+        if (values == null || values.isEmpty()) {
+            doSlf4jLogText(logLevel, text);
+        } else {
+            LoggingEventExt event = buildLoggingEventExt(logLevel, text, templateText, values, null);
+            LoggingEventExt prevMask = EventLoggerAdapterAppender.pushTmpMaskWithReplaceRichEvent(event);
+            try {
+                doSlf4jLogText(logLevel, text);
+            } finally {
+                EventLoggerAdapterAppender.popTmpUnmask(prevMask);
+            }
+        }
+    }
+    
 	public void doLog(LogLevel logLevel, String text, String templateText, Map<String,Object> values, Throwable ex) {
 		if (logLevel == null || ! isEnabled(logLevel)) {
 			return;
 		}
-		switch(logLevel) {
+        if (values == null || values.isEmpty()) {
+            doSlf4jLogTextException(logLevel, text, ex);
+        } else {
+            LoggingEventExt event = buildLoggingEventExt(logLevel, text, templateText, values, ex);
+            LoggingEventExt prevMask = EventLoggerAdapterAppender.pushTmpMaskWithReplaceRichEvent(event);
+            try {
+                doSlf4jLogTextException(logLevel, text, ex);
+            } finally {
+                EventLoggerAdapterAppender.popTmpUnmask(prevMask);
+            }
+        }
+
+		doSlf4jLogTextException(logLevel, text, ex);
+	}
+
+
+    protected LoggingEventExt buildLoggingEventExt(LogLevel logLevel, String text, String templateText, Map<String, Object> values, Throwable ex) {
+        return LoggingEventExtUtil.buildEvent(slf4jLogger.getName(), 
+            logLevel, text, templateText, 
+            true, true, true, // <= fillCallStackPath, fillInheritedProps, fillParams
+            values, ex);
+    }
+
+    private void doSlf4jLogText(LogLevel logLevel, String text) {
+        switch(logLevel) {
+        case OFF:
+            break;
+        case TRACE:
+            slf4jLogger.trace(text);
+            break;
+        case DEBUG:
+            slf4jLogger.debug(text);
+            break;
+        case INFO:
+            slf4jLogger.info(text);
+            break;
+        case WARN:
+            slf4jLogger.warn(text);
+            break;
+        case ERROR:
+            slf4jLogger.error(text);
+            break;
+        default:
+            break;
+        }
+    }
+    
+    private void doSlf4jLogTextException(LogLevel logLevel, String text, Throwable ex) {
+        switch(logLevel) {
 		case OFF:
 			break;
 		case TRACE:
@@ -301,34 +427,7 @@ public class LoggerExt {
 		default:
 			break;
 		}
-	}
-	
-	public void doLog(LogLevel logLevel, String text, String templateText, Map<String,Object> values) {
-		if (logLevel == null || ! isEnabled(logLevel)) {
-			return;
-		}
-		switch(logLevel) {
-		case OFF:
-			break;
-		case TRACE:
-			slf4jLogger.trace(text);
-			break;
-		case DEBUG:
-			slf4jLogger.debug(text);
-			break;
-		case INFO:
-			slf4jLogger.info(text);
-			break;
-		case WARN:
-			slf4jLogger.warn(text);
-			break;
-		case ERROR:
-			slf4jLogger.error(text);
-			break;
-		default:
-			break;
-		}
-	}
+    }
 	
 	protected static void appendMsgFragmentValue(MsgBuilder b,
 			int paramIndex, String msgFragment, Object value) {

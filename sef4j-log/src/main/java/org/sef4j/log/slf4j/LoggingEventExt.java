@@ -5,7 +5,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import ch.qos.logback.classic.Level;
+import org.sef4j.log.slf4j.LoggerExt.LogLevel;
+
 import ch.qos.logback.classic.spi.IThrowableProxy;
 
 /**
@@ -18,7 +19,7 @@ public class LoggingEventExt implements Serializable {
 	private static final long serialVersionUID = 1L;
 	
 	private final long timeStamp;
-	private final ch.qos.logback.classic.Level level;
+	private final LogLevel level; // cf also ch.qos.logback.classic.Level ...
 	private final String threadName;
 	private final String loggerName;
 
@@ -47,7 +48,7 @@ public class LoggingEventExt implements Serializable {
 	// ------------------------------------------------------------------------
 	
 	@SuppressWarnings("unchecked")
-	public LoggingEventExt(long timeStamp, Level level, String threadName, String loggerName, String message, Object[] argumentArray,
+	public LoggingEventExt(long timeStamp, LogLevel level, String threadName, String loggerName, String message, Object[] argumentArray,
 			String formattedMessage, IThrowableProxy throwable,
 			String[] callStackPath, Map<String,Object> props, Map<String,Object> params) {
 		this.timeStamp = timeStamp;
@@ -69,7 +70,7 @@ public class LoggingEventExt implements Serializable {
 		return timeStamp;
 	}
 
-	public ch.qos.logback.classic.Level getLevel() {
+	public LogLevel getLevel() {
 		return level;
 	}
 
@@ -113,7 +114,7 @@ public class LoggingEventExt implements Serializable {
 
 	public static class Builder {
 		private long timeStamp;
-		private ch.qos.logback.classic.Level level;
+		private LogLevel level;
 		private String threadName;
 		private String loggerName;
 		private String message;
@@ -146,7 +147,7 @@ public class LoggingEventExt implements Serializable {
 			this.timeStamp = timeStamp;
 			return this;
 		}
-		public Builder withLevel(ch.qos.logback.classic.Level level) {
+		public Builder withLevel(LogLevel level) {
 			this.level = level;
 			return this;
 		}

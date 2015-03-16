@@ -1,5 +1,6 @@
 package org.sef4j.core.helpers.appenders;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
@@ -27,6 +28,20 @@ public class InMemoryCyclicEventSenderTest {
         sut.sendEvent(e2);
         // Post-check
         ls = sut.getCopy();
+        Assert.assertEquals(2, ls.size());
+        Assert.assertSame(e1, ls.get(0));
+        Assert.assertSame(e2, ls.get(1));
+    }
+    
+    @Test
+    public void testSendEvents() {
+        // Prepare
+        Integer e1 = Integer.valueOf(1);
+        Integer e2 = Integer.valueOf(2);
+        // Perform
+        sut.sendEvents(Arrays.asList(e1, e2));
+        // Post-check
+        List<Integer> ls = sut.getCopy();
         Assert.assertEquals(2, ls.size());
         Assert.assertSame(e1, ls.get(0));
         Assert.assertSame(e2, ls.get(1));

@@ -42,5 +42,5 @@ fi
 # start using default configuration file:  user=root, password=root, http.port=8083, api.port=8086
 # dirs influxdb-data/{db,raft,wal} relative to current dir, instead of default /opt/influxdb/... 
 
-./build/influxdb -config=config.toml
+./build/influxdb -config=config.toml & 
 

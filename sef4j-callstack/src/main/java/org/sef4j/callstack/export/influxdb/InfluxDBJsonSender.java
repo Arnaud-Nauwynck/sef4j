@@ -15,7 +15,7 @@ public abstract class InfluxDBJsonSender implements EventSender<String> {
      * displayName/url...mainly for display message... 
      * see real connection implementation in sub-classes
      */
-    private String url;
+    protected String url;
     
     
     // ------------------------------------------------------------------------

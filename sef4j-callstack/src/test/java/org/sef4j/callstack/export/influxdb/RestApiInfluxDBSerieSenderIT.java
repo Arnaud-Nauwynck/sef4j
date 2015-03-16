@@ -11,12 +11,7 @@ import org.junit.Assert;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-public class RestApiInfluxDBSerieSenderIT {
-
-	private static final String url = "http://localhost:8086";
-	private static final String dbName = "db1";
-	private static final String username = "root";
-	private static final String password = "root";
+public class RestApiInfluxDBSerieSenderIT extends AbstractInfluxDBSerieSenderIT {
 
 	private static InfluxDB influxDB;
     private static RestApiInfluxDBSerieSender sut;

@@ -1,6 +1,7 @@
 package org.sef4j.core.helpers.appenders;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import org.sef4j.core.api.EventSender;
@@ -10,7 +11,7 @@ import org.sef4j.core.api.EventSender;
  * this class is thread-safe, and offer operation to atomically "clearAndGet" event list
  * 
  */
-public class InMemoryCyclicEventSender<T> implements EventSender {
+public class InMemoryCyclicEventSender<T> implements EventSender<T> {
 
     public static final int DEFAUT_LEN = 50;
     
@@ -39,16 +40,30 @@ public class InMemoryCyclicEventSender<T> implements EventSender {
     }
     
 	@Override
-	public void sendEvent(Object event) {
+	public void sendEvent(T event) {
 		synchronized(lock) {
-		    currIndex = modulo(currIndex + 1);
-		    if (events[currIndex] == null) {
-		        currEventsLen++;
-		    }
-		    events[currIndex] = event;
+		    doSendEvent(event);
+		}
+	}
+	
+	@Override
+	public void sendEvents(Collection<T> events) {
+		synchronized(lock) {
+			for(T event : events) {
+				doSendEvent(event);
+			}
 		}
 	}
 
+	protected void doSendEvent(T event) {
+		currIndex = modulo(currIndex + 1);
+		if (events[currIndex] == null) {
+		    currEventsLen++;
+		}
+		events[currIndex] = event;
+	}
+
+	
     @SuppressWarnings("unchecked") //TODO: use typed field "T[] events"
     public List<T> clearAndGet() {
 		synchronized(lock) {

@@ -1,4 +1,4 @@
-package org.sef4j.callstack.export.influxdb.series;
+package org.sef4j.ext.influxdb.series;
 
 import org.influxdb.dto.Serie;
 import org.sef4j.callstack.stats.PendingPerfCount;

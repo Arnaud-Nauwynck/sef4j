@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.sef4j</groupId>
+		<artifactId>sef4j-parent</artifactId>
+		<version>1.0.0</version>
+	</parent>
+
+	<artifactId>sef4j-optionals-parent</artifactId>
+	<packaging>pom</packaging>
+	<name>SEF4J - Optionals parent module</name>
+	<description>parent for sef4j optionals modules</description>
+
+	<modules>
+		<module>sef4j-influxdb</module>
+<!--
+		<module>sef4j-elasticsearch</module>
+-->
+	</modules>
+
+</project>

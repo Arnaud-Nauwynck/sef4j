@@ -38,10 +38,14 @@
 		<module>sef4j-log</module>
 		<module>sef4j-jdbc</module> 
 		<!--
-                <module>sef4j-aop</module> 
+        <module>sef4j-aop</module> 
 		<module>sef4j-javaagent</module> 
-		... -->
+		... 
+		-->
+
+		<module>sef4j-optionals</module> 
 	</modules>
+
 
 	<dependencies>
 		<dependency>
@@ -49,6 +53,13 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+		
+		<dependency>
+			<groupId>org.mockito</groupId>
+			<artifactId>mockito-all</artifactId>
+			<scope>test</scope>
+		</dependency>
+		
 	</dependencies>
 
 
@@ -97,6 +108,13 @@
 				<groupId>junit</groupId>
 				<artifactId>junit</artifactId>
 				<version>4.12</version>
+				<scope>test</scope>
+			</dependency>
+
+			<dependency>
+				<groupId>org.mockito</groupId>
+				<artifactId>mockito-all</artifactId>
+				<version>1.10.8</version>
 				<scope>test</scope>
 			</dependency>
 

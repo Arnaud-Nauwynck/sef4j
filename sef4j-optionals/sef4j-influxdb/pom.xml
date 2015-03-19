@@ -5,32 +5,29 @@
 
 	<parent>
 		<groupId>org.sef4j</groupId>
-		<artifactId>sef4j-parent</artifactId>
+		<artifactId>sef4j-optionals-parent</artifactId>
 		<version>1.0.0</version>
 	</parent>
 
-	<artifactId>sef4j-callstack</artifactId>
+	<artifactId>sef4j-influxdb</artifactId>
 	<packaging>jar</packaging>
 	
-	<name>SEF4J - CallStack</name>
-	<description>CallStack Thread local info with performance counters and push-pop events</description>
+	<name>SEF4J - InfluxDB</name>
+	<description>SEJ4J - Optional module for InfluxDB (RestFull Http-Json time series database)</description>
 
     <dependencies>
 
       <dependency>
         <groupId>org.sef4j</groupId>
-        <artifactId>sef4j-core</artifactId>
+        <artifactId>sef4j-callstack</artifactId>
       </dependency>
 
-      <dependency>
-        <groupId>org.slf4j</groupId>
-        <artifactId>slf4j-api</artifactId>
-      </dependency>
+	  <!-- Thirdparty dependencies -->
 
 	  <dependency>
-	  	<groupId>ch.qos.logback</groupId>
-	  	<artifactId>logback-classic</artifactId>
-	  	<version>1.0.9</version>
+	  	<groupId>org.influxdb</groupId>
+		<artifactId>influxdb-java</artifactId>
+		<version>1.6-SNAPSHOT</version>
 	  </dependency>
 	
 

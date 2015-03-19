@@ -1,4 +1,4 @@
-package org.sef4j.callstack.export.influxdb;
+package org.sef4j.ext.influxdb;
 
 import java.util.List;
 import java.util.Map;

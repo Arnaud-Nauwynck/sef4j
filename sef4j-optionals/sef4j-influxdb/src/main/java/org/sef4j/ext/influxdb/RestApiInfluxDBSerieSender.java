@@ -1,4 +1,4 @@
-package org.sef4j.callstack.export.influxdb;
+package org.sef4j.ext.influxdb;
 
 import java.util.Collection;
 import java.util.concurrent.TimeUnit;

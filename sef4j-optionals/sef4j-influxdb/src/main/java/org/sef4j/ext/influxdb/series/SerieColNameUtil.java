@@ -1,4 +1,4 @@
-package org.sef4j.callstack.export.influxdb.series;
+package org.sef4j.ext.influxdb.series;
 
 
 public class SerieColNameUtil {

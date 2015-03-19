@@ -50,8 +50,17 @@ public class RestApiInfluxDBSerieSender implements EventSender<Serie> {
     	influxDB.write(influxDBDatabase, influxDBPrecision, serieArray);
 	}
 
+	// delegate methods to influxDB Rest Api
 	// ------------------------------------------------------------------------
 
+	public void ping() {
+	    influxDB.ping();
+	}
+	
+	// ------------------------------------------------------------------------
+
+    
+	
 	@Override
 	public String toString() {
 		return "RestApiInfluxDBSerieSender [url=" + url + ", db=" + influxDBDatabase + "]";

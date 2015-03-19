@@ -10,11 +10,11 @@ import org.sef4j.core.api.EventSender;
  */
 public class EventSenderStackEventListener extends StackEventListener {
 
-	private EventSender targetEventSender;
+	private EventSender<StackEvent> targetEventSender;
 	
 	// ------------------------------------------------------------------------
 	
-	public EventSenderStackEventListener(EventSender targetEventSender) {
+	public EventSenderStackEventListener(EventSender<StackEvent> targetEventSender) {
 		this.targetEventSender = targetEventSender;
 	}
 	

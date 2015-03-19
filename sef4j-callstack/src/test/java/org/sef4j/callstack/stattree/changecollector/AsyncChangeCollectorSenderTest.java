@@ -22,7 +22,7 @@ public class AsyncChangeCollectorSenderTest {
 
 	private BasicStatIgnorePendingChangeCollector changeCollector = 
 			new BasicStatIgnorePendingChangeCollector(rootNode);
-	private InMemoryEventSender inMemoryEventSender = new InMemoryEventSender();
+	private InMemoryEventSender<PerfStatsChangesEvent> inMemoryEventSender = new InMemoryEventSender<PerfStatsChangesEvent>();
 	
 	private AsyncChangeCollectorSender<PerfStats,PerfStatsChangesEvent> sut = 
 			new AsyncChangeCollectorSender<PerfStats,PerfStatsChangesEvent>(
@@ -61,9 +61,9 @@ public class AsyncChangeCollectorSenderTest {
 		sut.stop();
 		// sut.flush();
 		// Post-check
-		List<Object> events = inMemoryEventSender.clearAndGet();
+		List<PerfStatsChangesEvent> events = inMemoryEventSender.clearAndGet();
 		Assert.assertTrue(events.size() >= 1);
-		PerfStatsChangesEvent event0 = (PerfStatsChangesEvent) events.get(0);
+		PerfStatsChangesEvent event0 = events.get(0);
 		Map<String, PerfStats> changes = event0.getChanges();
 		Assert.assertNotNull(changes);
 		PerfStats fooChange = changes.get("foo");

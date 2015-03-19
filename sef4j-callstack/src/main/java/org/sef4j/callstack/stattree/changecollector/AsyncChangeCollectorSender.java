@@ -38,7 +38,7 @@ public class AsyncChangeCollectorSender<T,E> {
 			ScheduledExecutorService scheduledExecutor, long period,
 			AbstractCallTreeNodeChangeCollector<T> changeCollector,
 			Function<Map<String,T>,E> changesToEventBuilder,
-			EventSender targetEventSender) {
+			EventSender<E> targetEventSender) {
 		this(scheduledExecutor, period, 
 				new ChangeCollectorToEventSenderTask<T,E>(
 						changeCollector, changesToEventBuilder, targetEventSender));
@@ -60,7 +60,7 @@ public class AsyncChangeCollectorSender<T,E> {
 		private ChangeCollectorToEventSenderTask<T,E> task;
 		private AbstractCallTreeNodeChangeCollector<T> taskChangeCollector;
 		private Function<Map<String,T>,E> taskChangesToEventBuilder;
-		private EventSender taskTargetEventSender;
+		private EventSender<E> taskTargetEventSender;
 
 		public AsyncChangeCollectorSender<T,E> build() {
 			if (task == null) {
@@ -94,7 +94,7 @@ public class AsyncChangeCollectorSender<T,E> {
 			return this;
 		}
 
-		public Builder<T,E> withTaskTargetEventSender(EventSender taskTargetEventSender) {
+		public Builder<T,E> withTaskTargetEventSender(EventSender<E> taskTargetEventSender) {
 			this.taskTargetEventSender = taskTargetEventSender;
 			return this;
 		}
@@ -159,16 +159,16 @@ public class AsyncChangeCollectorSender<T,E> {
 	/**
 	 * task for collecting change and sending
 	 */
-	public static class ChangeCollectorToEventSenderTask<TValue,TChangesEvent> implements Runnable {
+	public static class ChangeCollectorToEventSenderTask<TValue,E> implements Runnable {
 
 		private AbstractCallTreeNodeChangeCollector<TValue> changeCollector;
-		private Function<Map<String,TValue>,TChangesEvent> changesToEventBuilder;
-		private EventSender targetEventSender;
+		private Function<Map<String,TValue>,E> changesToEventBuilder;
+		private EventSender<E> targetEventSender;
 		
 		// ------------------------------------------------------------------------
 
 		public ChangeCollectorToEventSenderTask(AbstractCallTreeNodeChangeCollector<TValue> changeCollector,
-				Function<Map<String, TValue>, TChangesEvent> changesToEventBuilder, EventSender targetEventSender) {
+				Function<Map<String, TValue>, E> changesToEventBuilder, EventSender<E> targetEventSender) {
 			super();
 			this.changeCollector = changeCollector;
 			this.changesToEventBuilder = changesToEventBuilder;
@@ -181,7 +181,7 @@ public class AsyncChangeCollectorSender<T,E> {
 		public void run() {
 			Map<String, TValue> changes = changeCollector.markAndCollectChanges();
 			if (changes != null && !changes.isEmpty()) {
-				TChangesEvent changeEvent = changesToEventBuilder.apply(changes);
+				E changeEvent = changesToEventBuilder.apply(changes);
 				targetEventSender.sendEvent(changeEvent);
 			}
 		}

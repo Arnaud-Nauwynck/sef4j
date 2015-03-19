@@ -2,11 +2,9 @@ package org.sef4j.callstack.export.influxdb;
 
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.nio.charset.Charset;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,11 +13,8 @@ import org.slf4j.LoggerFactory;
  * 
  */
 public class HttpPostInfluxDBSender extends InfluxDBJsonSender {
-
     
     private static final Logger LOG = LoggerFactory.getLogger(HttpPostInfluxDBSender.class);
-    
-    private static final Charset UTF8 = Charset.forName("UTF-8");
     
 	private URL seriesURL;
 	
@@ -37,7 +32,7 @@ public class HttpPostInfluxDBSender extends InfluxDBJsonSender {
     // ------------------------------------------------------------------------
     
     @Override
-    public void sendJSonBody(String json) {
+    protected void doSendJSonBody(byte[] jsonData) {
         HttpURLConnection con = null;
         try {
             con = (HttpURLConnection) seriesURL.openConnection();
@@ -51,10 +46,9 @@ public class HttpPostInfluxDBSender extends InfluxDBJsonSender {
             con.setRequestProperty("Content-Type", "application/json");
             
             OutputStream conOutput = con.getOutputStream();
-            OutputStreamWriter outWriter = new OutputStreamWriter(conOutput, UTF8);
-            outWriter.write(json);
-            outWriter.flush();
-            // conOutput.write(json.getBytes());
+            
+            conOutput.write(jsonData);
+            
             conOutput.close();
             
             // con.setReadTimeout(10000);

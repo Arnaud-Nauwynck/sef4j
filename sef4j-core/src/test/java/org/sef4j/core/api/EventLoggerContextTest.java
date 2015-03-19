@@ -11,8 +11,10 @@ import org.sef4j.core.helpers.appenders.InMemoryEventSender;
 
 public class EventLoggerContextTest {
 
-	private EventSender appender1 = new InMemoryEventSender();
-	private EventSender appender2 = new InMemoryEventSender();
+    private static class E {}
+    
+	private EventSender<E> appender1 = new InMemoryEventSender<E>();
+	private EventSender<E> appender2 = new InMemoryEventSender<E>();
 	private EventLoggerContext sut = new EventLoggerContext();
 
     private static class InnerContextListener implements EventLoggerContextListener {
@@ -41,29 +43,29 @@ public class EventLoggerContextTest {
 		sut.addLoggerToAppenderRef("a.b.c", "appender2", true);
 		sut.addLoggerToAppenderRef("a.b.c.d", "appender1", false);
 		// Post-check
-		EventSender[] rootAppenders = sut.getInheritedAppendersFor("");
+		EventSender<E>[] rootAppenders = sut.getInheritedAppendersFor("");
 		Assert.assertEquals(0, rootAppenders.length);
-		EventSender[] aAppenders = sut.getInheritedAppendersFor("a");
+		EventSender<E>[] aAppenders = sut.getInheritedAppendersFor("a");
 		Assert.assertEquals(0, aAppenders.length);
 		Assert.assertSame(rootAppenders, aAppenders); // memory optim check.. share array res
-		EventSender[] abAppenders = sut.getInheritedAppendersFor("a.b");
+		EventSender<E>[] abAppenders = sut.getInheritedAppendersFor("a.b");
 		Assert.assertEquals(1, abAppenders.length);
 		Assert.assertSame(appender1, abAppenders[0]);
-		EventSender[] abcAppenders = sut.getInheritedAppendersFor("a.b.c");
+		EventSender<E>[] abcAppenders = sut.getInheritedAppendersFor("a.b.c");
 		Assert.assertEquals(2, abcAppenders.length);
 		Assert.assertSame(appender1, abcAppenders[0]);
 		Assert.assertSame(appender2, abcAppenders[1]);
-		EventSender[] abcdAppenders = sut.getInheritedAppendersFor("a.b.c.d");
+		EventSender<E>[] abcdAppenders = sut.getInheritedAppendersFor("a.b.c.d");
 		Assert.assertEquals(1, abcdAppenders.length);
 		Assert.assertSame(appender2, abcdAppenders[0]);
 
-		EventSender[] azAppenders = sut.getInheritedAppendersFor("a.z");
+		EventSender<E>[] azAppenders = sut.getInheritedAppendersFor("a.z");
 		Assert.assertSame(aAppenders, azAppenders);// memory optim check.. share array res
 
-		EventSender[] abczAppenders = sut.getInheritedAppendersFor("a.b.c.z");
+		EventSender<E>[] abczAppenders = sut.getInheritedAppendersFor("a.b.c.z");
 		Assert.assertSame(abcAppenders, abczAppenders);// memory optim check.. share array res
 
-		EventSender[] abcdzAppenders = sut.getInheritedAppendersFor("a.b.c.d.z");
+		EventSender<E>[] abcdzAppenders = sut.getInheritedAppendersFor("a.b.c.d.z");
 		Assert.assertSame(abcdAppenders, abcdzAppenders); // memory optim check.. share array res
 		
 	}

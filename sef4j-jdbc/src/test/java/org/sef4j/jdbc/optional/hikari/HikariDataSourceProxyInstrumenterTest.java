@@ -29,7 +29,9 @@ public class HikariDataSourceProxyInstrumenterTest extends InstrumenterHelper {
 		config.setMinimumIdle(0);
 		final AtomicBoolean allowConnCreate = new AtomicBoolean();
 		JDBCDataSource underlyingDS = new JDBCDataSource() {
-			public Connection getConnection() throws SQLException {
+            private static final long serialVersionUID = 1L;
+
+            public Connection getConnection() throws SQLException {
 				if (!allowConnCreate.get()) {
 					throw new IllegalStateException();
 				}

@@ -11,7 +11,7 @@ public class HttpPostInfluxDBSenderIT extends AbstractInfluxDBSerieSenderIT {
         HttpPostInfluxDBSender sut = new HttpPostInfluxDBSender(url, dbName, username, password);
         String json = "[ { \"name\": \"metric1\", \"columns\": [\"field1\", \"field2\", \"stringField1\" ], \"points\": [ [11.5, 20.6, \"test1\"] ] } ]";
         // Perform
-        sut.sendJSonBody(json);
+        sut.sendJSonBody(json.getBytes());
         // Post-check
     }
 }

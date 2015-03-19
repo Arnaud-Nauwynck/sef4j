@@ -26,7 +26,7 @@ public class RestApiInfluxDBSerieSenderIT extends AbstractInfluxDBSerieSenderIT 
     public void testPing() {
         // Prepare
         // Perform
-        influxDB.ping();
+        sut.ping();
         // Post-check
     }
 
@@ -50,9 +50,12 @@ public class RestApiInfluxDBSerieSenderIT extends AbstractInfluxDBSerieSenderIT 
         Assert.assertTrue(rows.size() <= 10);
         Map<String,Object> pt0 = rows.get(0);
         Assert.assertNotNull(pt0);
-        double pt0_time = (Double) pt0.get("time");
-        double pt0_field1 = (Double) pt0.get("field1");
-        double pt0_field2 = (Double) pt0.get("field2");
+        Double pt0_time = (Double) pt0.get("time");
+        Double pt0_field1 = (Double) pt0.get("field1");
+        Double pt0_field2 = (Double) pt0.get("field2");
+        Assert.assertNotNull(pt0_time);
+        Assert.assertNotNull(pt0_field1);
+        Assert.assertNotNull(pt0_field2);
         Assert.assertTrue(10 < pt0_field1 && pt0_field1 < 15.0); // cf 11.5 as of test ...
 //        Serie field2Serie = metric1Res.get(1);
 //        Assert.assertEquals("field1", field1Serie.getName());

@@ -9,23 +9,24 @@ import org.junit.Test;
 
 public class InMemoryEventSenderTest {
 
-	private InMemoryEventSender sut;
+    private static class E {}
+	private InMemoryEventSender<E> sut;
 
 	@Before
 	public void setup() {
-		sut = new InMemoryEventSender();
+		sut = new InMemoryEventSender<E>();
 	}
 
 	@Test
 	public void testHandleEvent() {
 		// Prepare
-		Object event0 = new Object();
-		Object event1 = new Object();
+		E event0 = new E();
+		E event1 = new E();
 		// Perform
 		sut.sendEvent(event0);
 		sut.sendEvent(event1);
 		// Post-check
-		List<Object> res = sut.clearAndGet();
+		List<E> res = sut.clearAndGet();
 		Assert.assertEquals(2, res.size());
 		Assert.assertSame(event0, res.get(0));
 		Assert.assertSame(event1, res.get(1));

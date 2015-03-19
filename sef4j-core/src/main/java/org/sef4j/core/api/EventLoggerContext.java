@@ -31,7 +31,7 @@ public class EventLoggerContext {
     private Object lock = new Object();
     private List<EventLoggerContextListener> contextListeners = new ArrayList<EventLoggerContextListener>();
 
-    private Map<String,EventSender> appenders = new HashMap<String,EventSender>();
+    private Map<String,EventSender<Object>> appenders = new HashMap<String,EventSender<Object>>();
 
     private Map<String,PerLoggerContext> perLoggerContexts = new HashMap<String,PerLoggerContext>();
     
@@ -45,7 +45,7 @@ public class EventLoggerContext {
     	private Map<String,PerLoggerContext> descendants = new HashMap<String,PerLoggerContext>();
     	
     	// computed field from toAppenderRefs+ recurse on parent PerLoggerContext
-    	private EventSender[] inheritedAppenders;
+    	private EventSender<Object>[] inheritedAppenders;
     	
     	public PerLoggerContext(String eventLoggerName) {
 			this.eventLoggerName = eventLoggerName;
@@ -78,9 +78,10 @@ public class EventLoggerContext {
 
     // ------------------------------------------------------------------------
 
+    @SuppressWarnings("unchecked")
     public EventLoggerContext() {
     	PerLoggerContext rootLoggerCtx = new PerLoggerContext(ROOT_LOGGER_NAME);
-    	rootLoggerCtx.inheritedAppenders = new EventSender[0];
+    	rootLoggerCtx.inheritedAppenders = (EventSender<Object>[]) new EventSender<?>[0];
 		this.perLoggerContexts.put(ROOT_LOGGER_NAME, rootLoggerCtx);
     }
 
@@ -98,19 +99,20 @@ public class EventLoggerContext {
         }
     }
 
-    public void addAppender(String appenderName, EventSender eventSender) {
+    @SuppressWarnings("unchecked")
+    public <T> void addAppender(String appenderName, EventSender<T> eventSender) {
     	synchronized(lock) {
     		if (appenders.get(appenderName) != null) {
     			throw new IllegalArgumentException("appender name '" + appenderName + "' already used");
     		};
-            appenders.put(appenderName, eventSender);
+            appenders.put(appenderName, (EventSender<Object>) eventSender);
             // nothing to fire event here (cf addLoggerToAppenderRef() instead)
     	}
     }
 
     public void removeAppender(String appenderName) {
     	synchronized(lock) {
-    		EventSender appender = appenders.remove(appenderName);
+    		EventSender<Object> appender = appenders.remove(appenderName);
     		if (appender == null) {
     			throw new IllegalArgumentException("appender name '" + appenderName + "' not found");
     		};
@@ -138,7 +140,7 @@ public class EventLoggerContext {
     		// TOADD: EventFilter...
     		){
     	synchronized(lock) {
-    		EventSender appender = this.appenders.get(appenderName);
+    		EventSender<Object> appender = this.appenders.get(appenderName);
     		if (appender == null) {
     			throw new IllegalArgumentException("appender not found");
     		}    		
@@ -158,7 +160,7 @@ public class EventLoggerContext {
 
     public void removeLoggerToAppenderRef(String eventLoggerName, String appenderName){
     	synchronized(lock) {
-    		EventSender appender = this.appenders.get(appenderName);
+    		EventSender<Object> appender = this.appenders.get(appenderName);
     		if (appender == null) {
     			throw new IllegalArgumentException("appender not found");
     		}
@@ -180,19 +182,21 @@ public class EventLoggerContext {
     // SPI, called from EventLoggerFactory
     // ------------------------------------------------------------------------
     
-    public EventSender[] getInheritedAppendersFor(String eventLoggerName) {
+    @SuppressWarnings("unchecked")
+    public <E> EventSender<E>[] getInheritedAppendersFor(String eventLoggerName) {
     	synchronized(lock) {
     		PerLoggerContext loggerCxt = findFirstAncestorLoggerContextFor(eventLoggerName);
-    		return loggerCxt.inheritedAppenders;
+    		return (EventSender<E>[]) loggerCxt.inheritedAppenders;
     	}
     }
 
-	public Map<String, EventSender[]> getInheritedAppendersFor(Set<String> eventLoggerNames) {
-		Map<String, EventSender[]> res = new HashMap<String, EventSender[]>();
+	@SuppressWarnings("unchecked")
+    public <E> Map<String, EventSender<E>[]> getInheritedAppendersFor(Set<String> eventLoggerNames) {
+		Map<String, EventSender<E>[]> res = new HashMap<String, EventSender<E>[]>();
 		synchronized(lock) {
 			for(String eventLoggerName : eventLoggerNames) {
 	    		PerLoggerContext loggerCxt = findFirstAncestorLoggerContextFor(eventLoggerName);
-	    		res.put(eventLoggerName, loggerCxt.inheritedAppenders);
+	    		res.put(eventLoggerName, (EventSender<E>[]) loggerCxt.inheritedAppenders);
 			}
     	}
 		return res;
@@ -257,15 +261,16 @@ public class EventLoggerContext {
 		return res;
 	}
 	
+	@SuppressWarnings("unchecked")
     protected void reevalInheritedAppendersForDescendentLoggers(PerLoggerContext loggerContext, boolean fireChgEvent) {
     	// EventSender[] oldInheritedAppenders = loggerContext.inheritedAppenders;
-    	List<EventSender> tmpAppenders = new ArrayList<EventSender>();
+    	List<EventSender<Object>> tmpAppenders = new ArrayList<EventSender<Object>>();
     	PerLoggerContext ancestorCtx = loggerContext.firstAncestor;
     	if (ancestorCtx != null && ancestorCtx.inheritedAppenders != null) {
     		tmpAppenders.addAll(Arrays.asList(ancestorCtx.inheritedAppenders));
     	}
     	collectAddOrRemoveAppenders(tmpAppenders, loggerContext);
-    	EventSender[] newInheritedAppenders = tmpAppenders.toArray(new EventSender[tmpAppenders.size()]);
+    	EventSender<Object>[] newInheritedAppenders = (EventSender<Object>[]) tmpAppenders.toArray(new EventSender<?>[tmpAppenders.size()]);
     	loggerContext.inheritedAppenders = newInheritedAppenders;
     	boolean fireDescendantChgEvent = false;
     	if (fireChgEvent) {
@@ -290,10 +295,10 @@ public class EventLoggerContext {
         }
     }
 
-	private void collectAddOrRemoveAppenders(List<EventSender> resAppenders, PerLoggerContext eventLoggerConf) {
+	private void collectAddOrRemoveAppenders(List<EventSender<Object>> resAppenders, PerLoggerContext eventLoggerConf) {
 		for(AppenderRefContext l2a : eventLoggerConf.toAppenderRefs.values()) {
 			String appenderName = l2a.getAppenderName();
-			EventSender appender = appenders.get(appenderName);
+			EventSender<Object> appender = appenders.get(appenderName);
 			if (l2a.addOrRemoveInheritable) {
 				// add
 				resAppenders.add(appender);		

@@ -9,8 +9,9 @@ import org.sef4j.core.helpers.appenders.InMemoryEventSender;
 
 public class EventLoggerFactoryTest {
 
-	private InMemoryEventSender appender1 = new InMemoryEventSender();
-	private InMemoryEventSender appender2 = new InMemoryEventSender();
+    private static class E {}
+	private InMemoryEventSender<E> appender1 = new InMemoryEventSender<E>();
+	private InMemoryEventSender<E> appender2 = new InMemoryEventSender<E>();
 	private EventLoggerContext eventLoggerContext = new EventLoggerContext();
 	private EventLoggerFactory sut = new EventLoggerFactory(eventLoggerContext);
 
@@ -21,7 +22,7 @@ public class EventLoggerFactoryTest {
 	@Test
 	public void testSendEvent_addAppender() {
 		// Prepare
-		Object event = new Object();
+		E event = new E();
 		// Perform
 		loggerA.sendEvent(event);
 		// Post-check
@@ -61,8 +62,8 @@ public class EventLoggerFactoryTest {
 
 	}
 	
-	private static void assertAppenderEvents(InMemoryEventSender appender, Object... expectedEvents) {
-		List<Object> actualEvents = appender.clearAndGet();
+	private static void assertAppenderEvents(InMemoryEventSender<E> appender, E... expectedEvents) {
+		List<E> actualEvents = appender.clearAndGet();
 		int len = Math.min(expectedEvents.length, actualEvents.size()); // see assert below
 		for (int i = 0; i < len; i++) {
 			Assert.assertSame(expectedEvents[i], actualEvents.get(i));

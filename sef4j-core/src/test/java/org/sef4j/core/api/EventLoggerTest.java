@@ -10,15 +10,18 @@ import org.sef4j.core.helpers.appenders.InMemoryEventSender;
 
 public class EventLoggerTest {
 
-	private InMemoryEventSender inMemoryEventSender;
+    private static class E {}
+	private InMemoryEventSender<E> inMemoryEventSender;
 	private EventLogger sut;
 
 	@Before
 	public void setup() {
-		inMemoryEventSender = new InMemoryEventSender();
+		inMemoryEventSender = new InMemoryEventSender<E>();
 		EventLoggerFactory eventLoggerFactory = new EventLoggerFactory(new EventLoggerContext() {
-		    public EventSender[] getInheritedAppendersFor(String eventLoggerName) {
-		    	return new EventSender[] { inMemoryEventSender };
+		    @SuppressWarnings("unchecked")
+            @Override
+		    public EventSender<E>[] getInheritedAppendersFor(String eventLoggerName) {
+		    	return (EventSender<E>[]) new EventSender<?>[] { inMemoryEventSender };
 		    }
 		});
 		sut = eventLoggerFactory.getEventLogger("test");
@@ -27,13 +30,13 @@ public class EventLoggerTest {
 	@Test
 	public void testSendEvent() {
 		// Prepare
-		Object event0 = new Object();
-		Object event1 = new Object();
+		E event0 = new E();
+		E event1 = new E();
 		// Perform
 		sut.sendEvent(event0);
 		sut.sendEvent(event1);
 		// Post-check
-		List<Object> res = inMemoryEventSender.clearAndGet();
+		List<E> res = inMemoryEventSender.clearAndGet();
 		Assert.assertEquals(2, res.size());
 		Assert.assertSame(event0, res.get(0));
 		Assert.assertSame(event1, res.get(1));

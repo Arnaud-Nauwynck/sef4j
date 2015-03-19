@@ -51,12 +51,13 @@ public abstract class InstrumenterHelper {
 		}
 	}
 
-	protected static Object unsafeGetField(Object obj, String fieldName) {
+    protected static <T> T unsafeGetField(Object obj, String fieldName) {
 		Class<?> clss = obj.getClass();
 		return unsafeGetField(obj, clss, fieldName);
 	}
 	
-	protected static Object unsafeGetField(Object obj, Class<?> clss, String fieldName) {
+	@SuppressWarnings("unchecked")
+    protected static <T> T unsafeGetField(Object obj, Class<?> clss, String fieldName) {
 		Field field = getFieldOfRethrow(clss, fieldName);
 //		int fieldOffset = UNSAFE.fieldOffset(field);
 //		UNSAFE.putObject(obj, fieldOffset, value);
@@ -64,7 +65,7 @@ public abstract class InstrumenterHelper {
 		boolean prevIsAccessible = field.isAccessible();
 		try {
 			field.setAccessible(true);
-			return field.get(obj);
+			return (T) field.get(obj);
 		} catch (IllegalArgumentException ex) {
 			throw new RuntimeException("Failed to get " + clss + "." + fieldName, ex);
 		} catch (IllegalAccessException ex) {

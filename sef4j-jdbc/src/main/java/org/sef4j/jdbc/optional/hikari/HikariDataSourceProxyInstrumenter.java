@@ -41,11 +41,9 @@ public class HikariDataSourceProxyInstrumenter extends InstrumenterHelper {
 		if (totalConnections != 0) {
 			LOG.info("injectSefDataSourceProxyInto()... pool already contains " + activeConnections + " active /" + totalConnections + " total connections! ... also injecting");
 			
-			ConcurrentBag<PoolBagEntry> connectionBag = (ConcurrentBag<PoolBagEntry>) 
-					unsafeGetField(pool, "connectionBag");
+			ConcurrentBag<PoolBagEntry> connectionBag = unsafeGetField(pool, "connectionBag");
 			// borrow all ?... instrument them,  and requite them
-			CopyOnWriteArrayList<PoolBagEntry> sharedList = (CopyOnWriteArrayList<PoolBagEntry>) 
-					unsafeGetField(connectionBag, "sharedList");
+			CopyOnWriteArrayList<PoolBagEntry> sharedList = unsafeGetField(connectionBag, "sharedList");
 			for(int i = 0; i < sharedList.size(); i++) {
 				PoolBagEntry bagEntry = sharedList.get(i);
 				if (bagEntry != null) {

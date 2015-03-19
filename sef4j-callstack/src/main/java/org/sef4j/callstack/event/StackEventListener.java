@@ -7,7 +7,7 @@ import java.util.Collection;
  * 
  * (abstract class instead of interface, for performance and helper method)
  */
-public abstract class StackEventListener {
+public abstract class StackEventListener {  // almost identical to EventSender<StackEvent> ... method "onEvent" instead of "sendEvent" ?!  
 
 	public abstract void onEvent(StackEvent event);
 	

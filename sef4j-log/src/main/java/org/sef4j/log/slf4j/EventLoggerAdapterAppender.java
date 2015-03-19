@@ -29,15 +29,15 @@ public class EventLoggerAdapterAppender extends AppenderBase<ILoggingEvent> {
     };
     
     
-	private EventSender targetEventSender;
+	private EventSender<LoggingEventExt> targetEventSender;
 	
 	// ------------------------------------------------------------------------
 	
-	public EventLoggerAdapterAppender(EventSender targetEventSender) {
+	public EventLoggerAdapterAppender(EventSender<LoggingEventExt> targetEventSender) {
 		this.targetEventSender = targetEventSender;
 	}
 	
-	public EventSender getTargetEventSender() {
+	public EventSender<LoggingEventExt> getTargetEventSender() {
 	    return targetEventSender;
 	}
 	

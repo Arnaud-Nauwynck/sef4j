@@ -45,13 +45,11 @@ public class Slf4jLogCallerEventSender<T> implements EventSender<T> {
 		EventToSlf4jLogCaller<T> logCaller;
 		if (eventToSlf4jLogCallerPerClass != null && event != null) {
 			logCaller = eventToSlf4jLogCallerPerClass.get(event.getClass());
-//			if (logCaller == null) { // when needed default ... register logCaller to Object.class
-//				logCaller = defautEventToSlf4jLogCaller;
-//			}
+			//	if logCaller == null and needing default => see register logCaller to Object.class
 		} else {
 			logCaller = defautEventToSlf4jLogCaller;
 		}
-		if (logCaller !=null) {
+		if (logCaller != null) {
 			logCaller.logTo(event, slf4jLogger);
 		}
 	}
@@ -62,5 +60,31 @@ public class Slf4jLogCallerEventSender<T> implements EventSender<T> {
         	sendEvent(event);
         }
     }
+
+	public Logger getSlf4jLogger() {
+		return slf4jLogger;
+	}
+
+	public void setSlf4jLogger(Logger slf4jLogger) {
+		this.slf4jLogger = slf4jLogger;
+	}
+
+	public TypeHierarchyToObjectMap<EventToSlf4jLogCaller<T>> getEventToSlf4jLogCallerPerClass() {
+		return eventToSlf4jLogCallerPerClass;
+	}
+
+	public void setEventToSlf4jLogCallerPerClass(TypeHierarchyToObjectMap<EventToSlf4jLogCaller<T>> eventToSlf4jLogCallerPerClass) {
+		this.eventToSlf4jLogCallerPerClass = eventToSlf4jLogCallerPerClass;
+	}
+
+	public EventToSlf4jLogCaller<T> getDefautEventToSlf4jLogCaller() {
+		return defautEventToSlf4jLogCaller;
+	}
+
+	public void setDefautEventToSlf4jLogCaller(EventToSlf4jLogCaller<T> defautEventToSlf4jLogCaller) {
+		this.defautEventToSlf4jLogCaller = defautEventToSlf4jLogCaller;
+	}
+	
+	
 	
 }

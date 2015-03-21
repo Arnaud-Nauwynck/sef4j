@@ -1,19 +1,21 @@
-package org.sef4j.log.slf4j;
+package org.sef4j.log.slf4j.slf4j2event;
 
-import org.sef4j.log.slf4j.LoggerExt.LogLevel;
+import org.sef4j.log.slf4j.LogLevel;
+import org.sef4j.log.slf4j.LoggerExt;
+import org.sef4j.log.slf4j.Slf4jLoggerUtil;
 import org.slf4j.Logger;
 
 /**
  * ThreadLocal mask support for replacing current slf4j logged event by richer event or mask it
  * 
- * @see EventSenderFromSlf4jAppender
+ * @see EventSenderSlf4jAppender
  */
 public final class Slf4jAppenderThreadLocalMask {
 
     private static final ThreadLocal<Slf4jAppenderEventMask> threadLocalAppenderMask = new ThreadLocal<Slf4jAppenderEventMask>() {
         @Override
         protected Slf4jAppenderEventMask initialValue() {
-            return new Slf4jAppenderEventMask(false, null);
+            return new Slf4jAppenderEventMask(false, null, null);
         }
     };
     
@@ -56,7 +58,7 @@ public final class Slf4jAppenderThreadLocalMask {
 
 	/** alias for <code>pushTmpMaskWithReplaceRichEvent(new Slf4jAppenderEventMask(true, event))</code> */
 	public static Slf4jAppenderEventMask pushTmpMaskWithReplaceRichEvent(LoggingEventExt event) {
-		return pushTmpMaskWithReplaceRichEvent(new Slf4jAppenderEventMask(true, event));
+		return pushTmpMaskWithReplaceRichEvent(new Slf4jAppenderEventMask(true, event, null));
 	}
 
 	public static void popTmpUnmask(Slf4jAppenderEventMask prev) {

@@ -1,4 +1,4 @@
-package org.sef4j.log.slf4j;
+package org.sef4j.log.slf4j.slf4j2event;
 
 import org.sef4j.core.api.EventSender;
 
@@ -17,13 +17,15 @@ import ch.qos.logback.core.AppenderBase;
  * 
  * @see Slf4jAppenderThreadLocalMask
  */
-public class EventSenderFromSlf4jAppender extends AppenderBase<ILoggingEvent> {
+public class EventSenderSlf4jAppender extends AppenderBase<ILoggingEvent> {
     
 	private EventSender<LoggingEventExt> targetEventSender;
 	
+	private Slf4jToLoggingEventExtMapper eventMapper = new Slf4jToLoggingEventExtMapper();
+	
 	// ------------------------------------------------------------------------
 	
-	public EventSenderFromSlf4jAppender(EventSender<LoggingEventExt> targetEventSender) {
+	public EventSenderSlf4jAppender(EventSender<LoggingEventExt> targetEventSender) {
 		this.targetEventSender = targetEventSender;
 	}
 	
@@ -40,9 +42,11 @@ public class EventSenderFromSlf4jAppender extends AppenderBase<ILoggingEvent> {
 	    if (threadMask.isMask()) {
 	        evt = threadMask.getRichLoggingEventExt();   
 	        // may be null => nothing converted to log!
-	        
+	        if (evt == null && threadMask.eventMapper != null) {
+	        	evt = threadMask.eventMapper.slf4jEventToEvent(slf4jEvent);
+	        }
 	    } else {
-	        evt = LoggingEventExtUtil.slf4jEventToEvent(slf4jEvent);
+	        evt = eventMapper.slf4jEventToEvent(slf4jEvent);
 	    }
 	    
 		// *** delegate to ***

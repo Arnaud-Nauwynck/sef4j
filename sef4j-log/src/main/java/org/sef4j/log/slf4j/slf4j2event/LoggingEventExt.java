@@ -1,11 +1,12 @@
-package org.sef4j.log.slf4j;
+package org.sef4j.log.slf4j.slf4j2event;
 
 import java.io.Serializable;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sef4j.log.slf4j.LoggerExt.LogLevel;
+import org.sef4j.log.slf4j.LogLevel;
+import org.sef4j.log.slf4j.LoggerExt;
 
 import ch.qos.logback.classic.spi.IThrowableProxy;
 

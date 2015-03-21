@@ -1,6 +1,5 @@
 package org.sef4j.log.slf4j;
 
-import org.sef4j.log.slf4j.LoggerExt.LogLevel;
 import org.slf4j.Logger;
 
 import ch.qos.logback.classic.Level;
@@ -15,7 +14,7 @@ public class Slf4jLoggerUtil {
         case Level.INFO_INT: return LogLevel.INFO;
         case Level.DEBUG_INT: return LogLevel.DEBUG;
         case Level.TRACE_INT: return LogLevel.TRACE;
-        case Level.ALL_INT: return LogLevel.TRACE; // ?
+        case Level.ALL_INT: return LogLevel.TRACE; // not a level.. use TRACE
         default: return LogLevel.TRACE;
         }
     }

@@ -3,6 +3,10 @@ package org.sef4j.log.slf4j;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.sef4j.log.slf4j.slf4j2event.LoggingEventExt;
+import org.sef4j.log.slf4j.slf4j2event.Slf4jAppenderEventMask;
+import org.sef4j.log.slf4j.slf4j2event.Slf4jAppenderThreadLocalMask;
+import org.sef4j.log.slf4j.slf4j2event.Slf4jToLoggingEventExtMapper;
 import org.slf4j.Logger;
 
 /**
@@ -82,11 +86,6 @@ import org.slf4j.Logger;
  */
 public class LoggerExt {
 
-	public static enum LogLevel {
-		OFF, TRACE, DEBUG, INFO, WARN, ERROR
-	}
-
-	
 	private Logger slf4jLogger;
 	
 	// ------------------------------------------------------------------------
@@ -337,7 +336,7 @@ public class LoggerExt {
         	Slf4jLoggerUtil.logLevelText(slf4jLogger, logLevel, text);
         } else {
             LoggingEventExt event = buildLoggingEventExt(logLevel, text, templateText, values, null);
-            Slf4jAppenderEventMask mask = new Slf4jAppenderEventMask(true, event);
+            Slf4jAppenderEventMask mask = new Slf4jAppenderEventMask(true, event, null);
             Slf4jAppenderThreadLocalMask.maskLogLevelText(mask, slf4jLogger, logLevel, text);
         }
     }
@@ -350,7 +349,7 @@ public class LoggerExt {
             Slf4jLoggerUtil.logLevelTextException(slf4jLogger, logLevel, text, ex);
         } else {
             LoggingEventExt event = buildLoggingEventExt(logLevel, text, templateText, values, ex);
-            Slf4jAppenderEventMask mask = new Slf4jAppenderEventMask(true, event);
+            Slf4jAppenderEventMask mask = new Slf4jAppenderEventMask(true, event, null);
             Slf4jAppenderThreadLocalMask.maskLogLevelTextEx(mask, slf4jLogger, logLevel, text, ex);
         }
 	}
@@ -358,7 +357,7 @@ public class LoggerExt {
 
 
     protected LoggingEventExt buildLoggingEventExt(LogLevel logLevel, String text, String templateText, Map<String, Object> values, Throwable ex) {
-        return LoggingEventExtUtil.buildEvent(slf4jLogger.getName(), 
+        return Slf4jToLoggingEventExtMapper.buildEvent(slf4jLogger.getName(), 
             logLevel, text, templateText, 
             true, true, true, // <= fillCallStackPath, fillInheritedProps, fillParams
             values, ex);

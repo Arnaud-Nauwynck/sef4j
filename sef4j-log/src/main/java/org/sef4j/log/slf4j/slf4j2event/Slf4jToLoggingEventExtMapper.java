@@ -1,23 +1,23 @@
-package org.sef4j.log.slf4j;
+package org.sef4j.log.slf4j.slf4j2event;
 
 import java.util.Map;
 
 import org.sef4j.callstack.CallStackElt;
 import org.sef4j.callstack.LocalCallStack;
-import org.sef4j.log.slf4j.LoggerExt.LogLevel;
+import org.sef4j.log.slf4j.LogLevel;
+import org.sef4j.log.slf4j.Slf4jLoggerUtil;
 
-import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxy;
 
-public class LoggingEventExtUtil {
+public class Slf4jToLoggingEventExtMapper {
 
-    public static LoggingEventExt slf4jEventToEvent(ILoggingEvent slf4jEvent) {
+    public LoggingEventExt slf4jEventToEvent(ILoggingEvent slf4jEvent) {
         LoggingEventExt.Builder evtB = new LoggingEventExt.Builder();
         
         evtB.withTimeStamp(slf4jEvent.getTimeStamp());
-        evtB.withLevel(slf4jLevelToLogLevel(slf4jEvent.getLevel()));
+        evtB.withLevel(Slf4jLoggerUtil.slf4jLevelToLogLevel(slf4jEvent.getLevel()));
         evtB.withThreadName(slf4jEvent.getThreadName());
         evtB.withLoggerName(slf4jEvent.getLoggerName());
 

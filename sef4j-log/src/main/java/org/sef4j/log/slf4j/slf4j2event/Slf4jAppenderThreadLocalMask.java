@@ -1,7 +1,6 @@
 package org.sef4j.log.slf4j.slf4j2event;
 
 import org.sef4j.log.slf4j.LogLevel;
-import org.sef4j.log.slf4j.LoggerExt;
 import org.sef4j.log.slf4j.Slf4jLoggerUtil;
 import org.slf4j.Logger;
 

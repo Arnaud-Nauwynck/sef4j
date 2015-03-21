@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.sef4j.log.slf4j.LogLevel;
-import org.sef4j.log.slf4j.LoggerExt;
 
 import ch.qos.logback.classic.spi.IThrowableProxy;
 

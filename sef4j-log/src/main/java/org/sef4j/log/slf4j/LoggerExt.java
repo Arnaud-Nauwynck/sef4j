@@ -323,17 +323,9 @@ public class LoggerExt {
 			doLog(logLevel, text, templateText, b.values, b.ex);
 		}
 	}
-	
+
 	public boolean isEnabled(LogLevel logLevel) {
-		switch(logLevel) {
-		case OFF: return false;
-		case TRACE: return slf4jLogger.isTraceEnabled();
-		case DEBUG: return slf4jLogger.isDebugEnabled();
-		case INFO: return slf4jLogger.isInfoEnabled();
-		case WARN: return slf4jLogger.isWarnEnabled();
-		case ERROR: return slf4jLogger.isErrorEnabled();
-		default: return false;
-		}
+		return Slf4jLoggerUtil.isEnabled(slf4jLogger, logLevel);
 	}
 	
 
@@ -342,15 +334,11 @@ public class LoggerExt {
             return;
         }
         if (values == null || values.isEmpty()) {
-            doSlf4jLogText(logLevel, text);
+        	Slf4jLoggerUtil.logLevelText(slf4jLogger, logLevel, text);
         } else {
             LoggingEventExt event = buildLoggingEventExt(logLevel, text, templateText, values, null);
-            LoggingEventExt prevMask = EventLoggerAdapterAppender.pushTmpMaskWithReplaceRichEvent(event);
-            try {
-                doSlf4jLogText(logLevel, text);
-            } finally {
-                EventLoggerAdapterAppender.popTmpUnmask(prevMask);
-            }
+            Slf4jAppenderEventMask mask = new Slf4jAppenderEventMask(true, event);
+            Slf4jAppenderThreadLocalMask.maskLogLevelText(mask, slf4jLogger, logLevel, text);
         }
     }
     
@@ -359,19 +347,14 @@ public class LoggerExt {
 			return;
 		}
         if (values == null || values.isEmpty()) {
-            doSlf4jLogTextException(logLevel, text, ex);
+            Slf4jLoggerUtil.logLevelTextException(slf4jLogger, logLevel, text, ex);
         } else {
             LoggingEventExt event = buildLoggingEventExt(logLevel, text, templateText, values, ex);
-            LoggingEventExt prevMask = EventLoggerAdapterAppender.pushTmpMaskWithReplaceRichEvent(event);
-            try {
-                doSlf4jLogTextException(logLevel, text, ex);
-            } finally {
-                EventLoggerAdapterAppender.popTmpUnmask(prevMask);
-            }
+            Slf4jAppenderEventMask mask = new Slf4jAppenderEventMask(true, event);
+            Slf4jAppenderThreadLocalMask.maskLogLevelTextEx(mask, slf4jLogger, logLevel, text, ex);
         }
-
-		doSlf4jLogTextException(logLevel, text, ex);
 	}
+
 
 
     protected LoggingEventExt buildLoggingEventExt(LogLevel logLevel, String text, String templateText, Map<String, Object> values, Throwable ex) {
@@ -381,53 +364,6 @@ public class LoggerExt {
             values, ex);
     }
 
-    private void doSlf4jLogText(LogLevel logLevel, String text) {
-        switch(logLevel) {
-        case OFF:
-            break;
-        case TRACE:
-            slf4jLogger.trace(text);
-            break;
-        case DEBUG:
-            slf4jLogger.debug(text);
-            break;
-        case INFO:
-            slf4jLogger.info(text);
-            break;
-        case WARN:
-            slf4jLogger.warn(text);
-            break;
-        case ERROR:
-            slf4jLogger.error(text);
-            break;
-        default:
-            break;
-        }
-    }
-    
-    private void doSlf4jLogTextException(LogLevel logLevel, String text, Throwable ex) {
-        switch(logLevel) {
-		case OFF:
-			break;
-		case TRACE:
-			slf4jLogger.trace(text, ex);
-			break;
-		case DEBUG:
-			slf4jLogger.debug(text, ex);
-			break;
-		case INFO:
-			slf4jLogger.info(text, ex);
-			break;
-		case WARN:
-			slf4jLogger.warn(text, ex);
-			break;
-		case ERROR:
-			slf4jLogger.error(text, ex);
-			break;
-		default:
-			break;
-		}
-    }
 	
 	protected static void appendMsgFragmentValue(MsgBuilder b,
 			int paramIndex, String msgFragment, Object value) {

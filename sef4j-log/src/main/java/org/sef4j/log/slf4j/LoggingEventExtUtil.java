@@ -13,19 +13,6 @@ import ch.qos.logback.classic.spi.ThrowableProxy;
 
 public class LoggingEventExtUtil {
 
-    public static LogLevel slf4jLevelToLogLevel(ch.qos.logback.classic.Level slf4jLevel) {
-        switch(slf4jLevel.toInt()) {
-        case Level.OFF_INT: return LogLevel.OFF;
-        case Level.ERROR_INT: return LogLevel.ERROR;
-        case Level.WARN_INT: return LogLevel.WARN;
-        case Level.INFO_INT: return LogLevel.INFO;
-        case Level.DEBUG_INT: return LogLevel.DEBUG;
-        case Level.TRACE_INT: return LogLevel.TRACE;
-        case Level.ALL_INT: return LogLevel.TRACE; // ?
-        default: return LogLevel.TRACE;
-        }
-    }
-    
     public static LoggingEventExt slf4jEventToEvent(ILoggingEvent slf4jEvent) {
         LoggingEventExt.Builder evtB = new LoggingEventExt.Builder();
         

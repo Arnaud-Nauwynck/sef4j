@@ -22,7 +22,7 @@ public class GroovyLogbackTest {
         ch.qos.logback.classic.Logger rootLogger = (ch.qos.logback.classic.Logger) LoggerFactory.getLogger("ROOT");
         Appender<ILoggingEvent> appender = rootLogger.getAppender("EventLoggerAppender");
                 
-        EventLoggerAdapterAppender eventAppender = (EventLoggerAdapterAppender) appender;
+        EventSenderFromSlf4jAppender eventAppender = (EventSenderFromSlf4jAppender) appender;
         EventSender<LoggingEventExt> eventSender = eventAppender.getTargetEventSender();
         InMemoryEventSender<LoggingEventExt> inMemoryEventSender = (InMemoryEventSender<LoggingEventExt>) eventSender;
         Assert.assertNotNull(inMemoryEventSender);

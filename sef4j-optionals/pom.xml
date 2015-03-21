@@ -17,9 +17,8 @@
 
 	<modules>
 		<module>sef4j-influxdb</module>
-<!--
 		<module>sef4j-elasticsearch</module>
--->
+		<module>sef4j-logstash</module>
 	</modules>
 
 </project>

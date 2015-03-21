@@ -338,14 +338,14 @@ public final class CallStackElt {
 
 	/** called from Pusher */
 	private void putInheritableProp(String paramName, Object value) {
-		if (inheritedProps == null) inheritedProps = new HashMap<String,Object>();
-		inheritedProps.put(paramName, value);
+		if (inheritableProps == null) inheritableProps = new HashMap<String,Object>();
+		inheritableProps.put(paramName, value);
 	}
 
 	/** called from Pusher */
 	private void putAllInheritableProps(Map<String,Object> p) {
-		if (inheritedProps == null) inheritedProps = new HashMap<String,Object>();
-		inheritedProps.putAll(p);
+		if (inheritableProps == null) inheritableProps = new HashMap<String,Object>();
+		inheritableProps.putAll(p);
 	}
 
 

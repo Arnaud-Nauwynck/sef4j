@@ -1,5 +1,6 @@
 package org.sef4j.callstack.export.influxdb.jsonprinters;
 
+import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
 import java.util.Iterator;
 import java.util.List;
@@ -30,6 +31,26 @@ public abstract class AbstractInfluxDBValuePrinter<T> implements ValuePrinter<T>
     
     // ------------------------------------------------------------------------
 
+    /** helper for printValues(PrintWriter output, ...) */
+    public String printValues(String metricName, List<T> values) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream(); 
+        PrintWriter out = new PrintWriter(buffer);
+        printValues(out, metricName, values);
+        out.flush();
+        return buffer.toString();
+    }
+
+    /** helper for printValue(PrintWriter output, ...) */
+    public String printValue(String metricName, T value) {
+        ByteArrayOutputStream buffer = new ByteArrayOutputStream(); 
+        PrintWriter out = new PrintWriter(buffer);
+        printValue(out, metricName, value);
+        out.flush();
+        return buffer.toString();
+    }
+    
+
+    
     @Override
     public final void printValues(PrintWriter output, String metricName, List<T> values) {
         printMetricHeader(output, metricName);

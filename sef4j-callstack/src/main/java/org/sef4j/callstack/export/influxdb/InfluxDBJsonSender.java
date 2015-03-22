@@ -17,12 +17,9 @@ import org.slf4j.LoggerFactory;
  * This class may join multiple fragments in a single call, as"[ frag1, frag2, ... fragN ]"<BR/> 
  * 
  * see json formatter helper class, to convert stat value object to Json text
- *  @see org.sef4j.callstack.export.valueprinter.helpers.BasicTimeStatsLogHistogramFieldValuePrinter
- *  @see org.sef4j.callstack.export.valueprinter.helpers.PendingPerfCountFieldValuePrinter
- *  @see org.sef4j.callstack.export.valueprinter.helpers.PerfStatsFieldValuePrinter
+ *  @see org.sef4j.callstack.export.influxdb.jsonprinters.AbstractInfluxDBValuePrinter
+ *  and all sub-classes: PerfStatsInfluxDBPrinter, BasicTimeStatsLogHistogramInfluxDBPrinter, PendingPerfCountInfluxDBPrinter 
  *  
- * @see org.sef4j.callstack.export.valueprinter.CallTreeValueWrapperPrinter<T>
- *  to wrap raw json points value with 
  */
 public abstract class InfluxDBJsonSender implements EventSender<String> {
 
@@ -33,7 +30,7 @@ public abstract class InfluxDBJsonSender implements EventSender<String> {
      * displayName/url...mainly for display message... 
      * see real connection implementation in sub-classes
      */
-    protected String url;
+    protected String displayUrl;
     
     
     private int warnElapsedThreshold = 20*1000; // 20 seconds
@@ -45,7 +42,7 @@ public abstract class InfluxDBJsonSender implements EventSender<String> {
     // ------------------------------------------------------------------------
 
     public InfluxDBJsonSender(String url) {
-    	this.url = url;
+    	this.displayUrl = url;
     }
 
     // ------------------------------------------------------------------------
@@ -65,13 +62,14 @@ public abstract class InfluxDBJsonSender implements EventSender<String> {
             }
         } catch(RuntimeException ex){
             countSentFailed++;
-            LOG.warn("Failed to send json to InfluxDB '" + url + "' ... rethrow", ex);
+            LOG.warn("Failed to send json to InfluxDB '" + displayUrl + "' ... rethrow ex:" + ex.getMessage());
+            throw ex;
         }
     }
     
 	public void sendEvent(String jsonFragment) {
 		// wrap body with "[ ... ]"
-		String text = "[\n" + jsonFragment + "]\n";
+		String text = "[\n" + jsonFragment + "\n]";
 		sendJSonBody(text.getBytes());
 	}
 	
@@ -92,7 +90,7 @@ public abstract class InfluxDBJsonSender implements EventSender<String> {
     				out.append(e);
     			}
     		}
-    		out.append("]\n");
+    		out.append("\n]");
     		out.flush();
 		} catch(IOException ex) {
 		    // in memory buffer ... IOException should not occurs!
@@ -139,7 +137,7 @@ public abstract class InfluxDBJsonSender implements EventSender<String> {
     
     @Override
     public String toString() {
-        return "InfluxDBSender[url=" + url + "]";
+        return "InfluxDBJsonSender[url=" + displayUrl + "]";
     }
 
 }

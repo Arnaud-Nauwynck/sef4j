@@ -12,15 +12,15 @@ import org.slf4j.LoggerFactory;
 /**
  * 
  */
-public class HttpPostInfluxDBSender extends InfluxDBJsonSender {
+public class HttpPostInfluxDBJsonSender extends InfluxDBJsonSender {
     
-    private static final Logger LOG = LoggerFactory.getLogger(HttpPostInfluxDBSender.class);
+    private static final Logger LOG = LoggerFactory.getLogger(HttpPostInfluxDBJsonSender.class);
     
 	private URL seriesURL;
 	
     // ------------------------------------------------------------------------
     
-    public HttpPostInfluxDBSender(String url, String dbName, String username, String password) {
+    public HttpPostInfluxDBJsonSender(String url, String dbName, String username, String password) {
         super(url);
         try {
 			this.seriesURL = new URL(url + "/db/" + dbName + "/series?u=" + username + "&p=" + password);
@@ -33,13 +33,7 @@ public class HttpPostInfluxDBSender extends InfluxDBJsonSender {
     
     @Override
     protected void doSendJSonBody(byte[] jsonData) {
-        HttpURLConnection con = null;
-        try {
-            con = (HttpURLConnection) seriesURL.openConnection();
-        } catch(IOException ex) {
-            LOG.warn("Failed to connect to '" + url + "', ex:" + ex.getMessage() + " ... rethrow");
-            throw new RuntimeException("Failed to connect to '" + url +"'", ex);
-        }
+        HttpURLConnection con = openHttpURLConnection(seriesURL);
         try {
             con.setDoOutput(true);
             con.setRequestMethod("POST");
@@ -57,16 +51,28 @@ public class HttpPostInfluxDBSender extends InfluxDBJsonSender {
                 // OK!
             } else {
                 String responseMsg = con.getResponseMessage();
-                throw new RuntimeException("Failed to POST json to '" + url + "', response code:" + responseCode + " msg:" + responseMsg);
+                throw new RuntimeException("Failed to POST json to '" + displayUrl + "', response code:" + responseCode + " msg:" + responseMsg);
             }
             
         } catch(IOException ex) {
-            throw new RuntimeException("Failed to POST json to '" + url + "', ex:" + ex.getMessage());
+            throw new RuntimeException("Failed to POST json to '" + displayUrl + "', ex:" + ex.getMessage());
         } finally {
             if (con != null) {
                 con.disconnect();
             }
         }
+    }
+
+    protected HttpURLConnection openHttpURLConnection(URL url) {
+        HttpURLConnection con;
+        try {
+            con = (HttpURLConnection) url.openConnection();
+        } catch(IOException ex) {
+            // do not display real seriesURL...it contains user/password!
+            LOG.warn("Failed to connect to '" + displayUrl + "', ex:" + ex.getMessage() + " ... rethrow"); 
+            throw new RuntimeException("Failed to connect to '" + displayUrl +"'", ex);
+        }
+        return con;
     }
     
 }

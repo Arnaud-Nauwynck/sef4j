@@ -1,7 +1,6 @@
 package org.sef4j.callstack.export.influxdb.jsonprinters;
 
 import java.io.PrintWriter;
-import java.util.List;
 
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 import org.sef4j.callstack.stats.BasicTimeStatsSlotInfo;

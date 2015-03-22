@@ -10,6 +10,20 @@ import org.sef4j.core.api.EventSender;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * EventSender<String> to send Json text fragments to InfluxDB<br/>
+ * <BR/>
+ * Each String event to send is supposed to be formatted as a Json fragment : "{ ... }"<BR/>
+ * This class may join multiple fragments in a single call, as"[ frag1, frag2, ... fragN ]"<BR/> 
+ * 
+ * see json formatter helper class, to convert stat value object to Json text
+ *  @see org.sef4j.callstack.export.valueprinter.helpers.BasicTimeStatsLogHistogramFieldValuePrinter
+ *  @see org.sef4j.callstack.export.valueprinter.helpers.PendingPerfCountFieldValuePrinter
+ *  @see org.sef4j.callstack.export.valueprinter.helpers.PerfStatsFieldValuePrinter
+ *  
+ * @see org.sef4j.callstack.export.valueprinter.CallTreeValueWrapperPrinter<T>
+ *  to wrap raw json points value with 
+ */
 public abstract class InfluxDBJsonSender implements EventSender<String> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(InfluxDBJsonSender.class);

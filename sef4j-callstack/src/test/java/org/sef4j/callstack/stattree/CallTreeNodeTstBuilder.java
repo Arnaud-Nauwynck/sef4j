@@ -8,9 +8,9 @@ import java.util.concurrent.Callable;
 
 import org.sef4j.callstack.export.valueprinter.CallTreeValuePrinter;
 import org.sef4j.callstack.export.valueprinter.CallTreeValueWrapperPrinter;
-import org.sef4j.callstack.export.valueprinter.helpers.BasicTimeStatsLogHistogramPrinter;
-import org.sef4j.callstack.export.valueprinter.helpers.PendingPerfCountPrinter;
-import org.sef4j.callstack.export.valueprinter.helpers.PerfStatsPrinter;
+import org.sef4j.callstack.export.valueprinter.helpers.BasicTimeStatsLogHistogramFieldValuePrinter;
+import org.sef4j.callstack.export.valueprinter.helpers.PendingPerfCountFieldValuePrinter;
+import org.sef4j.callstack.export.valueprinter.helpers.PerfStatsFieldValuePrinter;
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
@@ -42,11 +42,11 @@ public class CallTreeNodeTstBuilder {
     public static Map<Class<?>, CallTreeValuePrinter<?>> defaultPerTypePrinters(boolean prefixPropName, String prefixSep, String postfixSep) {
         Map<Class<?>, CallTreeValuePrinter<?>> res = new HashMap<Class<?>, CallTreeValuePrinter<?>>();
         res.put(BasicTimeStatsLogHistogram.class, new CallTreeValueWrapperPrinter<BasicTimeStatsLogHistogram>(
-                    BasicTimeStatsLogHistogramPrinter.INSTANCE, prefixPropName, prefixSep, postfixSep));
+                    BasicTimeStatsLogHistogramFieldValuePrinter.INSTANCE, prefixPropName, prefixSep, postfixSep));
         res.put(PendingPerfCount.class, new CallTreeValueWrapperPrinter<PendingPerfCount>(
-                PendingPerfCountPrinter.INSTANCE, prefixPropName, prefixSep, postfixSep));
+                PendingPerfCountFieldValuePrinter.INSTANCE, prefixPropName, prefixSep, postfixSep));
         res.put(PerfStats.class, new CallTreeValueWrapperPrinter<PerfStats>(
-                PerfStatsPrinter.DEFAULT_INSTANCE, prefixPropName, prefixSep, postfixSep));
+                PerfStatsFieldValuePrinter.DEFAULT_INSTANCE, prefixPropName, prefixSep, postfixSep));
         return res;
     }
     

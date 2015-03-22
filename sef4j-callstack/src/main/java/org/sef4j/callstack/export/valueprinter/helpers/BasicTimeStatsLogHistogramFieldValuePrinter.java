@@ -1,6 +1,7 @@
 package org.sef4j.callstack.export.valueprinter.helpers;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 import org.sef4j.callstack.stats.BasicTimeStatsSlotInfo;
@@ -8,23 +9,29 @@ import org.sef4j.core.helpers.exporters.ValuePrinter;
 
 /**
  * ValuePrinter for BasicTimeStatsLogHistogram
- * 
+ * <BR/>
  * print as
  * <PRE>count0: 123, sum0: 2345, count1: 12, sum1:  ....    count9: 123, sum9:123456</PRE>
  */
-public class BasicTimeStatsLogHistogramPrinter implements ValuePrinter<BasicTimeStatsLogHistogram> {
+public class BasicTimeStatsLogHistogramFieldValuePrinter implements ValuePrinter<BasicTimeStatsLogHistogram> {
     
-    public static final BasicTimeStatsLogHistogramPrinter INSTANCE = new BasicTimeStatsLogHistogramPrinter();
+    public static final BasicTimeStatsLogHistogramFieldValuePrinter INSTANCE = new BasicTimeStatsLogHistogramFieldValuePrinter();
     
     // ------------------------------------------------------------------------
     
-    public BasicTimeStatsLogHistogramPrinter() {
+    public BasicTimeStatsLogHistogramFieldValuePrinter() {
     }
 
     // ------------------------------------------------------------------------
 
+    public void printValues(PrintWriter output, String name, List<BasicTimeStatsLogHistogram> values) {
+        for(BasicTimeStatsLogHistogram value : values) {
+            printValue(output, name, value);
+        }
+    }
+    
     @Override
-    public void printValue(PrintWriter output, BasicTimeStatsLogHistogram value){
+    public void printValue(PrintWriter output, String name, BasicTimeStatsLogHistogram value){
         BasicTimeStatsSlotInfo[] timeStatsInfo = value.getSlotInfoCopy();
         final int lenMinus1 = timeStatsInfo.length - 1;
         for (int i = 0; i < lenMinus1; i++) {

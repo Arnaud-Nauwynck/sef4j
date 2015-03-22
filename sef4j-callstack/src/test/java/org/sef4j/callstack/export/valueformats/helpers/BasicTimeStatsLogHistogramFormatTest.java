@@ -5,7 +5,7 @@ import java.io.StringWriter;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.sef4j.callstack.export.valueprinter.helpers.BasicTimeStatsLogHistogramPrinter;
+import org.sef4j.callstack.export.valueprinter.helpers.BasicTimeStatsLogHistogramFieldValuePrinter;
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 
 public class BasicTimeStatsLogHistogramFormatTest {
@@ -15,10 +15,10 @@ public class BasicTimeStatsLogHistogramFormatTest {
         // Prepare
         StringWriter buffer = new StringWriter();
         PrintWriter out = new PrintWriter(buffer);
-        BasicTimeStatsLogHistogramPrinter sut = new BasicTimeStatsLogHistogramPrinter();
+        BasicTimeStatsLogHistogramFieldValuePrinter sut = new BasicTimeStatsLogHistogramFieldValuePrinter();
         BasicTimeStatsLogHistogram value = new BasicTimeStatsLogHistogram();
         // Perform
-        sut.printValue(out, value);
+        sut.printNthValue(out, value);
         // Post-check
         out.flush();
         String res = buffer.toString();

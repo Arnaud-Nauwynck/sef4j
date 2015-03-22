@@ -6,7 +6,7 @@ import java.io.StringWriter;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.callstack.export.valueprinter.CallTreeValueWrapperPrinter;
-import org.sef4j.callstack.export.valueprinter.helpers.PendingPerfCountPrinter;
+import org.sef4j.callstack.export.valueprinter.helpers.PendingPerfCountFieldValuePrinter;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stattree.CallTreeNode;
 
@@ -17,7 +17,7 @@ public class CallTreeValueFormatTest {
         // Prepare
         StringWriter buffer = new StringWriter();
         PrintWriter out = new PrintWriter(buffer);
-        PendingPerfCountPrinter underlyingFmt = new PendingPerfCountPrinter();
+        PendingPerfCountFieldValuePrinter underlyingFmt = new PendingPerfCountFieldValuePrinter();
         PendingPerfCount value = new PendingPerfCount();        
         CallTreeValueWrapperPrinter<PendingPerfCount> sut = new CallTreeValueWrapperPrinter<PendingPerfCount>(underlyingFmt, false, null, null);
         // Perform
@@ -32,7 +32,7 @@ public class CallTreeValueFormatTest {
         // Prepare
         StringWriter buffer = new StringWriter();
         PrintWriter out = new PrintWriter(buffer);
-        PendingPerfCountPrinter underlyingFmt = new PendingPerfCountPrinter();
+        PendingPerfCountFieldValuePrinter underlyingFmt = new PendingPerfCountFieldValuePrinter();
         PendingPerfCount value = new PendingPerfCount();        
         CallTreeValueWrapperPrinter<PendingPerfCount> sut = new CallTreeValueWrapperPrinter<PendingPerfCount>(underlyingFmt, true, ": {", "}");
         // Perform

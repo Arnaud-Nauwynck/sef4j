@@ -5,7 +5,7 @@ import java.io.StringWriter;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.sef4j.callstack.export.valueprinter.helpers.PerfStatsPrinter;
+import org.sef4j.callstack.export.valueprinter.helpers.PerfStatsFieldValuePrinter;
 import org.sef4j.callstack.stats.PerfStats;
 
 public class PerfStatsFormatTest {
@@ -15,10 +15,10 @@ public class PerfStatsFormatTest {
         // Prepare
         StringWriter buffer = new StringWriter();
         PrintWriter out = new PrintWriter(buffer);
-        PerfStatsPrinter sut = new PerfStatsPrinter(true, true, true, true, true);
+        PerfStatsFieldValuePrinter sut = new PerfStatsFieldValuePrinter(true, true, true, true, true);
         PerfStats value = new PerfStats();
         // Perform
-        sut.printValue(out, value);
+        sut.printNthValue(out, value);
         // Post-check
         out.flush();
         String res = buffer.toString();
@@ -42,10 +42,10 @@ public class PerfStatsFormatTest {
         // Prepare
         StringWriter buffer = new StringWriter();
         PrintWriter out = new PrintWriter(buffer);
-        PerfStatsPrinter sut = new PerfStatsPrinter(false, true, true, true, false);
+        PerfStatsFieldValuePrinter sut = new PerfStatsFieldValuePrinter(false, true, true, true, false);
         PerfStats value = new PerfStats();
         // Perform
-        sut.printValue(out, value);
+        sut.printNthValue(out, value);
         // Post-check
         out.flush();
         String res = buffer.toString();

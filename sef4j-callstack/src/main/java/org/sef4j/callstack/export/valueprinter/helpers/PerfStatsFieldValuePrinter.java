@@ -1,6 +1,7 @@
 package org.sef4j.callstack.export.valueprinter.helpers;
 
 import java.io.PrintWriter;
+import java.util.List;
 
 import org.sef4j.callstack.stats.BasicTimeStatsSlotInfo;
 import org.sef4j.callstack.stats.PendingPerfCount;
@@ -10,12 +11,12 @@ import org.sef4j.core.helpers.exporters.ValuePrinter;
 /**
  * ValuePrinter for PerfStats
  */
-public class PerfStatsPrinter implements ValuePrinter<PerfStats> {
+public class PerfStatsFieldValuePrinter implements ValuePrinter<PerfStats> {
 
-    public static final PerfStatsPrinter ELAPSED_INSTANCE = new PerfStatsPrinter(false, true, false, false, false);
-    public static final PerfStatsPrinter DETAILED_ELAPSED_INSTANCE = new PerfStatsPrinter(true, true, true, true, false);
+    public static final PerfStatsFieldValuePrinter ELAPSED_INSTANCE = new PerfStatsFieldValuePrinter(false, true, false, false, false);
+    public static final PerfStatsFieldValuePrinter DETAILED_ELAPSED_INSTANCE = new PerfStatsFieldValuePrinter(true, true, true, true, false);
 
-    public static final PerfStatsPrinter DEFAULT_INSTANCE = ELAPSED_INSTANCE;
+    public static final PerfStatsFieldValuePrinter DEFAULT_INSTANCE = ELAPSED_INSTANCE;
 
     
     private final boolean printPendings;
@@ -26,7 +27,7 @@ public class PerfStatsPrinter implements ValuePrinter<PerfStats> {
     
     // ------------------------------------------------------------------------
 
-    public PerfStatsPrinter(boolean printPendings, boolean printElapsed, boolean printCpu, boolean printUser, boolean printInterleavedSlots) {
+    public PerfStatsFieldValuePrinter(boolean printPendings, boolean printElapsed, boolean printCpu, boolean printUser, boolean printInterleavedSlots) {
         super();
         this.printPendings = printPendings;
         this.printElapsed = printElapsed;
@@ -37,11 +38,17 @@ public class PerfStatsPrinter implements ValuePrinter<PerfStats> {
     
     // ------------------------------------------------------------------------
 
+    public void printValues(PrintWriter output, String name, List<PerfStats> values) {
+        for(PerfStats value : values) {
+            printValue(output, name, value);
+        }
+    }
+    
     @Override
-    public void printValue(PrintWriter output, PerfStats value) {
+    public void printValue(PrintWriter output, String propName, PerfStats value) {
         if (printPendings) {
             PendingPerfCount pendingCounts = value.getPendingCounts();
-            PendingPerfCountPrinter.INSTANCE.printValue(output, pendingCounts);
+            PendingPerfCountFieldValuePrinter.INSTANCE.printValue(output, propName, pendingCounts);
             printSep(output);
         }
         final BasicTimeStatsSlotInfo[] timeStatsInfo = value.getElapsedTimeStats().getSlotInfoCopy();
@@ -117,15 +124,15 @@ public class PerfStatsPrinter implements ValuePrinter<PerfStats> {
     }
     
     private static void printNthElapsed(PrintWriter output, BasicTimeStatsSlotInfo statsInfo, int i) {
-        BasicTimeStatsLogHistogramPrinter.printNth(output, statsInfo, "count", "sum", i);
+        BasicTimeStatsLogHistogramFieldValuePrinter.printNth(output, statsInfo, "count", "sum", i);
     }
     
     private static void printNthUser(PrintWriter output, BasicTimeStatsSlotInfo statsInfo, int i) {
-        BasicTimeStatsLogHistogramPrinter.printNth(output, statsInfo, "userCount", "userSum", i);
+        BasicTimeStatsLogHistogramFieldValuePrinter.printNth(output, statsInfo, "userCount", "userSum", i);
     }
     
     private static void printNthCpu(PrintWriter output, BasicTimeStatsSlotInfo statsInfo, int i) {
-        BasicTimeStatsLogHistogramPrinter.printNth(output, statsInfo, "cpuCount", "cpuSum", i);
+        BasicTimeStatsLogHistogramFieldValuePrinter.printNth(output, statsInfo, "cpuCount", "cpuSum", i);
     }
     
     

@@ -36,7 +36,7 @@ public class CallTreeValueWrapperPrinter<T> implements CallTreeValuePrinter<T> {
         if (prefixSep != null) {
             output.print(prefixSep);
         }
-        delegate.printValue(output, propValue);
+        delegate.printValue(output, propName, propValue);
         if (postfixSep != null) {
             output.print(postfixSep);
         }

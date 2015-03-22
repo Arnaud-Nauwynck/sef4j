@@ -5,7 +5,7 @@ import java.io.StringWriter;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.sef4j.callstack.export.valueprinter.helpers.PendingPerfCountPrinter;
+import org.sef4j.callstack.export.valueprinter.helpers.PendingPerfCountFieldValuePrinter;
 import org.sef4j.callstack.stats.PendingPerfCount;
 
 public class PendingPerfCountFormatTest {
@@ -15,10 +15,10 @@ public class PendingPerfCountFormatTest {
         // Prepare
         StringWriter buffer = new StringWriter();
         PrintWriter out = new PrintWriter(buffer);
-        PendingPerfCountPrinter sut = new PendingPerfCountPrinter();
+        PendingPerfCountFieldValuePrinter sut = new PendingPerfCountFieldValuePrinter();
         PendingPerfCount value = new PendingPerfCount();
         // Perform
-        sut.printValue(out, value);
+        sut.printNthValue(out, value);
         // Post-check
         out.flush();
         String res = buffer.toString();

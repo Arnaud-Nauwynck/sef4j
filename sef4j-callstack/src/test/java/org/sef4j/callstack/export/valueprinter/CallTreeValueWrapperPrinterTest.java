@@ -1,4 +1,4 @@
-package org.sef4j.callstack.export.valueformats;
+package org.sef4j.callstack.export.valueprinter;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -10,7 +10,7 @@ import org.sef4j.callstack.export.valueprinter.helpers.PendingPerfCountFieldValu
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stattree.CallTreeNode;
 
-public class CallTreeValueFormatTest {
+public class CallTreeValueWrapperPrinterTest {
 
     @Test
     public void testFormatValue() {

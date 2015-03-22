@@ -1,4 +1,4 @@
-package org.sef4j.callstack.export.valueformats.helpers;
+package org.sef4j.callstack.export.valueprinter.helpers;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.sef4j.callstack.export.valueprinter.helpers.PerfStatsFieldValuePrinter;
 import org.sef4j.callstack.stats.PerfStats;
 
-public class PerfStatsFormatTest {
+public class PerfStatsFieldValuePrinterTest {
 
     @Test
     public void testPrintValue() {
@@ -18,7 +18,7 @@ public class PerfStatsFormatTest {
         PerfStatsFieldValuePrinter sut = new PerfStatsFieldValuePrinter(true, true, true, true, true);
         PerfStats value = new PerfStats();
         // Perform
-        sut.printNthValue(out, value);
+        sut.printValue(out, "", value);
         // Post-check
         out.flush();
         String res = buffer.toString();
@@ -45,7 +45,7 @@ public class PerfStatsFormatTest {
         PerfStatsFieldValuePrinter sut = new PerfStatsFieldValuePrinter(false, true, true, true, false);
         PerfStats value = new PerfStats();
         // Perform
-        sut.printNthValue(out, value);
+        sut.printValue(out, "", value);
         // Post-check
         out.flush();
         String res = buffer.toString();

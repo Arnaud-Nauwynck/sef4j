@@ -1,4 +1,4 @@
-package org.sef4j.callstack.export.valueformats.helpers;
+package org.sef4j.callstack.export.valueprinter.helpers;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -8,17 +8,18 @@ import org.junit.Test;
 import org.sef4j.callstack.export.valueprinter.helpers.BasicTimeStatsLogHistogramFieldValuePrinter;
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 
-public class BasicTimeStatsLogHistogramFormatTest {
+public class BasicTimeStatsLogHistogramFieldValuePrinterTest {
+
+    private BasicTimeStatsLogHistogramFieldValuePrinter sut = new BasicTimeStatsLogHistogramFieldValuePrinter();
 
     @Test
-    public void testFormat() {
+    public void testPrintValue() {
         // Prepare
         StringWriter buffer = new StringWriter();
         PrintWriter out = new PrintWriter(buffer);
-        BasicTimeStatsLogHistogramFieldValuePrinter sut = new BasicTimeStatsLogHistogramFieldValuePrinter();
         BasicTimeStatsLogHistogram value = new BasicTimeStatsLogHistogram();
         // Perform
-        sut.printNthValue(out, value);
+        sut.printValue(out, "", value);
         // Post-check
         out.flush();
         String res = buffer.toString();

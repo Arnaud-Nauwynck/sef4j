@@ -5,7 +5,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.sef4j.core.helpers.appenders.InMemoryEventSender;
+import org.sef4j.core.helpers.senders.InMemoryEventSender;
 
 
 public class EventLoggerTest {

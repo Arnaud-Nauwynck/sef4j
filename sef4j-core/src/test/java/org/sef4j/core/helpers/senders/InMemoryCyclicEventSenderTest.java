@@ -1,10 +1,11 @@
-package org.sef4j.core.helpers.appenders;
+package org.sef4j.core.helpers.senders;
 
 import java.util.Arrays;
 import java.util.List;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.sef4j.core.helpers.senders.InMemoryCyclicEventSender;
 
 
 public class InMemoryCyclicEventSenderTest {

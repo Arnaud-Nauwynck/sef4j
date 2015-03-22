@@ -7,7 +7,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.callstack.CallStackElt.StackPopper;
 import org.sef4j.callstack.LocalCallStack;
-import org.sef4j.core.helpers.appenders.InMemoryEventSender;
+import org.sef4j.core.helpers.senders.InMemoryEventSender;
 import org.sef4j.log.slf4j.BasicConfigureTstHelper;
 import org.sef4j.log.slf4j.LogLevel;
 import org.slf4j.Logger;

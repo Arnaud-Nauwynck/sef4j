@@ -1,4 +1,4 @@
-package org.sef4j.core.helpers.appenders;
+package org.sef4j.core.helpers.senders;
 
 import java.util.ArrayList;
 import java.util.Collection;

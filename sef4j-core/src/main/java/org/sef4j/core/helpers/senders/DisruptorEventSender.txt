@@ -1,0 +1,71 @@
+
+
+
+
+	@SuppressWarnings("rawtypes")
+	protected void onFlushFailMayRetry(RuntimeException ex, List<T> failedBulk) {
+		synchronized(lock) {
+			currentRetryIndex++;
+			String retryInfo = (1 + currentRetryIndex) + "/" + maxRetryCount;
+			if (currentRetryIndex < maxRetryCount) {
+				// re-put (or re-prepend) Events in current Bulk events to send! .. may also reschedule
+				List<T> tmpAllEvents = new ArrayList<T>();
+				tmpAllEvents.addAll(failedBulk);
+				if (bufferedEvents != null) {
+					tmpAllEvents.addAll(bufferedEvents);
+					bufferedEvents = null; // recreated next with correct event order
+				}
+				
+				int skipCount = 0;
+				if (tmpAllEvents.size() > maxBulkEventsCount) {
+					skipCount += maxBulkEventsCount - tmpAllEvents.size();
+					tmpAllEvents = new ArrayList<T>(tmpAllEvents.subList(skipCount, tmpAllEvents.size()));
+				}
+				// also check if estimated length overflow maxBulkLength ..skip more is needed
+				List<T> tmpReversedEventsBulk = new ArrayList<T>();
+				int retainFromIndex = tmpAllEvents.size()-1;
+				for(int i = tmpAllEvents.size()-1; i >= 0; i--) {
+					tmpReversedEventsBulk.add(tmpAllEvents.get(i));
+					if (tmpReversedEventsBulk.estimatedSizeInBytes() > maxBulkLength) {
+						// skip remaining events in range [0...i] , retain from [i+1, len]
+						break;
+					}
+					retainFromIndex = i;
+				}
+				if (retainFromIndex != 0) {
+					skipCount += retainFromIndex;
+					tmpAllEvents = new ArrayList<T>(tmpAllEvents.subList(retainFromIndex, tmpAllEvents.size()));
+				}
+				
+				if (skipCount != 0) {
+					LOG.error("Failed bulk events, retry " + retryInfo
+							+ ": skipping " + skipCount + " old event(s)" 
+							+ " to satisfy maxBulkEvents=" + maxBulkEvents + ", maxBulkLength=" + maxBulkLength
+							+ " .. reschedule, no rethrow", ex);
+				} else {
+					LOG.warn("Failed bulk event, retry " + retryInfo
+							+ " .. reschedule, no rethrow, ex:" + ex.getMessage());
+				}
+
+				// now rebuild bulk events with remaining + reschedule
+				if (tmpAllEvents.size() != 0) {
+					this.bufferedEvents = tmpAllEvents;
+					
+					scheduleFlush(flushPeriod);
+				}
+			} else {
+				// giving up ... current messages
+				// keep incremented currentRetryIndex ?
+				String msg = "Retry failed " + retryInfo
+						+ ": skipping " + failedBulk.size() + " bulk event(s) !";
+				if (currentRetryIndex > maxRetryCount) {
+					// do not print with exception stack trace again and again
+					LOG.error(msg + " ex=" + ex.getMessage());
+				} else {
+					LOG.error(msg, ex);
+				}
+			}
+		}
+	}
+
+	

@@ -8,7 +8,7 @@ import org.junit.Test;
 import org.sef4j.callstack.stats.PerfStats;
 import org.sef4j.callstack.stattree.CallTreeNode;
 import org.sef4j.core.helpers.AsyncUtils;
-import org.sef4j.core.helpers.appenders.InMemoryEventSender;
+import org.sef4j.core.helpers.senders.InMemoryEventSender;
 
 
 public class AsyncChangeCollectorSenderTest {

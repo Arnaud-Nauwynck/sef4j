@@ -6,7 +6,7 @@ import java.util.List;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.core.api.EventLoggerContext.EventLoggerContextListener;
-import org.sef4j.core.helpers.appenders.InMemoryEventSender;
+import org.sef4j.core.helpers.senders.InMemoryEventSender;
 
 
 public class EventLoggerContextTest {

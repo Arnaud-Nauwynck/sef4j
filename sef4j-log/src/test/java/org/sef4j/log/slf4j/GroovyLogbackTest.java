@@ -3,7 +3,7 @@ package org.sef4j.log.slf4j;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.core.api.EventSender;
-import org.sef4j.core.helpers.appenders.InMemoryEventSender;
+import org.sef4j.core.helpers.senders.InMemoryEventSender;
 import org.sef4j.log.slf4j.slf4j2event.EventSenderSlf4jAppender;
 import org.sef4j.log.slf4j.slf4j2event.LoggingEventExt;
 import org.slf4j.Logger;

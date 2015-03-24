@@ -12,7 +12,7 @@ import org.sef4j.callstack.stattree.CallTreeNode;
  * this is a "basic" implementation: no optimization to avoid recursing in untouched sub-tree
  * A better implementation should count occurrences+pending to check when a sub-tree is unmodified.
  */
-public class BasicStatIgnorePendingChangeCollector extends AbstractCallTreeNodeChangeCollector<PerfStats> {
+public class BasicStatIgnorePendingChangeCollector extends AbstractCallTreeValueChangeCollector<PerfStats> {
 
 	public static final Function<CallTreeNode, PerfStats> DEFAULT_PERFSTAT_SRC_COPY_EXTRACTOR = 
 			new Function<CallTreeNode, PerfStats>() {

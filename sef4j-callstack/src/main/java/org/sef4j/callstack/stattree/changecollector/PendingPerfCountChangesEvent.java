@@ -7,7 +7,7 @@ import java.util.function.Function;
 import org.sef4j.callstack.stats.PendingPerfCount;
 
 /**
- * event class for holding PendingCount changes 
+ * event class for holding PendingPerfCount changes 
  */
 public class PendingPerfCountChangesEvent implements Serializable {
 

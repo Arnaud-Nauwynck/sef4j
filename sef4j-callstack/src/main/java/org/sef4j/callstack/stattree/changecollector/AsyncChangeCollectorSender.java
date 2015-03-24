@@ -13,6 +13,11 @@ import org.sef4j.core.api.EventSender;
 import org.sef4j.core.helpers.AsyncUtils;
 
 /**
+ * @Deprecated TODO ... 
+ * see combination of PeriodicTask + FragmentsProvidersExporter + CallTreeValueChangeExportFragmentsProvider
+ * => transform class to builder utility helper
+ * 
+ * 
  * periodic collector of tree node change, to publish to EventSender
  * <p/>
  * 
@@ -36,7 +41,7 @@ public class AsyncChangeCollectorSender<T,E> {
 
 	public AsyncChangeCollectorSender(
 			ScheduledExecutorService scheduledExecutor, long period,
-			AbstractCallTreeNodeChangeCollector<T> changeCollector,
+			AbstractCallTreeValueChangeCollector<T> changeCollector,
 			Function<Map<String,T>,E> changesToEventBuilder,
 			EventSender<E> targetEventSender) {
 		this(scheduledExecutor, period, 
@@ -58,7 +63,7 @@ public class AsyncChangeCollectorSender<T,E> {
 		private ScheduledExecutorService scheduledExecutor;
 		private long period = DEFAULT_PERIOD_SECONDS;
 		private ChangeCollectorToEventSenderTask<T,E> task;
-		private AbstractCallTreeNodeChangeCollector<T> taskChangeCollector;
+		private AbstractCallTreeValueChangeCollector<T> taskChangeCollector;
 		private Function<Map<String,T>,E> taskChangesToEventBuilder;
 		private EventSender<E> taskTargetEventSender;
 
@@ -84,7 +89,7 @@ public class AsyncChangeCollectorSender<T,E> {
 			return this;
 		}
 
-		public Builder<T,E> withTaskChangeCollector(AbstractCallTreeNodeChangeCollector<T> taskChangeCollector) {
+		public Builder<T,E> withTaskChangeCollector(AbstractCallTreeValueChangeCollector<T> taskChangeCollector) {
 			this.taskChangeCollector = taskChangeCollector;
 			return this;
 		}
@@ -161,13 +166,13 @@ public class AsyncChangeCollectorSender<T,E> {
 	 */
 	public static class ChangeCollectorToEventSenderTask<TValue,E> implements Runnable {
 
-		private AbstractCallTreeNodeChangeCollector<TValue> changeCollector;
+		private AbstractCallTreeValueChangeCollector<TValue> changeCollector;
 		private Function<Map<String,TValue>,E> changesToEventBuilder;
 		private EventSender<E> targetEventSender;
 		
 		// ------------------------------------------------------------------------
 
-		public ChangeCollectorToEventSenderTask(AbstractCallTreeNodeChangeCollector<TValue> changeCollector,
+		public ChangeCollectorToEventSenderTask(AbstractCallTreeValueChangeCollector<TValue> changeCollector,
 				Function<Map<String, TValue>, E> changesToEventBuilder, EventSender<E> targetEventSender) {
 			super();
 			this.changeCollector = changeCollector;

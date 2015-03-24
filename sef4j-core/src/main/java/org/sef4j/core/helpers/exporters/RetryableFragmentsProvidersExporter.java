@@ -8,7 +8,27 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * sub-class of FragmentsPRovidersExporter for retryable suypport
+ * sub-class of FragmentsProvidersExporter for retryable support
+ * 
+ * <PRE>
+ * 
+ *                              +--------------------------------+     
+ *                              |    retryList         -----------------> targetEventSender
+ * FragmentProvider(s) <(*)---- |      /\                        | 
+ *      /\         ----------------->  merge per id or append    |        | when error
+ *       |                      +--------------------------------+        |
+ *       |                                     \                         /
+ *   +---+---+                                  <----------------------
+ *   |   |   |
+ *   Provider1 
+ *    (example: Json PerfStats per CallTreeNode 
+ *      if modified since > 5mn)
+ *   
+ *     Provider2 (example: Json PendingCount 
+ *      if modified since > 1mn )
+ *     
+ *       Provider3 (..)
+ * </PRE>
  * 
  * @param <T> type of fragments to export (example: String for JSon fragments)
  */

@@ -34,7 +34,7 @@ import org.sef4j.callstack.stattree.CallTreeNode;
  * }
  * </PRE>
  */
-public final class PendingCountChangeCollector extends AbstractCallTreeNodeChangeCollector<PendingPerfCount> {
+public final class PendingCountChangeCollector extends AbstractCallTreeValueChangeCollector<PendingPerfCount> {
 	
 	public static final Function<CallTreeNode, PendingPerfCount> DEFAULT_PENDING_SRC_COPY_EXTRACTOR = 
 			new Function<CallTreeNode, PendingPerfCount>() {

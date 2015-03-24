@@ -10,7 +10,7 @@ import org.sef4j.callstack.stattree.CallTreeNode;
  * collector for changes in statistics (pendingCount or histogram time counts) 
  * since previous marked copy
  */
-public abstract class AbstractCallTreeNodeChangeCollector<TValue> {
+public abstract class AbstractCallTreeValueChangeCollector<TValue> implements ICallTreeValueChangeCollector<TValue> {
 	
 	protected CallTreeNode srcRoot;
 
@@ -21,7 +21,7 @@ public abstract class AbstractCallTreeNodeChangeCollector<TValue> {
 
 	// ------------------------------------------------------------------------
 	
-	public AbstractCallTreeNodeChangeCollector(
+	public AbstractCallTreeValueChangeCollector(
 			CallTreeNode srcRoot,
 			CallTreeNode prevRoot,
 			Function<CallTreeNode, TValue> srcValueCopyExtractor,

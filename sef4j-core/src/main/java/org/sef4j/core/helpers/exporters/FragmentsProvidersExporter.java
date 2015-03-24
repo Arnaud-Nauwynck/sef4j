@@ -10,9 +10,32 @@ import org.slf4j.LoggerFactory;
  * helper class for exporters
  * collect from a list of FragmentProvider(s), and delegate to eventSender to send
  * 
+ *  * <PRE>
+ *             exporter.export(): { ls=collectFragments(); sendEvents(ls) }
+ *                                   /                     \
+ *                               <--/                       \-->
+ *       ls=providers.provideFragments()                          targetSender.sendEvents(ls)
+ * 
+ *                                 +-----------------------+     
+ * FragmentProvider(s)    <(*)---- |                       |------(1)> targetEventSender
+ *      /\         +------------------                     |
+ *       |         +----------------------> ...      -  --------->  
+ *   +---+---+                     +-----------------------+
+ *   |   |   |                     
+ *   Provider1
+ *    (example: Json PerfStats per CallTreeNode 
+ *      if modified since > 5mn)
+ *   
+ *     Provider2 (example: Json PendingCount 
+ *      if modified since > 1mn )
+ *     
+ *       Provider3 (..)
+ * </PRE>
+
+
  * @param <T> type of fragments to export (example: String for JSon fragments)
  */
-public class FragmentsProvidersExporter<T> {
+public class FragmentsProvidersExporter<T> implements Runnable {
 
 	private static final Logger LOG = LoggerFactory.getLogger(FragmentsProvidersExporter.class);
 	
@@ -47,6 +70,11 @@ public class FragmentsProvidersExporter<T> {
 			}
 		}
     	return res;
+    }
+    
+    @Override
+    public void run() {
+    	export();
     }
     
     public void export() {

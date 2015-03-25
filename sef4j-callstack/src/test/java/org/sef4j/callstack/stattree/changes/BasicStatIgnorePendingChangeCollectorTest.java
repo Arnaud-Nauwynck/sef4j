@@ -1,11 +1,11 @@
-package org.sef4j.callstack.stattree.changecollector;
+package org.sef4j.callstack.stattree.changes;
 
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.callstack.stattree.changecollector.BasicStatIgnorePendingChangeCollector;
+import org.sef4j.callstack.stattree.changes.BasicStatIgnorePendingChangeCollector;
 import org.sef4j.core.api.proptree.PropTreeNode;
 
 

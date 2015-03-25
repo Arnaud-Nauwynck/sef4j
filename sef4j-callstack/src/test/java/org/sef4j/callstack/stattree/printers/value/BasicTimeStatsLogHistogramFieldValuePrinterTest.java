@@ -1,12 +1,12 @@
-package org.sef4j.callstack.export.printers.value;
+package org.sef4j.callstack.stattree.printers.value;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.sef4j.callstack.export.printers.value.BasicTimeStatsLogHistogramFieldValuePrinter;
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
+import org.sef4j.callstack.stattree.printers.value.BasicTimeStatsLogHistogramFieldValuePrinter;
 
 public class BasicTimeStatsLogHistogramFieldValuePrinterTest {
 

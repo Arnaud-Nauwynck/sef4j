@@ -2,10 +2,10 @@ package org.sef4j.callstack.export;
 
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.callstack.stattree.changecollector.BasicStatIgnorePendingChangeCollector;
-import org.sef4j.callstack.stattree.changecollector.PendingCountChangeCollector;
-import org.sef4j.callstack.stattree.changecollector.PendingPerfCountChangesEvent;
-import org.sef4j.callstack.stattree.changecollector.PerfStatsChangesEvent;
+import org.sef4j.callstack.stattree.changes.BasicStatIgnorePendingChangeCollector;
+import org.sef4j.callstack.stattree.changes.PendingCountChangeCollector;
+import org.sef4j.callstack.stattree.changes.PendingPerfCountChangesEvent;
+import org.sef4j.callstack.stattree.changes.PerfStatsChangesEvent;
 import org.sef4j.core.api.proptree.PropTreeNode;
 import org.sef4j.core.helpers.AsyncUtils;
 import org.sef4j.core.helpers.proptree.changes.AsyncChangeCollectorSender.Builder;

@@ -1,4 +1,4 @@
-package org.sef4j.callstack.export.printers;
+package org.sef4j.callstack.stattree.printers;
 
 import java.io.PrintWriter;
 

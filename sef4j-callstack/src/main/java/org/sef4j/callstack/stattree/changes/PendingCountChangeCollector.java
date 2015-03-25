@@ -1,4 +1,4 @@
-package org.sef4j.callstack.stattree.changecollector;
+package org.sef4j.callstack.stattree.changes;
 
 import java.util.Map;
 import java.util.function.Function;

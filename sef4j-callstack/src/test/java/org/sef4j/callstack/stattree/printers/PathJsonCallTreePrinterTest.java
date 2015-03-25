@@ -1,4 +1,4 @@
-package org.sef4j.callstack.export.printers;
+package org.sef4j.callstack.stattree.printers;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,8 +9,8 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
-import org.sef4j.callstack.export.printers.PathJsonCallTreePrinter;
 import org.sef4j.callstack.stattree.CallTreeNodeTstBuilder;
+import org.sef4j.callstack.stattree.printers.PathJsonCallTreePrinter;
 import org.sef4j.core.api.proptree.PropTreeNode;
 
 public class PathJsonCallTreePrinterTest {

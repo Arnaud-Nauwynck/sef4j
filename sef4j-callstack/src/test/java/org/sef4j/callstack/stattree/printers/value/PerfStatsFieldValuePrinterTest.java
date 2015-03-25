@@ -1,12 +1,12 @@
-package org.sef4j.callstack.export.printers.value;
+package org.sef4j.callstack.stattree.printers.value;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.sef4j.callstack.export.printers.value.PerfStatsFieldValuePrinter;
 import org.sef4j.callstack.stats.PerfStats;
+import org.sef4j.callstack.stattree.printers.value.PerfStatsFieldValuePrinter;
 
 public class PerfStatsFieldValuePrinterTest {
 

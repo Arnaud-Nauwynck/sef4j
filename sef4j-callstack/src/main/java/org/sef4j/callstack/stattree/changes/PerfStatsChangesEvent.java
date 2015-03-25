@@ -1,4 +1,4 @@
-package org.sef4j.callstack.stattree.changecollector;
+package org.sef4j.callstack.stattree.changes;
 
 import java.io.Serializable;
 import java.util.Map;

@@ -12,24 +12,41 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * element of a CallStack.
- * This class is managed from current thread facade: LocalCallStack
+ * Element of a CallStack
+ * <p/>
+ * This class is managed from current thread local facade: LocalCallStack, using push()/pop() on current thread.
+ * <p/>
  * 
  * <PRE>
- *                    <-  when entering new "method" : push new element on stack
- *                       \
- *   +-------------+     /
- *   | callElt Curr|    <-- curr stack position
- *   +-------------+     \
- *   |                   /
- *   |                <-   when exiting curr "method" : pop element on stack
+ *                          "try { toPop = LocalCallStack().meth(clss, "meth")
+ *                                        .param("p1, "v1").param("p2", "v2")
+ *                                        .inheritedProp("prop1", "p1"). ...
+ *                                        .push()"   
+ *                          when entering new "method" : push new element on stack
+ *                                <--
+ *                                   \
+ *                                   /
+ *   +-------------------------+
+ *   | callElt Curr            |    <-- curr stack position
+ *   |   - clss, meth          |
+ *   |   - startTimes          |
+ *   |      (elapsed,cpu,user) |
+ *   |   - params              |
+ *   |   - inheritableProps    |
+ *   |   - inheritedProps      |
+ *   |   - pushPopHandlers     |  
+ *   +-------------------------+     \
+ *   |                               /
+ *   |                            <--  
+ *   |                      "} finally { toPop.close(); }"
+ *   |                      when exiting curr "method" : pop element on stack
+ *   |  ..                
  *   |  ..
- *   |  ..
- *   +-------------+
- *   | callElt 2   |
- *   +-------------+
- *   |  callElt 1  |
- *   +-------------+
+ *   +-------------------------+
+ *   | callElt 2               |
+ *   +-------------------------+
+ *   |  callElt 1              |
+ *   +-------------------------+
  * </PRE>
  */
 public final class CallStackElt {

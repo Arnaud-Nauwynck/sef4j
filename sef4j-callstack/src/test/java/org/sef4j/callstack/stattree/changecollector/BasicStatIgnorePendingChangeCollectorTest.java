@@ -5,19 +5,19 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.callstack.stattree.CallTreeNode;
 import org.sef4j.callstack.stattree.changecollector.BasicStatIgnorePendingChangeCollector;
+import org.sef4j.core.api.proptree.PropTreeNode;
 
 
 public class BasicStatIgnorePendingChangeCollectorTest {
 
-	private CallTreeNode rootNode = CallTreeNode.newRoot();
-	private CallTreeNode fooNode = rootNode.getOrCreateChild("foo");
-	private CallTreeNode fooBarNode = fooNode.getOrCreateChild("bar");
+	private PropTreeNode rootNode = PropTreeNode.newRoot();
+	private PropTreeNode fooNode = rootNode.getOrCreateChild("foo");
+	private PropTreeNode fooBarNode = fooNode.getOrCreateChild("bar");
 	// private CallTreeNode fooBarBazNode = fooBarNode.getOrCreateChild("baz");
 
-	private PerfStats fooStats = fooNode.getStats();
-	private PerfStats fooBarStats = fooBarNode.getStats();
+	private PerfStats fooStats = fooNode.getOrCreateProp("stats", PerfStats.FACTORY);
+	private PerfStats fooBarStats = fooBarNode.getOrCreateProp("stats", PerfStats.FACTORY);
 	// private PerfStats fooBarBazStats = fooBarBazNode.getStats();
 
 	private BasicStatIgnorePendingChangeCollector sut = new BasicStatIgnorePendingChangeCollector(rootNode);

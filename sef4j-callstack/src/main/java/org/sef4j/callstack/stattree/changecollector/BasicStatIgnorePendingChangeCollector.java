@@ -4,7 +4,8 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.callstack.stattree.CallTreeNode;
+import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.proptree.changes.AbstractPropTreeValueChangeCollector;
 
 /**
  * collector of changed PerfStats since previous copy, ignoring Pending counts
@@ -12,44 +13,44 @@ import org.sef4j.callstack.stattree.CallTreeNode;
  * this is a "basic" implementation: no optimization to avoid recursing in untouched sub-tree
  * A better implementation should count occurrences+pending to check when a sub-tree is unmodified.
  */
-public class BasicStatIgnorePendingChangeCollector extends AbstractCallTreeValueChangeCollector<PerfStats> {
+public class BasicStatIgnorePendingChangeCollector extends AbstractPropTreeValueChangeCollector<PerfStats> {
 
-	public static final Function<CallTreeNode, PerfStats> DEFAULT_PERFSTAT_SRC_COPY_EXTRACTOR = 
-			new Function<CallTreeNode, PerfStats>() {
+	public static final Function<PropTreeNode, PerfStats> DEFAULT_PERFSTAT_SRC_COPY_EXTRACTOR = 
+			new Function<PropTreeNode, PerfStats>() {
 		@Override
-		public PerfStats apply(CallTreeNode t) {
-			return t.getStats().getCopy();
+		public PerfStats apply(PropTreeNode t) {
+			return t.getOrCreateProp("stats", PerfStats.FACTORY).getCopy();
 		}
 	};
-	public static final Function<CallTreeNode, PerfStats> DEFAULT_PERFSTAT_PREV_EXTRACTOR = 
-			new Function<CallTreeNode, PerfStats>() {
+	public static final Function<PropTreeNode, PerfStats> DEFAULT_PERFSTAT_PREV_EXTRACTOR = 
+			new Function<PropTreeNode, PerfStats>() {
 		@Override
-		public PerfStats apply(CallTreeNode t) {
-			return t.getStats();
+		public PerfStats apply(PropTreeNode t) {
+			return t.getOrCreateProp("stats", PerfStats.FACTORY);
 		}
 	};
 
 	// ------------------------------------------------------------------------
 
-	public BasicStatIgnorePendingChangeCollector(CallTreeNode srcRoot) {
-		super(srcRoot, CallTreeNode.newRoot(), DEFAULT_PERFSTAT_SRC_COPY_EXTRACTOR, DEFAULT_PERFSTAT_PREV_EXTRACTOR);
+	public BasicStatIgnorePendingChangeCollector(PropTreeNode srcRoot) {
+		super(srcRoot, PropTreeNode.newRoot(), DEFAULT_PERFSTAT_SRC_COPY_EXTRACTOR, DEFAULT_PERFSTAT_PREV_EXTRACTOR);
 	}
 
 	public BasicStatIgnorePendingChangeCollector(
-			CallTreeNode srcRoot,
-			CallTreeNode prevRoot,
-			Function<CallTreeNode, PerfStats> srcValueCopyExtractor,
-			Function<CallTreeNode, PerfStats> prevValueExtractor) {
+			PropTreeNode srcRoot,
+			PropTreeNode prevRoot,
+			Function<PropTreeNode, PerfStats> srcValueCopyExtractor,
+			Function<PropTreeNode, PerfStats> prevValueExtractor) {
 		super(srcRoot, prevRoot, srcValueCopyExtractor, prevValueExtractor);
 	}
 
 	// ------------------------------------------------------------------------
 	
 	protected void recursiveMarkAndCollectChanges_root(Map<String,PerfStats> res) {
-		for(Map.Entry<String, CallTreeNode> srcEntry : srcRoot.getChildMap().entrySet()) {
+		for(Map.Entry<String, PropTreeNode> srcEntry : srcRoot.getChildMap().entrySet()) {
 			String childName = srcEntry.getKey();
-			CallTreeNode srcChild = srcEntry.getValue();
-			CallTreeNode prevChild = prevRoot.getOrCreateChild(childName);
+			PropTreeNode srcChild = srcEntry.getValue();
+			PropTreeNode prevChild = prevRoot.getOrCreateChild(childName);
 			String childPath = childName;
 			
 			// *** recurse ***
@@ -57,7 +58,7 @@ public class BasicStatIgnorePendingChangeCollector extends AbstractCallTreeValue
 		}
 	}
 
-	protected void recursiveMarkAndCollectChanges(CallTreeNode src, CallTreeNode prev, 
+	protected void recursiveMarkAndCollectChanges(PropTreeNode src, PropTreeNode prev, 
 			String currPath, Map<String,PerfStats> res) {
 		PerfStats srcPerfStats = srcValueCopyExtractor.apply(src); // copy new value
 		PerfStats prevPerfStats = prevValueExtractor.apply(prev); // by ref
@@ -67,10 +68,10 @@ public class BasicStatIgnorePendingChangeCollector extends AbstractCallTreeValue
 		}
 		
 		// recurse
-		for(Map.Entry<String, CallTreeNode> srcEntry : src.getChildMap().entrySet()) {
+		for(Map.Entry<String, PropTreeNode> srcEntry : src.getChildMap().entrySet()) {
 			String childName = srcEntry.getKey();
-			CallTreeNode srcChild = srcEntry.getValue();
-			CallTreeNode prevChild = prev.getOrCreateChild(childName);
+			PropTreeNode srcChild = srcEntry.getValue();
+			PropTreeNode prevChild = prev.getOrCreateChild(childName);
 			String childPath = currPath + "/" + childName;
 			
 			// *** recurse ***

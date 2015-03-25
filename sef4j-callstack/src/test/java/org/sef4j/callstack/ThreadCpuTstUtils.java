@@ -47,7 +47,7 @@ public class ThreadCpuTstUtils {
 		long checkStartTime = System.nanoTime();
 		cpuLoop(cpuLoop);
 		long checkCpuTime = (System.nanoTime() - checkStartTime) / 1000000;
-		ThreadTimeUtilsTest.assertApproxEquals(threadCpuMillis, checkCpuTime, 30);
+		ThreadTimeUtilsTest.assertApproxEquals(threadCpuMillis, checkCpuTime, 60); // precision 60 ms ???
 		
 		return cpuLoop;
 	}

@@ -4,7 +4,9 @@ import java.util.Map;
 import java.util.function.Function;
 
 import org.sef4j.callstack.stats.PendingPerfCount;
-import org.sef4j.callstack.stattree.CallTreeNode;
+import org.sef4j.callstack.stats.PerfStats;
+import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.proptree.changes.AbstractPropTreeValueChangeCollector;
 
 /**
  * Collector of changed PendingPerfCount since previous copy
@@ -34,26 +36,26 @@ import org.sef4j.callstack.stattree.CallTreeNode;
  * }
  * </PRE>
  */
-public final class PendingCountChangeCollector extends AbstractCallTreeValueChangeCollector<PendingPerfCount> {
+public final class PendingCountChangeCollector extends AbstractPropTreeValueChangeCollector<PendingPerfCount> {
 	
-	public static final Function<CallTreeNode, PendingPerfCount> DEFAULT_PENDING_SRC_COPY_EXTRACTOR = 
-			new Function<CallTreeNode, PendingPerfCount>() {
+	public static final Function<PropTreeNode, PendingPerfCount> DEFAULT_PENDING_SRC_COPY_EXTRACTOR = 
+			new Function<PropTreeNode, PendingPerfCount>() {
 		@Override
-		public PendingPerfCount apply(CallTreeNode t) {
-			return t.getStats().getPendingCounts().getCopy();
+		public PendingPerfCount apply(PropTreeNode t) {
+			return t.getOrCreateProp("stats", PerfStats.FACTORY).getPendingCounts().getCopy();
 		}
 	};
-	public static final Function<CallTreeNode, PendingPerfCount> DEFAULT_PENDING_PREV_EXTRACTOR = 
-			new Function<CallTreeNode, PendingPerfCount>() {
+	public static final Function<PropTreeNode, PendingPerfCount> DEFAULT_PENDING_PREV_EXTRACTOR = 
+			new Function<PropTreeNode, PendingPerfCount>() {
 		@Override
-		public PendingPerfCount apply(CallTreeNode t) {
-			return t.getStats().getPendingCounts();
+		public PendingPerfCount apply(PropTreeNode t) {
+			return t.getOrCreateProp("stats", PerfStats.FACTORY).getPendingCounts();
 		}
 	};
-	public static final Function<CallTreeNode, PendingPerfCount> createGetOrCreatePropPendingExtractor(final String propName) {
-		return new Function<CallTreeNode, PendingPerfCount>() {
+	public static final Function<PropTreeNode, PendingPerfCount> createGetOrCreatePropPendingExtractor(final String propName) {
+		return new Function<PropTreeNode, PendingPerfCount>() {
 			@Override
-			public PendingPerfCount apply(CallTreeNode t) {
+			public PendingPerfCount apply(PropTreeNode t) {
 				return t.getOrCreateProp(propName, PendingPerfCount.FACTORY);
 			}
 		};
@@ -62,25 +64,25 @@ public final class PendingCountChangeCollector extends AbstractCallTreeValueChan
 
 	// ------------------------------------------------------------------------
 
-	public PendingCountChangeCollector(CallTreeNode srcRoot) {
-		super(srcRoot, CallTreeNode.newRoot(), DEFAULT_PENDING_SRC_COPY_EXTRACTOR, DEFAULT_PENDING_PREV_EXTRACTOR);
+	public PendingCountChangeCollector(PropTreeNode srcRoot) {
+		super(srcRoot, PropTreeNode.newRoot(), DEFAULT_PENDING_SRC_COPY_EXTRACTOR, DEFAULT_PENDING_PREV_EXTRACTOR);
 	}
 
 	public PendingCountChangeCollector(
-			CallTreeNode srcRoot,
-			CallTreeNode prevRoot,
-			Function<CallTreeNode, PendingPerfCount> srcCopyExtractor,
-			Function<CallTreeNode, PendingPerfCount> prevExtractor) {
+			PropTreeNode srcRoot,
+			PropTreeNode prevRoot,
+			Function<PropTreeNode, PendingPerfCount> srcCopyExtractor,
+			Function<PropTreeNode, PendingPerfCount> prevExtractor) {
 		super(srcRoot, prevRoot, srcCopyExtractor, prevExtractor);
 	}
 
 	// ------------------------------------------------------------------------
 	
 	protected void recursiveMarkAndCollectChanges_root(Map<String,PendingPerfCount> res) {
-		for(Map.Entry<String, CallTreeNode> srcEntry : srcRoot.getChildMap().entrySet()) {
+		for(Map.Entry<String, PropTreeNode> srcEntry : srcRoot.getChildMap().entrySet()) {
 			String childName = srcEntry.getKey();
-			CallTreeNode srcChild = srcEntry.getValue();
-			CallTreeNode prevChild = prevRoot.getOrCreateChild(childName);
+			PropTreeNode srcChild = srcEntry.getValue();
+			PropTreeNode prevChild = prevRoot.getOrCreateChild(childName);
 			String childPath = childName;
 			
 			// *** recurse ***
@@ -88,7 +90,7 @@ public final class PendingCountChangeCollector extends AbstractCallTreeValueChan
 		}
 	}
 
-	protected void recursiveMarkAndCollectChanges(CallTreeNode src, CallTreeNode prev, 
+	protected void recursiveMarkAndCollectChanges(PropTreeNode src, PropTreeNode prev, 
 			String currPath, Map<String,PendingPerfCount> res) {
 		PendingPerfCount srcPendingsCopy = srcValueCopyExtractor.apply(src);
 		PendingPerfCount prevPendings = prevValueExtractor.apply(prev);
@@ -110,10 +112,10 @@ public final class PendingCountChangeCollector extends AbstractCallTreeValueChan
 
 		if (srcPendingCount != 0 && prevPendingCount != 0) {
 			// recurse
-			for(Map.Entry<String, CallTreeNode> srcEntry : src.getChildMap().entrySet()) {
+			for(Map.Entry<String, PropTreeNode> srcEntry : src.getChildMap().entrySet()) {
 				String childName = srcEntry.getKey();
-				CallTreeNode srcChild = srcEntry.getValue();
-				CallTreeNode prevChild = prev.getOrCreateChild(childName);
+				PropTreeNode srcChild = srcEntry.getValue();
+				PropTreeNode prevChild = prev.getOrCreateChild(childName);
 				String childPath = currPath + "/" + childName;
 				
 				// *** recurse ***
@@ -121,10 +123,10 @@ public final class PendingCountChangeCollector extends AbstractCallTreeValueChan
 			}
 		} else if (srcPendingCount == 0) {
 			// recurse optim removePending
-			for(Map.Entry<String, CallTreeNode> srcEntry : src.getChildMap().entrySet()) {
+			for(Map.Entry<String, PropTreeNode> srcEntry : src.getChildMap().entrySet()) {
 				String childName = srcEntry.getKey();
-				CallTreeNode srcChild = srcEntry.getValue();
-				CallTreeNode prevChild = prev.getOrCreateChild(childName);
+				PropTreeNode srcChild = srcEntry.getValue();
+				PropTreeNode prevChild = prev.getOrCreateChild(childName);
 				String childPath = currPath + "/" + childName;
 				
 				PendingPerfCount prevChildPendings = prevValueExtractor.apply(prevChild);
@@ -134,10 +136,10 @@ public final class PendingCountChangeCollector extends AbstractCallTreeValueChan
 			}
 		} else if (prevPendingCount == 0) {
 			// recurse optim addPending
-			for(Map.Entry<String, CallTreeNode> srcEntry : src.getChildMap().entrySet()) {
+			for(Map.Entry<String, PropTreeNode> srcEntry : src.getChildMap().entrySet()) {
 				String childName = srcEntry.getKey();
-				CallTreeNode srcChild = srcEntry.getValue();
-				CallTreeNode prevChild = prev.getOrCreateChild(childName);
+				PropTreeNode srcChild = srcEntry.getValue();
+				PropTreeNode prevChild = prev.getOrCreateChild(childName);
 				String childPath = currPath + "/" + childName;
 
 				PendingPerfCount srcChildPendingsCopy = srcValueCopyExtractor.apply(srcChild);
@@ -151,7 +153,7 @@ public final class PendingCountChangeCollector extends AbstractCallTreeValueChan
 	
 	/** optimized version of recursiveMarkAndCollectChanges() with src.pendingsCount=0 */
 	protected void recursiveMarkAndCollectChanges_removePending(
-			CallTreeNode src, CallTreeNode prev, PendingPerfCount prevPendings,
+			PropTreeNode src, PropTreeNode prev, PendingPerfCount prevPendings,
 			String currPath, Map<String,PendingPerfCount> res) {
 		// 0 ... PendingPerfCount srcPendingsCopy = srcValueCopyExtractor.apply(src);
 		// PendingPerfCount prevPendings = prevValueExtractor.apply(prev);
@@ -169,10 +171,10 @@ public final class PendingCountChangeCollector extends AbstractCallTreeValueChan
 
 		// loop child (until reaching sum=prevPendings)
 		int remainingMaxChildPrevPendingCount = prevPendingCount;
-		for(Map.Entry<String, CallTreeNode> srcEntry : src.getChildMap().entrySet()) {
+		for(Map.Entry<String, PropTreeNode> srcEntry : src.getChildMap().entrySet()) {
 			String childName = srcEntry.getKey();
-			CallTreeNode srcChild = srcEntry.getValue();
-			CallTreeNode prevChild = prev.getOrCreateChild(childName);
+			PropTreeNode srcChild = srcEntry.getValue();
+			PropTreeNode prevChild = prev.getOrCreateChild(childName);
 			String childPath = currPath + "/" + childName;
 			
 			PendingPerfCount prevChildPendings = prevValueExtractor.apply(prev);
@@ -190,7 +192,7 @@ public final class PendingCountChangeCollector extends AbstractCallTreeValueChan
 	
 	/** optimized version of recursiveMarkAndCollectChanges() with prev.pendingsCount=0 */
 	protected void recursiveMarkAndCollectChanges_addPending(
-			CallTreeNode src, PendingPerfCount srcPendingsCopy, CallTreeNode prev, 
+			PropTreeNode src, PendingPerfCount srcPendingsCopy, PropTreeNode prev, 
 			String currPath, Map<String,PendingPerfCount> res) {
 		// PendingPerfCount srcPendingsCopy = srcValueCopyExtractor.apply(src);
 		PendingPerfCount prevPendings = prevValueExtractor.apply(prev);
@@ -209,10 +211,10 @@ public final class PendingCountChangeCollector extends AbstractCallTreeValueChan
 
 		// loop child (until reaching sum=prevPendings)
 		int remainingMaxChildSrcPendingCount = srcPendingCount;
-		for(Map.Entry<String, CallTreeNode> srcEntry : src.getChildMap().entrySet()) {
+		for(Map.Entry<String, PropTreeNode> srcEntry : src.getChildMap().entrySet()) {
 			String childName = srcEntry.getKey();
-			CallTreeNode srcChild = srcEntry.getValue();
-			CallTreeNode prevChild = prev.getOrCreateChild(childName);
+			PropTreeNode srcChild = srcEntry.getValue();
+			PropTreeNode prevChild = prev.getOrCreateChild(childName);
 			String childPath = currPath + "/" + childName;
 			
 			PendingPerfCount srcChildPendingsCopy = srcValueCopyExtractor.apply(srcChild);

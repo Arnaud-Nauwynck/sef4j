@@ -6,19 +6,20 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
-import org.sef4j.callstack.export.valueprinter.CallTreeValuePrinter;
-import org.sef4j.callstack.export.valueprinter.CallTreeValueWrapperPrinter;
-import org.sef4j.callstack.export.valueprinter.helpers.BasicTimeStatsLogHistogramFieldValuePrinter;
-import org.sef4j.callstack.export.valueprinter.helpers.PendingPerfCountFieldValuePrinter;
-import org.sef4j.callstack.export.valueprinter.helpers.PerfStatsFieldValuePrinter;
+import org.sef4j.callstack.export.printers.value.BasicTimeStatsLogHistogramFieldValuePrinter;
+import org.sef4j.callstack.export.printers.value.PendingPerfCountFieldValuePrinter;
+import org.sef4j.callstack.export.printers.value.PerfStatsFieldValuePrinter;
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
+import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.proptree.printers.PropTreeValuePrinter;
+import org.sef4j.core.helpers.proptree.printers.PropTreeValueWrapperPrinter;
 
 public class CallTreeNodeTstBuilder {
 
-    public static CallTreeNode buildTree(List<String> paths, Map<String,Callable<?>> propFactories) {
-        CallTreeNode root = CallTreeNode.newRoot();
+    public static PropTreeNode buildTree(List<String> paths, Map<String,Callable<?>> propFactories) {
+        PropTreeNode root = PropTreeNode.newRoot();
         if (paths == null) {
             paths = defaultPaths();
         }
@@ -39,13 +40,13 @@ public class CallTreeNodeTstBuilder {
     }
 
 
-    public static Map<Class<?>, CallTreeValuePrinter<?>> defaultPerTypePrinters(boolean prefixPropName, String prefixSep, String postfixSep) {
-        Map<Class<?>, CallTreeValuePrinter<?>> res = new HashMap<Class<?>, CallTreeValuePrinter<?>>();
-        res.put(BasicTimeStatsLogHistogram.class, new CallTreeValueWrapperPrinter<BasicTimeStatsLogHistogram>(
+    public static Map<Class<?>, PropTreeValuePrinter<?>> defaultPerTypePrinters(boolean prefixPropName, String prefixSep, String postfixSep) {
+        Map<Class<?>, PropTreeValuePrinter<?>> res = new HashMap<Class<?>, PropTreeValuePrinter<?>>();
+        res.put(BasicTimeStatsLogHistogram.class, new PropTreeValueWrapperPrinter<BasicTimeStatsLogHistogram>(
                     BasicTimeStatsLogHistogramFieldValuePrinter.INSTANCE, prefixPropName, prefixSep, postfixSep));
-        res.put(PendingPerfCount.class, new CallTreeValueWrapperPrinter<PendingPerfCount>(
+        res.put(PendingPerfCount.class, new PropTreeValueWrapperPrinter<PendingPerfCount>(
                 PendingPerfCountFieldValuePrinter.INSTANCE, prefixPropName, prefixSep, postfixSep));
-        res.put(PerfStats.class, new CallTreeValueWrapperPrinter<PerfStats>(
+        res.put(PerfStats.class, new PropTreeValueWrapperPrinter<PerfStats>(
                 PerfStatsFieldValuePrinter.DEFAULT_INSTANCE, prefixPropName, prefixSep, postfixSep));
         return res;
     }
@@ -60,11 +61,11 @@ public class CallTreeNodeTstBuilder {
         return paths;
     }
 
-    public static void fillTree(CallTreeNode root, List<String> paths, Map<String, Callable<?>> propFactories) {
+    public static void fillTree(PropTreeNode root, List<String> paths, Map<String, Callable<?>> propFactories) {
         for(String pathStr : paths) {
             String[] path = pathStr.split("/");
 
-            CallTreeNode elt = root;
+            PropTreeNode elt = root;
             for(String pathElt : path) {
                 elt = elt.getOrCreateChild(pathElt);
                 

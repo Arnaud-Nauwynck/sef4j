@@ -3,6 +3,7 @@ package org.sef4j.callstack.export.influxdb;
 import java.util.Arrays;
 
 import org.junit.Assert;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.sef4j.callstack.export.influxdb.jsonprinters.BasicTimeStatsLogHistogramInfluxDBPrinter;
 import org.sef4j.callstack.export.influxdb.jsonprinters.PendingPerfCountInfluxDBPrinter;
@@ -11,7 +12,7 @@ import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
 
-
+@Ignore
 public class HttpPostInfluxDBJsonSenderIT extends AbstractInfluxDBSerieSenderIT {
 
     private HttpPostInfluxDBJsonSender sut = new HttpPostInfluxDBJsonSender(url, dbName, username, password);

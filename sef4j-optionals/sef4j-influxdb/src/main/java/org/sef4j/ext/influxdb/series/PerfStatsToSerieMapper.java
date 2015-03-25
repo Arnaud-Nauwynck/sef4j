@@ -60,6 +60,30 @@ public class PerfStatsToSerieMapper {
     
     // ------------------------------------------------------------------------
 
+    public void getColumns(List<String> dest) {
+        dest.addAll(Arrays.asList(columnNames));
+    }
+
+    public void getValues(List<Object> dest, PerfStats src) {
+        if (printPendings) {
+            PendingPerfCount pendingCounts = src.getPendingCounts();
+            pendingPerfCountMapper.getValues(dest, pendingCounts);
+        }
+        final BasicTimeStatsSlotInfo[] timeStatsInfo = src.getElapsedTimeStats().getSlotInfoCopy();
+        final BasicTimeStatsSlotInfo[] cpuStatsInfo = src.getThreadCpuTimeStats().getSlotInfoCopy();
+        final BasicTimeStatsSlotInfo[] userStatsInfo = src.getThreadUserTimeStats().getSlotInfoCopy();
+        if (printElapsed) {
+            elapsedTimeStatsToSerieMapper.getValues(dest, timeStatsInfo);
+        }
+        if (printCpu) {
+            cpuTimeStatsToSerieMapper.getValues(dest, cpuStatsInfo);
+        }
+        if (printUser) {
+            userTimeStatsToSerieMapper.getValues(dest, userStatsInfo);
+        }
+    }
+    
+    
 	public Serie map(PerfStats src, String serieName) {
 		 Serie.Builder dest = new Serie.Builder(serieName);
 		 dest.columns(columnNames);
@@ -68,22 +92,9 @@ public class PerfStatsToSerieMapper {
 	}
 	
 	public void mapValues(Serie.Builder dest, PerfStats src) {
-		 if (printPendings) {
-			 PendingPerfCount pendingCounts = src.getPendingCounts();
-			 pendingPerfCountMapper.mapValues(dest, pendingCounts);
-		 }
-		 final BasicTimeStatsSlotInfo[] timeStatsInfo = src.getElapsedTimeStats().getSlotInfoCopy();
-		 final BasicTimeStatsSlotInfo[] cpuStatsInfo = src.getThreadCpuTimeStats().getSlotInfoCopy();
-		 final BasicTimeStatsSlotInfo[] userStatsInfo = src.getThreadUserTimeStats().getSlotInfoCopy();
-		 if (printElapsed) {
-			 elapsedTimeStatsToSerieMapper.mapValues(dest, timeStatsInfo);
-		 }
-		 if (printCpu) {
-			 cpuTimeStatsToSerieMapper.mapValues(dest, cpuStatsInfo);
-		 }
-		 if (printUser) {
-			 userTimeStatsToSerieMapper.mapValues(dest, userStatsInfo);
-		 }
+	    List<Object> tmp = new ArrayList<Object>(columnNames.length);
+	    getValues(tmp, src);
+	    dest.values(tmp.toArray());
 	}
 	
 }

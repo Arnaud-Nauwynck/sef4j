@@ -18,7 +18,7 @@ appender("FILE", ch.qos.logback.core.FileAppender) {
 }
 
 appender("eventSenderAppender", org.sef4j.log.slf4j.slf4j2event.EventSenderSlf4jAppender) {
-    targetEventSender = new org.sef4j.core.helpers.appenders.InMemoryEventSender();
+    targetEventSender = new org.sef4j.core.helpers.senders.InMemoryEventSender();
 }
 
 root(Level.INFO, ["STDOUT", "eventSenderAppender"])

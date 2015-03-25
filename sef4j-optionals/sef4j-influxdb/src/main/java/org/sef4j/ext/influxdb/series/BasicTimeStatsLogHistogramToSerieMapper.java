@@ -1,5 +1,8 @@
 package org.sef4j.ext.influxdb.series;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.influxdb.dto.Serie;
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 import org.sef4j.callstack.stats.BasicTimeStatsSlotInfo;
@@ -31,6 +34,18 @@ public class BasicTimeStatsLogHistogramToSerieMapper {
     	return columnNames;
     }
     
+    public void getColumns(List<String> dest) {
+        dest.addAll(Arrays.asList(columnNames));
+    }
+
+    public void getValues(List<Object> dest, BasicTimeStatsLogHistogram src) {
+        BasicTimeStatsSlotInfo[] timeStatsInfo = src.getSlotInfoCopy();
+        getValues(dest, timeStatsInfo);
+    }
+    
+    
+    
+    
 	public Serie map(BasicTimeStatsLogHistogram src, String serieName) {
 		 Serie.Builder dest = new Serie.Builder(serieName);
 		 dest.columns(columnNames);
@@ -53,4 +68,12 @@ public class BasicTimeStatsLogHistogramToSerieMapper {
         dest.values(values);
 	}
 
+	public void getValues(List<Object> dest, BasicTimeStatsSlotInfo[] timeStatsInfo) {
+        final int len = BasicTimeStatsLogHistogram.SLOT_LEN;
+        for (int i = 0; i < len; i++) {
+            dest.add(timeStatsInfo[i].getCount());
+            dest.add(timeStatsInfo[i].getSum());
+        }
+    }
+	
 }

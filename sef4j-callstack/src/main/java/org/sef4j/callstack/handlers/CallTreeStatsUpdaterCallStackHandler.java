@@ -2,18 +2,19 @@ package org.sef4j.callstack.handlers;
 
 import org.sef4j.callstack.CallStackElt;
 import org.sef4j.callstack.CallStackPushPopHandler;
-import org.sef4j.callstack.stattree.CallTreeNode;
+import org.sef4j.callstack.stats.PerfStats;
+import org.sef4j.core.api.proptree.PropTreeNode;
 
 /**
  * a CallStackPushPopHandler to update statistic on a call tree
  */
 public class CallTreeStatsUpdaterCallStackHandler extends CallStackPushPopHandler {
 
-	private CallTreeNode currNode;
+	private PropTreeNode currNode;
 
 	// ------------------------------------------------------------------------
 	
-	public CallTreeStatsUpdaterCallStackHandler(CallTreeNode root) {
+	public CallTreeStatsUpdaterCallStackHandler(PropTreeNode root) {
 		this.currNode = root;
 	}
 
@@ -25,7 +26,7 @@ public class CallTreeStatsUpdaterCallStackHandler extends CallStackPushPopHandle
 		String name = stackElt.getName();
 		this.currNode = currNode.getOrCreateChild(name);
 	
-		currNode.getStats().addPending(stackElt);
+		currNode.getOrCreateProp("stats", PerfStats.FACTORY).addPending(stackElt);
 		
 		// add self as listener on child stack elt
 		stackElt.onPushAddCallStackPushPopHandler(this);
@@ -33,7 +34,7 @@ public class CallTreeStatsUpdaterCallStackHandler extends CallStackPushPopHandle
 
 	@Override
 	public void onPop(CallStackElt stackElt) {
-		currNode.getStats().incrAndRemovePending(stackElt);
+		currNode.getOrCreateProp("stats", PerfStats.FACTORY).incrAndRemovePending(stackElt);
 		
 		// update seldf handler for pop elt
 		this.currNode = currNode.getParent();

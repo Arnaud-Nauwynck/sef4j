@@ -17,20 +17,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * helper class for asynchronous support<BR/>
+ * asynchronous adapter for EventSender to EventSender<BR/>
  * 
  * This class bufferize Events in memory, and send bulk events,
  * either after a wait delay (example: 15 secondes), or after the bulk is "filled enough":
- * havin greached maxEventsCount or having reached a cumulated of maxBulkByteLength
+ * having reached maxEventsCount or having reached a cumulated of maxBulkByteLength
  *
  * <PRE>
  *   Unitary          +-------------------+    _
  *   sendEvent() ---> |   current buffer  |   /  \  Flush Delay
  *                    +-------------------+    <-/  -------------> 
- *                                  |    reached maxEventsCount      \
- *                                  +---------------------------->   -->  BULK sendEvents()
- *                                  |    reached maxBulkByteLength   /
- *                                  +---------------------------->
+ *                     /\           |    reached maxEventsCount      \
+ *                     |            +---------------------------->   -->  BULK sendEvents()
+ *                     |            |    reached maxBulkByteLength   /
+ *                     |            +---------------------------->
+ *                     |                                                             onError 
+ *                     |                                                               |
+ *                      <--------------------------------------------------------------           
+ *                                    asyncDisruptorErrorHandler
+ *                                    decide to skip/retry some events
  *
  * </PRE>
  */
@@ -81,18 +86,33 @@ public class BulkAsyncSender<T> implements EventSender<T> {
 	protected int statTotalEventBulksCount;
 	
 	
+	public static interface IAsyncDisruptorErrorHandler<T> {
+	    
+	    public void onSendEventsOK(List<T> events);
+
+	    /** @return next delay period to reschedule */
+	    public int onSendEventsFailed(List<T> events, RuntimeException ex, 
+	                List<List<T>> retryPrependBulkEvents,
+	                List<List<T>> retryAppendBulkEvents);
+
+	    public void onQueued(Queue<List<T>> queue, List<T> events);
+
+	}
+	
+	protected IAsyncDisruptorErrorHandler<T> asyncDisruptorErrorHandler;
+	
 	// ------------------------------------------------------------------------
 	
-	@SuppressWarnings("unchecked")
 	private BulkAsyncSender(EventSender<T> target,
-			Builder builder) {
+			Builder<T> builder) {
 		this.targetOutput = target;
 		this.flushPeriod = builder.flushPeriod;
 		this.flushScheduledExecutor = builder.scheduledExecutor;
 		this.maxBulkEventsCount = builder.maxBulkEventsCount;
-		this.eventByteLengthProvider = (Function<T,Integer>) builder.eventByteLengthProvider;
+		this.eventByteLengthProvider = builder.eventByteLengthProvider;
 		this.maxBulkByteLength = builder.maxBulkByteLength;
 		this.flushFilledBulkInCurrentThread = builder.flushFilledBulkInCurrentThread;
+		this.asyncDisruptorErrorHandler = builder.asyncDisruptorErrorHandler;
 	}
 
 	/*pp for test*/
@@ -131,12 +151,16 @@ public class BulkAsyncSender<T> implements EventSender<T> {
 									+ " + " + eventByteLen + " .. need flush");
 						}
 					}
-					asyncEventsBulksQueue.add(bufferedEvents);
+					this.asyncEventsBulksQueue.add(bufferedEvents);
+					if (asyncDisruptorErrorHandler != null) {
+					    asyncDisruptorErrorHandler.onQueued(asyncEventsBulksQueue, bufferedEvents);
+					}
+					
 					this.bufferedEvents = new ArrayList<T>(maxBulkEventsCount);
 					this.bufferedeBulkByteLength = 0;
-					needFlush = true;
+					needFlush = ! asyncEventsBulksQueue.isEmpty(); // mostly true  ... cf disruptorErrorHandler to purge queue
 				}
-				bufferedEvents.add(event);
+				this.bufferedEvents.add(event);
 				bufferedeBulkByteLength += eventByteLen;
 			}
 		    
@@ -220,33 +244,57 @@ public class BulkAsyncSender<T> implements EventSender<T> {
 		}
 	}
 	
+	public int getFlushPeriod() {
+	    return flushPeriod;
+	}
+	
+	
 	// ------------------------------------------------------------------------
 
-	protected void scheduleFlush(int delay) {
+    protected void scheduleFlush(int delay) {
 		synchronized(lock) {
 			if (DEBUG) LOG.info(System.currentTimeMillis() + " scheduleFlush " + delay);
 			long nextTime = System.currentTimeMillis() + delay*1000;
 			if (scheduledFuture != null && scheduledFutureTime > nextTime+400) { // 400 ms: precision for not cancel+reschedule!
-				if (DEBUG) LOG.info(System.currentTimeMillis() + " scheduledFuture reschedule + cancel old " + scheduledFutureTime);
-				scheduledFuture.cancel(false);
-				scheduledFuture = null;
-				scheduledFutureTime = 0;
+				doCancelFutureSchedule();
 			}
 			if (scheduledFuture == null) {
-				if (delay != 0) {
-					this.scheduledFutureTime = nextTime;
-//					if (DEBUG) LOG.info(System.currentTimeMillis() + " schedule");
-					this.scheduledFuture = flushScheduledExecutor.schedule(
-							asyncFlushDelayTask, delay, TimeUnit.SECONDS);
-				} else {
-//					if (DEBUG) LOG.info(System.currentTimeMillis() + " submit");
-					flushScheduledExecutor.submit(asyncFlushImmediateTask);
-					scheduledFutureTime = 0;
-				}
+				doScheduleNextTime(delay, nextTime);
 			}
 		}
 	}
+	
+	private void doCancelFutureSchedule() {
+        if (DEBUG) LOG.info(System.currentTimeMillis() + " cancel schedule " + scheduledFutureTime);
+	    scheduledFuture.cancel(false);
+	    scheduledFuture = null;
+	    scheduledFutureTime = 0;
+	}
 
+    private void doScheduleNextTime(int delay, long nextTime) {
+        if (delay != 0) {
+        	this.scheduledFutureTime = nextTime;
+//					if (DEBUG) LOG.info(System.currentTimeMillis() + " schedule");
+        	this.scheduledFuture = flushScheduledExecutor.schedule(
+        			asyncFlushDelayTask, delay, TimeUnit.SECONDS);
+        } else {
+//					if (DEBUG) LOG.info(System.currentTimeMillis() + " submit");
+        	flushScheduledExecutor.submit(asyncFlushImmediateTask);
+        	scheduledFutureTime = 0;
+        }
+    }
+
+	protected void forceReschedule(int newDelay) {
+	    // assert thread owns lock
+	    if (DEBUG) LOG.info(System.currentTimeMillis() + " force reschedule " + newDelay + " + cancel old " + scheduledFutureTime);
+        if (scheduledFuture != null) {
+            doCancelFutureSchedule();
+        }
+        long nextTime = System.currentTimeMillis() + newDelay*1000;
+        doScheduleNextTime(newDelay, nextTime);
+    }
+
+    
 	private void onAsyncFlushDelay() {
 		synchronized(lock) {
 			if (DEBUG) LOG.info(System.currentTimeMillis() + " onAsyncFlushDelay " + infoToString());
@@ -312,9 +360,12 @@ public class BulkAsyncSender<T> implements EventSender<T> {
 				for(List<T> bulkEvents : bulksToSend) {
 					if (DEBUG) LOG.info(System.currentTimeMillis() + " => send bulk: " + bulkEvents.size() + " event(s)");
 					try {
+					    // **** The biggy ****
 						targetOutput.sendEvents(bulkEvents);
+						
+						onSendEventsOK(bulkEvents);
 					} catch(RuntimeException ex) {
-						LOG.error("Failed to send bulk events ... ignore, continue?!", ex);
+					    onSendEventsFailed(bulkEvents, ex);
 					}
 				}
 			}
@@ -322,6 +373,53 @@ public class BulkAsyncSender<T> implements EventSender<T> {
 		}// synchronized(asyncSenderLock)
 	}
 
+	protected void onSendEventsOK(List<T> bulkEvents) {
+        if (asyncDisruptorErrorHandler != null) {
+            asyncDisruptorErrorHandler.onSendEventsOK(bulkEvents);
+        }
+	}
+	
+	protected void onSendEventsFailed(List<T> bulkEvents, RuntimeException ex) {
+	    if (asyncDisruptorErrorHandler != null) {
+	        List<List<T>> retryPrependBulks = new ArrayList<List<T>>();
+            List<List<T>> retryAppendBulks = new ArrayList<List<T>>();
+	        
+	        int rescheduleDelay = asyncDisruptorErrorHandler.onSendEventsFailed(bulkEvents, ex, retryPrependBulks, retryAppendBulks);
+	        if (! retryPrependBulks.isEmpty() || ! retryAppendBulks.isEmpty()) {
+	            int countRetryPrepend = 0;
+	            for(List<T> re : retryPrependBulks) countRetryPrepend += re.size();  
+                int countRetryAppend = 0;
+                for(List<T> re : retryAppendBulks) countRetryAppend += re.size();
+                int countReInsert = countRetryPrepend + countRetryAppend; 
+                LOG.warn("Failed to send bulk events ... disruptorErrorHandler => re-insert " + countReInsert + " event(s)"
+                        + ((countRetryAppend != 0)? " ( " + countRetryAppend + " reordered at end)" : "")
+                        + ", ex:" + ex.getMessage());
+	            onFailedReInsertBulkEventsToSend(rescheduleDelay, retryPrependBulks, retryAppendBulks);
+	        } else {
+	            LOG.warn("Failed to send bulk events ... disruptorErrorHandler => skip all, ex:" + ex.getMessage());
+	        }
+	    } else {
+	        LOG.error("Failed to send bulk events => skip all event(s) ... ignore, continue?!", ex);
+	    }
+	}
+
+	protected void onFailedReInsertBulkEventsToSend(int delayReschedule, List<List<T>> retryPrependBulks, List<List<T>> retryAppendBulks) {
+	    // similar to sendEvents() ... but events are prepended/appended to asyncEventsBulksQueue instead of appended to list bufferedEvents 
+	    synchronized(lock) {
+            // re-insert at begining => remove all + re-add !!
+            // asyncEventsBulksQueue.add(0, bufferedEvents); 
+            List<List<T>> reinsertBulks = new ArrayList<List<T>>(); 
+            reinsertBulks.addAll(retryPrependBulks);
+            while(! asyncEventsBulksQueue.isEmpty()) {
+                reinsertBulks.add(asyncEventsBulksQueue.poll());
+            };
+            reinsertBulks.addAll(retryAppendBulks);
+            asyncEventsBulksQueue.addAll(reinsertBulks);
+            
+            forceReschedule(delayReschedule);
+        }// synchronized(lock)
+	}
+	
 	// ------------------------------------------------------------------------
 
 	@Override
@@ -352,17 +450,18 @@ public class BulkAsyncSender<T> implements EventSender<T> {
 	
 	// ------------------------------------------------------------------------
 	
-	public static class Builder {
+	public static class Builder<T> {
 		protected int flushPeriod = 30;
 		protected ScheduledExecutorService scheduledExecutor;
 		protected int maxBulkEventsCount = 50;
-		protected Function<?,Integer> eventByteLengthProvider;
+		protected Function<T,Integer> eventByteLengthProvider;
 		protected int maxBulkByteLength = 4*4192;
 		protected boolean flushFilledBulkInCurrentThread;
+		protected IAsyncDisruptorErrorHandler<T> asyncDisruptorErrorHandler;
 		
 		private static ScheduledExecutorService defaultScheduledExecutor;
 
-		public <T> BulkAsyncSender<T> build(EventSender<T> target) {
+		public BulkAsyncSender<T> build(EventSender<T> target) {
 			if (scheduledExecutor == null) {
 				defaultScheduledExecutor = Executors.newScheduledThreadPool(1);
 				scheduledExecutor = defaultScheduledExecutor;
@@ -370,35 +469,45 @@ public class BulkAsyncSender<T> implements EventSender<T> {
 			return new BulkAsyncSender<T>(target, this);
 		}
 
-		public Builder flushPeriod(int p) {
+		public Builder<T> flushPeriod(int p) {
 			this.flushPeriod = p;
 			return this;
 		}
 
-		public Builder asyncScheduledExecutor(ScheduledExecutorService p) {
+		public Builder<T> asyncScheduledExecutor(ScheduledExecutorService p) {
 			this.scheduledExecutor = p;
 			return this;
 		}
 
-		public Builder maxBulkEventsCount(int p) {
+		public Builder<T> maxBulkEventsCount(int p) {
 			this.maxBulkEventsCount = p;
 			return this;
 		}
 
-		public Builder eventByteLengthProvider(Function<?,Integer> p) {
+		public Builder<T> eventByteLengthProvider(Function<T,Integer> p) {
 			this.eventByteLengthProvider = p;
 			return this;
 		}
 
-		public Builder maxBulkByteLength(int p) {
+		public Builder<T> maxBulkByteLength(int p) {
 			this.maxBulkByteLength = p;
 			return this;
 		}
 		
-		public Builder flushFilledBulkInCurrentThread(boolean p) {
+		public Builder<T> flushFilledBulkInCurrentThread(boolean p) {
 			this.flushFilledBulkInCurrentThread = p;
 			return this;
 		}
+		
+		public Builder<T> asyncDisruptorErrorHandler(IAsyncDisruptorErrorHandler<T> p) {
+		    this.asyncDisruptorErrorHandler = p;
+		    return this;
+		}
+
+        public IAsyncDisruptorErrorHandler<T> getAsyncDisruptorErrorHandler() {
+            return asyncDisruptorErrorHandler;
+        }
+		
 	}
 
 }

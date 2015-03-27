@@ -1,0 +1,28 @@
+
+
+# connect to http://localhost:9200/_plugin/head/
+# create index  "test-log"    (notice lower case only)
+
+curl -XPOST 'http://localhost:9200/test-log' -d '{
+  "settings": {
+    "index": { "mapping.allow_type_wrapper": true }
+  }
+}'
+
+
+# Insert some data
+curl -X POST -d '{ level: "INFO", message: "test msg" }' http://localhost:9200/index/test-log
+curl -X POST -d '{ level: "INFO", message: "test msg1" }' http://localhost:9200/index/test-log
+curl -X POST -d '{ level: "INFO", message: "test msg2" }' http://localhost:9200/index/test-log
+curl -X POST -d '{ level: "INFO", message: "test msg3" }' http://localhost:9200/index/test-log
+curl -X POST -d '{ level: "INFO", message: "test msg4" }' http://localhost:9200/index/test-log
+curl -X POST -d '{ level: "INFO", message: "test msg5" }' http://localhost:9200/index/test-log
+
+curl -X POST -d '{ level: "WARN", message: "test msg warn 1" }' http://localhost:9200/index/test-log
+curl -X POST -d '{ level: "WARN", message: "test msg warn 2" }' http://localhost:9200/index/test-log
+
+
+# Query data
+curl -X GET http://localhost:9200/_search?q=level=INFO&pretty=true
+
+curl -X GET http://localhost:9200/_search?q=level=WARN&pretty=true

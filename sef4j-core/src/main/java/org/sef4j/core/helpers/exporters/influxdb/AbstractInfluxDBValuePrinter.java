@@ -1,4 +1,4 @@
-package org.sef4j.callstack.export.influxdb.jsonprinters;
+package org.sef4j.core.helpers.exporters.influxdb;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintWriter;
@@ -9,6 +9,27 @@ import org.sef4j.core.helpers.exporters.ValuePrinter;
 
 /**
  * abstract helper class for InfluxDB serie json formater
+ * 
+ * see sub-classes for concrete series per type: 
+ * - PerfStats => PerfStatsInfluxDBPrinter
+ * - PendingPerfCount => PendingPerfCountInfluxDBPrinter
+ * - BasicTimeStatsLogHistogram => BasicTimeStatsLogHistogramInfluxDBPrinter
+ * 
+ * 
+ * <PRE>                                        +-------------+
+ *           printValue(serieName, value)       |             |                 JSon text
+ *              ---------------------------->   |             |    ---------->   "{ "name": "<<metricName>>",
+ *                                              +-------------+                     "columns": [ "<<col1>>", ...<<columnNames>> ],
+ *                                                     ^                            "points": [ { <<points1>> }, ....{ <<points>> } ]
+ *                                                     |                          }"
+ *    PerfStats                             +----------+----------+
+ *      PendingPerfCount                    |          |          |
+ *        BasicTimeStatsLogHistogram     +-----+    +-----+     +-----+ 
+ *                                       |     |    |     |     |     | 
+ *                                       +-----+    +-----+     +-----+
+ * </PRE>  
+ * 
+ * Example of JSon formatting
  * <PRE>
  * { 
  *   "name": "metric1", 

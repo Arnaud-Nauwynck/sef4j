@@ -11,11 +11,14 @@ import org.sef4j.callstack.export.influxdb.jsonprinters.PerfStatsInfluxDBPrinter
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
+import org.sef4j.core.helpers.exporters.HttpPostBytesSenderFactory;
+import org.sef4j.core.helpers.exporters.influxdb.InfluxDBJsonSender;
 
 @Ignore
-public class HttpPostInfluxDBJsonSenderIT extends AbstractInfluxDBSerieSenderIT {
+public class PerfStatsHttpPostInfluxDBJsonSenderIT extends AbstractInfluxDBSerieSenderIT {
 
-    private HttpPostInfluxDBJsonSender sut = new HttpPostInfluxDBJsonSender(url, dbName, username, password);
+    private InfluxDBJsonSender sut = new InfluxDBJsonSender(url, dbName, username, password, 
+        HttpPostBytesSenderFactory.DEFAULT_FACTORY);
 
     @Test
     public void testSendJSonBody() {
@@ -29,10 +32,10 @@ public class HttpPostInfluxDBJsonSenderIT extends AbstractInfluxDBSerieSenderIT 
     @Test
     public void testSendJSonBody_invalidJson() {
         // Prepare
-        String json = "[ invalid json ]";
+        byte[] json = "[ invalid json ]".getBytes();
         // Perform
         try {
-            sut.sendJSonBody(json.getBytes());
+            sut.sendJSonBody(json);
             Assert.fail();
         } catch(RuntimeException ex) {
             // OK

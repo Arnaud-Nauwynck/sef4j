@@ -3,6 +3,7 @@ package org.sef4j.callstack.export.influxdb.jsonprinters;
 import java.io.PrintWriter;
 
 import org.sef4j.callstack.stats.PendingPerfCount;
+import org.sef4j.core.helpers.exporters.influxdb.AbstractInfluxDBValuePrinter;
 
 /**
  * InfluxDB serie json row value formater for PendingPerfCount

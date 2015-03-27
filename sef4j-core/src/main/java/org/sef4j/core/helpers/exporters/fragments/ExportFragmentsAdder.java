@@ -1,4 +1,4 @@
-package org.sef4j.core.helpers.exporters;
+package org.sef4j.core.helpers.exporters.fragments;
 
 import java.util.Collection;
 import java.util.Map;

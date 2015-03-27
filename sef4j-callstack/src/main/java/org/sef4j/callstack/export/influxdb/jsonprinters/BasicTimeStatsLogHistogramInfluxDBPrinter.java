@@ -4,6 +4,7 @@ import java.io.PrintWriter;
 
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 import org.sef4j.callstack.stats.BasicTimeStatsSlotInfo;
+import org.sef4j.core.helpers.exporters.influxdb.AbstractInfluxDBValuePrinter;
 
 /**
  * InfluxDB serie json row value formater for BasicTimeStatsLogHistogram

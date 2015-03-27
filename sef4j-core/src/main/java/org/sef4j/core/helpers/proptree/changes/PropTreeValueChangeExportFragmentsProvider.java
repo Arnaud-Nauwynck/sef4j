@@ -2,9 +2,9 @@ package org.sef4j.core.helpers.proptree.changes;
 
 import java.util.function.Function;
 
-import org.sef4j.core.helpers.exporters.ExportFragment;
-import org.sef4j.core.helpers.exporters.ExportFragmentsAdder;
-import org.sef4j.core.helpers.exporters.ExportFragmentsProvider;
+import org.sef4j.core.helpers.exporters.fragments.ExportFragment;
+import org.sef4j.core.helpers.exporters.fragments.ExportFragmentsAdder;
+import org.sef4j.core.helpers.exporters.fragments.ExportFragmentsProvider;
 import org.sef4j.core.helpers.proptree.changes.IPropTreeValueChangeCollector;
 
 /**

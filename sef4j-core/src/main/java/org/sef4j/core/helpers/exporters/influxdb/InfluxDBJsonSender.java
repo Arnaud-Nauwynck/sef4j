@@ -1,17 +1,33 @@
-package org.sef4j.callstack.export.influxdb;
+package org.sef4j.core.helpers.exporters.influxdb;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.Collection;
 import java.util.Iterator;
 
 import org.sef4j.core.api.EventSender;
+import org.sef4j.core.helpers.exporters.HttpPostBytesSender;
+import org.sef4j.core.helpers.exporters.HttpPostBytesSenderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * EventSender<String> to send Json text fragments to InfluxDB<br/>
+ * EventSender<String> to concatenate Json fragments as InfluxDB accepts them, then to delegate sending as HTTP POST to InfluxDB<br/>
+ * 
+ * <PRE>
+ *                                +-----------------+                        HttpPostBytesSender
+ *      sendEvents(String...)     |                 |   sendEvents(byte[])   +------------+      HTTP POST
+ *   ------------------------->   |                 |  -------------->       |            |     ----------->   InfluxDB Server
+ *      json fragments            |                 |      byte[]:           +------------+
+ *        "{ ..frag1 }"           +-----------------+     "[ {frag1}, 
+ *        "{ ..frag2 }"                                      {frag2}
+ *        "{ ..frag3 }"                                       ...
+ *                                                         ]"
+ * </PRE>
+ * 
  * <BR/>
  * Each String event to send is supposed to be formatted as a Json fragment : "{ ... }"<BR/>
  * This class may join multiple fragments in a single call, as"[ frag1, frag2, ... fragN ]"<BR/> 
@@ -21,7 +37,7 @@ import org.slf4j.LoggerFactory;
  *  and all sub-classes: PerfStatsInfluxDBPrinter, BasicTimeStatsLogHistogramInfluxDBPrinter, PendingPerfCountInfluxDBPrinter 
  *  
  */
-public abstract class InfluxDBJsonSender implements EventSender<String> {
+public class InfluxDBJsonSender implements EventSender<String> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(InfluxDBJsonSender.class);
 
@@ -31,23 +47,42 @@ public abstract class InfluxDBJsonSender implements EventSender<String> {
      * see real connection implementation in sub-classes
      */
     protected String displayUrl;
-    
+
+    protected URL seriesURL;
+
+    protected EventSender<byte[]> delegateHttpPostBytesSender;
     
     private int warnElapsedThreshold = 20*1000; // 20 seconds
     private int countSent = 0;
     private int countSentFailed = 0;
     private int countSentSlow = 0;
     
-    
     // ------------------------------------------------------------------------
 
-    public InfluxDBJsonSender(String url) {
-    	this.displayUrl = url;
+    public InfluxDBJsonSender(String url, String dbName, String username, String password) {
+    	this(url, dbName, username, password, HttpPostBytesSenderFactory.DEFAULT_FACTORY);
     }
 
+    public InfluxDBJsonSender(String url, String dbName, String username, String password, 
+            HttpPostBytesSenderFactory httpPostBytesSenderFactory) {
+        this.displayUrl = url;
+        this.seriesURL = influxDBSeriesURL(url, dbName, username, password); 
+        this.delegateHttpPostBytesSender = httpPostBytesSenderFactory.create(displayUrl, seriesURL, HttpPostBytesSender.CONTENT_TYPE_JSON, null);
+    }
+    
     // ------------------------------------------------------------------------
+    
+    public static URL influxDBSeriesURL(String baseUrl, String dbName, String username, String password) {
+        try {
+            return new URL(baseUrl + "/db/" + dbName + "/series?u=" + username + "&p=" + password);
+        } catch (MalformedURLException ex) {
+            throw new RuntimeException("Bad url", ex);
+        }
+    }
 
-    protected abstract void doSendJSonBody(byte[] json);
+    protected void doSendJSonBody(byte[] json) {
+        delegateHttpPostBytesSender.sendEvent(json);
+    }
 
     public void sendJSonBody(byte[] json) {
         countSent++;
@@ -95,7 +130,8 @@ public abstract class InfluxDBJsonSender implements EventSender<String> {
 		} catch(IOException ex) {
 		    // in memory buffer ... IOException should not occurs!
 		}
-		sendJSonBody(buffer.toByteArray());
+		byte[] bytes = buffer.toByteArray();
+        sendJSonBody(bytes);
 	}
 
 	

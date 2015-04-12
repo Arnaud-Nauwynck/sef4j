@@ -9,8 +9,19 @@ import java.util.concurrent.Callable;
  * This class is multi-thread safe, and lock FREE !!
  * <BR/>
  * 
- * logarithmic range slots: 0:[0-0], 1:[1-31], 2:[32-63], ...8:[2048,4095],  9:[4096,+infinity]
- * 
+ * Ranges are hard-coded with 10 buckets, using this logarithmic range: 
+ * <ul>
+ * <li> [0]: 0           millis</li>
+ * <li> [1]: 1    - 31   millis</li>
+ * <li> [2]: 32   - 63   millis</li>
+ * <li> [3]: 64   - 127  millis</li>
+ * <li> [4]: 128  - 255  millis</li>
+ * <li> [5]: 256  - 511  millis</li>
+ * <li> [6]: 512  - 1023 millis</li>
+ * <li> [7]: 1024 - 2047 millis</li>
+ * <li> [8]: 2048 - 4095 millis</li>
+ * <li> [9]: more than 4096 millis</li>
+ * </ul> 
  */
 @SuppressWarnings("restriction")
 public final class BasicTimeStatsLogHistogram {

@@ -1,0 +1,18 @@
+{
+  "main": "jquery.atmosphere.js",
+  "version": "2.2.5",
+  "dependencies": {
+    "jquery": ">= 1.9.0"
+  },
+  "name": "atmosphere-jquery",
+  "homepage": "https://github.com/Atmosphere/bower-jquery-atmosphere",
+  "_release": "2.2.5",
+  "_resolution": {
+    "type": "version",
+    "tag": "v2.2.5",
+    "commit": "4c7d0e297cd2316f69a4b944bcc0655eafc15294"
+  },
+  "_source": "git://github.com/Atmosphere/bower-jquery-atmosphere.git",
+  "_target": "2.2.5",
+  "_originalSource": "jquery-atmosphere"
+}

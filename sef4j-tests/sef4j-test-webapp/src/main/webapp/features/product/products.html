@@ -1,0 +1,24 @@
+<div>
+    <h2>Products</h2>
+
+    <div class="row">
+		<!-- filter by ... -->
+    </div>
+
+
+    <table class="table table-condensed table-striped table-bordered table-responsive">
+        <thead>
+	        <tr>
+	            <th ng-click="predicate = 'id'; reverse=!reverse">Id</th>
+	            <th ng-click="predicate = 'name'; reverse=!reverse">Name</th>
+	            <th ng-click="predicate = 'shortDescr'; reverse=!reverse">Descr</th>
+	        </tr>
+        </thead>
+        <tr ng-repeat="product in products | filter:filter | orderBy:predicate:reverse" ng-hide="product.filtered">
+            <td><span>{{product.id}}</span></td>
+            <td><small>{{audit.name}}</small></td>
+            <td>{{product.shortDescr}}</td>
+        </tr>
+    </table>
+    
+</div>

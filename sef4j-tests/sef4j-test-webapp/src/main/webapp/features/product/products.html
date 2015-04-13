@@ -1,24 +1,71 @@
-<div>
+<div ng-controller='ProductsController as products'>
     <h2>Products</h2>
 
-    <div class="row">
-		<!-- filter by ... -->
+	<div>
+	    <p><strong>Filter:</strong> {{products.productTableParams.filter()|json}}
+		<br/>
+		
+        <strong>Selected products filtered data:</strong> {{ products.products | filter:{"$selected": true} | limitTo: 5 }}
+		<br/>
+		
+        <strong>Selected products:</strong> {{ products.selectedProducts  | limitTo: 5}}
+		<br/>
+
+        <strong>Selected products 2:</strong> {{ products.selectedProducts2  | limitTo: 5}}
+		<br/>
+		
     </div>
+    <button class="btn btn-default" ng-click="products.productTableParams.data[1].$selected = true">Select second row</button>
+
+	<div>
+		match
+		<label>Name</label>
+		<input type="text" ng-model="products.match.name"/>
+		<label>Descr</label>
+		<input type="text" ng-model="products.match.shortDescr"/>
+		
+		<button class="btn btn-default" ng-click="products.matchAddOrRemoveSelect(true)">Select Match</button>
+		<button class="btn btn-default" ng-click="products.matchAddOrRemoveSelect(false)">Un-Select Match</button>
+	</div>
+	<br/>
+
+	match count: {{( products.products | filter:{"match": true} ).length}}
+	<br/>
+	selected count: {{( products.products | filter:{"$selected": true} ).length}}
+	<br/>
 
 
-    <table class="table table-condensed table-striped table-bordered table-responsive">
-        <thead>
-	        <tr>
-	            <th ng-click="predicate = 'id'; reverse=!reverse">Id</th>
-	            <th ng-click="predicate = 'name'; reverse=!reverse">Name</th>
-	            <th ng-click="predicate = 'shortDescr'; reverse=!reverse">Descr</th>
-	        </tr>
-        </thead>
-        <tr ng-repeat="product in products | filter:filter | orderBy:predicate:reverse" ng-hide="product.filtered">
-            <td><span>{{product.id}}</span></td>
-            <td><small>{{audit.name}}</small></td>
-            <td>{{product.shortDescr}}</td>
+	<table ng-table="products.productTableParams" show-filter="true" class="table ng-table-filter ng-table-rowselected ng-table-resizable-columns">
+        <tr ng-repeat="e in $data"
+        		ng-click="e.$selected = !e.$selected; products.changeSelection(e)"
+                ng-class="{'active': e.$selected}"> 
+                
+            <td data-title="'Match?'"><div ng-if="e.match">~</div></td>
+            
+            <td data-title="'Id'">{{e.id}}</td>
+			<td data-title="'Name'" sortable="'name'" filter="{ 'name': 'text' }">{{e.name}}</td>
+            <td data-title="'Descr'" sortable="'shortDescr'" filter="{ 'shortDescr': 'text' }">{{user.shortDescr}}</td> 
         </tr>
     </table>
+    
+<style>
+
+.rc-handle-container {
+  position: relative; }
+
+.rc-handle {
+  position: absolute;
+  width: 7px;
+  cursor: ew-resize;
+  margin-left: -3px;
+  z-index: 2; }
+
+table.rc-table-resizing {
+  cursor: ew-resize; 
+}
+  table.rc-table-resizing thead, table.rc-table-resizing thead > th, table.rc-table-resizing thead > th > a {
+    cursor: ew-resize; 
+  }
+</style>
     
 </div>

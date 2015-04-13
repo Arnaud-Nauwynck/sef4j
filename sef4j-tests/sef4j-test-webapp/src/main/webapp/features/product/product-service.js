@@ -2,9 +2,9 @@
 
 testwebapp.factory('ProductService', function ($http) {
     return {
-        findAll: function() {
+        asyncFindAll: function() {
             var promise = $http.get('app/rest/products/all')
-            	.then(function (response) {
+            .then(function (response, status) {
                 return response.data;
             });
             return promise;

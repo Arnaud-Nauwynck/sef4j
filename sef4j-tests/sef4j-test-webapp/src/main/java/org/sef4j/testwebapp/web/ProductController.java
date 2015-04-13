@@ -1,7 +1,6 @@
 package org.sef4j.testwebapp.web;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.PostConstruct;
@@ -20,18 +19,28 @@ public class ProductController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
 	
-	private List<ProductDTO> products = new ArrayList<ProductDTO>(Arrays.asList(new ProductDTO[] {
-			new ProductDTO(1, "product1", "cool product 1"),
-			new ProductDTO(2, "product2", "cool product 2")
-	}));
+	private List<ProductDTO> products = new ArrayList<ProductDTO>();
 	
 	@PostConstruct
 	public void init() {
 		LOG.info("init ProductController");
+		for (int i = 0; i < 20000; i++) {
+		    String name = null;
+		    switch(i % 3) {
+		        case 0: name = "book"; break; 
+                case 1: name = "pc"; break; 
+                case 2: name = "telephone"; break; 
+		    }
+		    products.add(new ProductDTO(i, name + " " + i, "cool " + name + " " + i));
+		}
 	}
 	
 	@RequestMapping(value="all", method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
 	public List<ProductDTO> findAll() {
+	    // emulate changes ... add one more Product on each refresh
+	    int i = products.size();
+	    products.add(new ProductDTO(i, "product" + i, "cool product " + i));
+	    
 		return products;
 	}
 	

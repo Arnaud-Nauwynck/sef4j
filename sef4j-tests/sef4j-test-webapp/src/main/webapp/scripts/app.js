@@ -3,15 +3,15 @@
 /* App Module */
 
 var testwebapp = angular.module('testwebapp', 
-		['ngResource', 'ngRoute' 
+		['ngResource', 'ngRoute', 'ngTable', 'ngTableResizableColumns'
 	    ]);
 
 testwebapp.config(function ($routeProvider, $httpProvider) {
 
     $routeProvider
         .when('/products', {
-            templateUrl: 'features/product/products.html',
-            controller: 'ProductsController'
+            templateUrl: 'features/product/products.html'
+            //, controller: 'ProductsController as products'
         })
         .when('/home', {
             templateUrl: 'features/home/home.html',

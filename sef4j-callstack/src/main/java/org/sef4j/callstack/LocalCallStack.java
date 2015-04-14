@@ -2,6 +2,8 @@ package org.sef4j.callstack;
 
 import org.sef4j.callstack.CallStackElt.StackPopper;
 import org.sef4j.callstack.CallStackElt.StackPusher;
+import org.slf4j.Logger;
+
 
 /**
  * 
@@ -64,7 +66,14 @@ public class LocalCallStack {
 		CallStackElt currThreadStackElt = currThreadStackElt();
 		return currThreadStackElt.pusher(className, methodName);
 	}
-	
+
+	/** alias for <code>meth(logger.getName(), String methodName)</code> */
+	public static StackPusher meth(Logger logger, String methodName) {
+        String className = logger.getName(); 
+        CallStackElt currThreadStackElt = currThreadStackElt();
+        return currThreadStackElt.pusher(className, methodName);
+    }
+   
 	/** alias for <code>meth(className, name).push()</code> 
 	 * using this shor tsyntax, it is not possible to configure StackElt with parameters,properties,logger...
 	 * sample code:

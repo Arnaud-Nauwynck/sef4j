@@ -1,0 +1,14 @@
+<div ng-controller="StatsTreeController as stats">
+
+<button class="btn btn-default" ng-click="stats.loadStats()">Load</button>
+
+<table ng-table="stats.statsTreeTableParams" show-filter="true" class="table ng-table-filter ng-table-rowselected ng-table-resizable-columns">
+        <tr ng-repeat="e in $data"
+        		ng-click="e.$selected = !e.$selected; products.changeSelection(e)"
+                ng-class="{'active': e.$selected}"> 
+            
+            <td data-title="'Id'">{{e.id}}</td>
+			<td data-title="'Name'" sortable="'name'" filter="{ 'name': 'text' }">{{e.name}}</td>
+        </tr>
+    </table>
+</div>

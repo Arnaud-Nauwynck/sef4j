@@ -41,6 +41,11 @@
 			<artifactId>sef4j-callstack</artifactId>
 			<version>${sef4j.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.sef4j</groupId>
+			<artifactId>sef4j-jdbc</artifactId>
+			<version>${sef4j.version}</version>
+		</dependency>
 
 		<!-- Thirdparty dependencies -->
 
@@ -164,7 +169,11 @@
             <groupId>org.hibernate</groupId>
             <artifactId>hibernate-validator</artifactId>
         </dependency>
-    </dependencies>
+        <dependency>
+        	<groupId>org.springframework.boot</groupId>
+        	<artifactId>spring-boot-starter-integration</artifactId>
+        </dependency>
+	</dependencies>
 
 
     <build>

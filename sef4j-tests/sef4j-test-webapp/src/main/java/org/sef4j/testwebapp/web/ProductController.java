@@ -7,6 +7,7 @@ import javax.inject.Inject;
 import org.sef4j.testwebapp.dto.ProductDTO;
 import org.sef4j.testwebapp.service.InMemoryProductService;
 import org.sef4j.testwebapp.service.ProductService;
+import org.sef4j.testwebapp.web.MetricsStatsTreeController.StatsHandlerPopper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -19,7 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
-	
+
+    
 	@Inject
 	private ProductService productService;
 
@@ -28,16 +30,25 @@ public class ProductController {
 	
 	@RequestMapping(value="all", method=RequestMethod.GET)
 	public List<ProductDTO> findAll() {
-	    LOG.info("findAll");
-	    List<ProductDTO> res = productService.findAll();
-	    return res;
+	    try (StatsHandlerPopper toPop = pushWSStatsHandler("findAll")) {
+	        LOG.info("findAll");
+	        List<ProductDTO> res = productService.findAll();
+	        return res;
+	    }
 	}
 
 	@RequestMapping(value="all-in-memory", method=RequestMethod.GET)
 	public List<ProductDTO> findInMemoryAll() {
-        LOG.info("findInMemoryAll");
-		List<ProductDTO> res = inMemoryProductService.findAll();
-        return res;
+        try (StatsHandlerPopper toPop = pushWSStatsHandler("findInMemoryAll")) {
+            LOG.info("findInMemoryAll");
+            List<ProductDTO> res = inMemoryProductService.findAll();
+            return res;
+        }
 	}
+	
+    public StatsHandlerPopper pushWSStatsHandler(String methodName) {
+        String className = LOG.getName();
+        return MetricsStatsTreeController.pushStats(className, "ws", methodName);
+    }
 	
 }

@@ -55,10 +55,10 @@ public final class PropTreeNodeDTO implements Serializable {
 	 * @return child with name "childName", newly created if did not exist before
 	 */
 	public PropTreeNodeDTO getOrCreateChild(String childName) {
-		PropTreeNodeDTO res = childMap.get(childName);
+		PropTreeNodeDTO res = (childMap != null)? childMap.get(childName) : null;
 		if (res == null) {
 			res = new PropTreeNodeDTO(childName);
-			LinkedHashMap<String, PropTreeNodeDTO> newChildMap = new LinkedHashMap<String, PropTreeNodeDTO>(childMap.size() + 1);
+			LinkedHashMap<String, PropTreeNodeDTO> newChildMap = new LinkedHashMap<String, PropTreeNodeDTO>(childMap != null? childMap.size() + 1 : 1);
 			if (childMap != null) {
 				newChildMap.putAll(childMap);
 			}

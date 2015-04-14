@@ -139,6 +139,9 @@ public class PropTreeNode {
 	public static void recursiveCopyToDTO(PropTreeNode src, PropTreeNodeDTO dest) {
 		for(Map.Entry<String,PropTreeNode> e : src.childMap.entrySet()) {
 			String childName = e.getKey();
+			if (childName == null) {
+			    continue; //should not occur!!
+			}
 			PropTreeNode srcChild = e.getValue();
 			PropTreeNodeDTO destChild = dest.getOrCreateChild(childName);
 			// *** recurse ***

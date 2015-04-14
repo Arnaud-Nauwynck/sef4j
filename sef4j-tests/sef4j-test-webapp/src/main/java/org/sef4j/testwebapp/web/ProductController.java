@@ -1,11 +1,12 @@
 package org.sef4j.testwebapp.web;
 
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.PostConstruct;
+import javax.inject.Inject;
 
 import org.sef4j.testwebapp.dto.ProductDTO;
+import org.sef4j.testwebapp.service.InMemoryProductService;
+import org.sef4j.testwebapp.service.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -14,34 +15,29 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("app/rest/products")
+@RequestMapping(value="app/rest/products", produces = MediaType.APPLICATION_JSON_VALUE)
 public class ProductController {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ProductController.class);
 	
-	private List<ProductDTO> products = new ArrayList<ProductDTO>();
+	@Inject
+	private ProductService productService;
+
+	@Inject
+    private InMemoryProductService inMemoryProductService;
 	
-	@PostConstruct
-	public void init() {
-		LOG.info("init ProductController");
-		for (int i = 0; i < 20000; i++) {
-		    String name = null;
-		    switch(i % 3) {
-		        case 0: name = "book"; break; 
-                case 1: name = "pc"; break; 
-                case 2: name = "telephone"; break; 
-		    }
-		    products.add(new ProductDTO(i, name + " " + i, "cool " + name + " " + i));
-		}
-	}
-	
-	@RequestMapping(value="all", method=RequestMethod.GET, produces = MediaType.APPLICATION_JSON_VALUE)
+	@RequestMapping(value="all", method=RequestMethod.GET)
 	public List<ProductDTO> findAll() {
-	    // emulate changes ... add one more Product on each refresh
-	    int i = products.size();
-	    products.add(new ProductDTO(i, "product" + i, "cool product " + i));
-	    
-		return products;
+	    LOG.info("findAll");
+	    List<ProductDTO> res = productService.findAll();
+	    return res;
+	}
+
+	@RequestMapping(value="all-in-memory", method=RequestMethod.GET)
+	public List<ProductDTO> findInMemoryAll() {
+        LOG.info("findInMemoryAll");
+		List<ProductDTO> res = inMemoryProductService.findAll();
+        return res;
 	}
 	
 }

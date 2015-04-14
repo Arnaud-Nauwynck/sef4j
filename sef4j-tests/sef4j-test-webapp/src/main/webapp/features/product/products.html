@@ -4,14 +4,14 @@
 	<div>
 	    <p><strong>Filter:</strong> {{products.productTableParams.filter()|json}}
 		<br/>
+
+        <strong>Products count:</strong> {{ products.products.length }}
+		<br/>
 		
         <strong>Selected products filtered data:</strong> {{ products.products | filter:{"$selected": true} | limitTo: 5 }}
 		<br/>
 		
-        <strong>Selected products:</strong> {{ products.selectedProducts  | limitTo: 5}}
-		<br/>
-
-        <strong>Selected products 2:</strong> {{ products.selectedProducts2  | limitTo: 5}}
+        <strong>Selected products:</strong> {{products.selectedProducts.length}}
 		<br/>
 		
     </div>

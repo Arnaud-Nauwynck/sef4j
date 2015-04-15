@@ -19,7 +19,7 @@ public class BasicStatIgnorePendingChangeCollector extends AbstractPropTreeValue
 			new Function<PropTreeNode, PerfStats>() {
 		@Override
 		public PerfStats apply(PropTreeNode t) {
-			return t.getOrCreateProp("stats", PerfStats.FACTORY).getCopy();
+			return t.getOrCreateProp("stats", PerfStats.FACTORY).clone();
 		}
 	};
 	public static final Function<PropTreeNode, PerfStats> DEFAULT_PERFSTAT_PREV_EXTRACTOR = 

@@ -39,19 +39,19 @@ public class PendingPerfCount {
 		return UNSAFE.getLongVolatile(this, pendingSumStartTimeFieldOffset);
 	}
 
-	public void getCopyTo(PendingPerfCount dest) {
+	public void copyTo(PendingPerfCount dest) {
 		dest.pendingCount = getPendingCount();
 		dest.pendingSumStartTime = getPendingSumStartTime();
 	}
 
-	public PendingPerfCount getCopy() {
+	public PendingPerfCount clone() {
 		PendingPerfCount res = new PendingPerfCount();
-		getCopyTo(res);
+		copyTo(res);
 		return res;
 	}
 
 	public void setCopy(PendingPerfCount src) {
-		src.getCopyTo(this);
+		src.copyTo(this);
 	}
 
 	public void clear() {

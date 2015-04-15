@@ -57,7 +57,7 @@ public class BasicTimeStatsSlotInfo implements Serializable {
 		this.sum = sum;
 	}
 
-	public double getAverage() {
+	public double average() {
 		return ((double)sum) / ((count != 0)? count : 1);
 	}
 

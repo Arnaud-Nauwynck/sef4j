@@ -131,7 +131,9 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
         try {
             ResultSet tmpres = to.executeQuery();
 
-            SefResultSetProxy res = new SefResultSetProxy(this, tmpres);
+            // SefResultSetProxy res = new SefResultSetProxy(this, tmpres);
+            ResultSet res = tmpres; // TODO temp disable proxy
+            
             return toPop.returnValue(res);
         } catch(SQLException ex) {
             throw toPop.returnException(ex);

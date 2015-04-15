@@ -110,16 +110,16 @@ public final class BasicTimeStatsLogHistogram {
 	}
 
 	
-	public void getCopyTo(BasicTimeStatsLogHistogram dest) {
+	public void copyTo(BasicTimeStatsLogHistogram dest) {
 		for (int i = 0; i < SLOT_LEN; i++) {
 			dest.countSlots[i] = getCount(i);
 			dest.sumSlots[i] = getSum(i);
 		}
 	}
 
-	public BasicTimeStatsLogHistogram getCopy() {
+	public BasicTimeStatsLogHistogram clone() {
 		BasicTimeStatsLogHistogram res = new BasicTimeStatsLogHistogram();
-		getCopyTo(res);
+		copyTo(res);
 		return res;
 	}
 

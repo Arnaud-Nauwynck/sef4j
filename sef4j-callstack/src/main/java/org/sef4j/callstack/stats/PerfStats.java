@@ -56,14 +56,14 @@ public final class PerfStats {
 	}
 
 	public void getCopyTo(PerfStats dest) {
-		elapsedTimeStats.getCopyTo(dest.elapsedTimeStats);
-		threadUserTimeStats.getCopyTo(dest.threadUserTimeStats);
-		threadCpuTimeStats.getCopyTo(dest.threadCpuTimeStats);
+		elapsedTimeStats.copyTo(dest.elapsedTimeStats);
+		threadUserTimeStats.copyTo(dest.threadUserTimeStats);
+		threadCpuTimeStats.copyTo(dest.threadCpuTimeStats);
 
-		pendingCounts.getCopyTo(dest.pendingCounts);
+		pendingCounts.copyTo(dest.pendingCounts);
 	}
 
-	public PerfStats getCopy() {
+	public PerfStats clone() {
 		PerfStats res = new PerfStats();
 		getCopyTo(res);
 		return res;

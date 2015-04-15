@@ -105,10 +105,10 @@ public class BasicTimeStatsLogHistogramTest {
 		Assert.assertEquals(1, slotInfo[0].getCount());
 		
 		Assert.assertEquals(31, slotInfo[1].getCount()); // [1, 31]
-		Assert.assertEquals(16.0, slotInfo[1].getAverage(), 1e-6);
+		Assert.assertEquals(16.0, slotInfo[1].average(), 1e-6);
 
 		Assert.assertEquals(32, slotInfo[2].getCount()); // [32,63]
-		Assert.assertEquals((32+63)*.5, slotInfo[2].getAverage(), 1e-6);
+		Assert.assertEquals((32+63)*.5, slotInfo[2].average(), 1e-6);
 		
 		Assert.assertEquals(64, slotInfo[3].getCount()); // 64, 127
 		

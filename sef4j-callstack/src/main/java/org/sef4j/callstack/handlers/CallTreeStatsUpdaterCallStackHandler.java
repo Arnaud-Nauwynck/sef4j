@@ -23,8 +23,8 @@ public class CallTreeStatsUpdaterCallStackHandler extends CallStackPushPopHandle
 	@Override
 	public void onPush(CallStackElt stackElt) {
 		// update seldf handler for pushed elt
-		String name = stackElt.getName();
-		this.currNode = currNode.getOrCreateChild(name);
+		String childName = stackElt.getClassName() + ":" + stackElt.getName();
+		this.currNode = currNode.getOrCreateChild(childName);
 	
 		currNode.getOrCreateProp("stats", PerfStats.FACTORY).addPending(stackElt);
 		

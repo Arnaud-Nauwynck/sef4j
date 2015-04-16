@@ -136,20 +136,6 @@ public class PropTreeNode {
 	    return childMap.values();
 	}
 	
-	public static void recursiveCopyToDTO(PropTreeNode src, PropTreeNodeDTO dest) {
-		for(Map.Entry<String,PropTreeNode> e : src.childMap.entrySet()) {
-			String childName = e.getKey();
-			if (childName == null) {
-			    continue; //should not occur!!
-			}
-			PropTreeNode srcChild = e.getValue();
-			PropTreeNodeDTO destChild = dest.getOrCreateChild(childName);
-			// *** recurse ***
-			recursiveCopyToDTO(srcChild, destChild);
-		}
-		dest.setPropsMap(src.propsMap); // copy-on-write field => copy immutable pointer
-	}
-	
 	// ------------------------------------------------------------------------
 	
 	public int getDepth() {

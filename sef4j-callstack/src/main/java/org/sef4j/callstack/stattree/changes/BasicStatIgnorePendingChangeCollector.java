@@ -63,7 +63,7 @@ public class BasicStatIgnorePendingChangeCollector extends AbstractPropTreeValue
 		PerfStats srcPerfStats = srcValueCopyExtractor.apply(src); // copy new value
 		PerfStats prevPerfStats = prevValueExtractor.apply(prev); // by ref
 		if (compareHasChangeCount(srcPerfStats, prevPerfStats)) {
-			prevPerfStats.setCopy(srcPerfStats);
+			prevPerfStats.set(srcPerfStats);
 			res.put(currPath, srcPerfStats);
 		}
 		

@@ -2,6 +2,8 @@ package org.sef4j.callstack.stats;
 
 import java.util.concurrent.Callable;
 
+import org.sef4j.core.api.proptree.ICopySupport;
+
 
 /**
  * performance time statistics and counters using small Log-based histogram
@@ -24,7 +26,7 @@ import java.util.concurrent.Callable;
  * </ul> 
  */
 @SuppressWarnings("restriction")
-public final class BasicTimeStatsLogHistogram {
+public final class BasicTimeStatsLogHistogram implements ICopySupport<BasicTimeStatsLogHistogram> {
 
 	/**
 	 * slot count
@@ -42,7 +44,7 @@ public final class BasicTimeStatsLogHistogram {
 	private int[] countSlots = new int[SLOT_LEN];
 
 	/**
-	 * sum of elapsed time using histogram slots
+	 * sum of calls elapsed time in nanos, using histogram slots
 	 * 
 	 * (values updated atomically using code similar to AtomicLongArray using UNSAFE.getAndAddLong() / .getLongVolatile() 
 	 * but optimized: without using wrapper class + extra array index bound checking
@@ -108,19 +110,25 @@ public final class BasicTimeStatsLogHistogram {
 		BasicTimeStatsSlotInfo slotInfo = SLOT_INFOS[i];
 		return new BasicTimeStatsSlotInfo(slotInfo.getFrom(), slotInfo.getTo(), getCount(i), getSum(i));
 	}
-
 	
+	@Override /* java.lang.Object */
+	public BasicTimeStatsLogHistogram clone() {
+		return copy();
+	}
+	
+	@Override /* ICopySupport<> */
+	public BasicTimeStatsLogHistogram copy() {
+		BasicTimeStatsLogHistogram res = new BasicTimeStatsLogHistogram();
+		copyTo(res);
+		return res;
+	}
+
 	public void copyTo(BasicTimeStatsLogHistogram dest) {
+		// TOCHANGE: may use faster Unsafe copy array?
 		for (int i = 0; i < SLOT_LEN; i++) {
 			dest.countSlots[i] = getCount(i);
 			dest.sumSlots[i] = getSum(i);
 		}
-	}
-
-	public BasicTimeStatsLogHistogram clone() {
-		BasicTimeStatsLogHistogram res = new BasicTimeStatsLogHistogram();
-		copyTo(res);
-		return res;
 	}
 
 	public boolean compareHasChangeCount(BasicTimeStatsLogHistogram cmp) {
@@ -242,12 +250,12 @@ public final class BasicTimeStatsLogHistogram {
     }
 
     
-	private int getCount(int index) {
+	public int getCount(int index) {
 		assert index >= 0 && index < SLOT_LEN;
 		return UNSAFE.getIntVolatile(countSlots, byteOffsetInt(index));
 	}
 	
-	private long getSum(int index) {
+	public long getSum(int index) {
 		assert index >= 0 && index < SLOT_LEN;
 		return UNSAFE.getLongVolatile(sumSlots, byteOffsetLong(index));
 	}

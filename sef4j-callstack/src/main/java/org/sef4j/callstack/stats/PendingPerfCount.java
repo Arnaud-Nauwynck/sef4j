@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.util.concurrent.Callable;
 
 import org.sef4j.callstack.CallStackElt;
+import org.sef4j.core.api.proptree.ICopySupport;
 
 /**
  * perf counter for pending thread in a section
@@ -11,7 +12,7 @@ import org.sef4j.callstack.CallStackElt;
  * this class is multi-thread safe, and lock-FREE!
  */
 @SuppressWarnings("restriction")
-public class PendingPerfCount {
+public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 
 	private int pendingCount;
 	
@@ -44,13 +45,20 @@ public class PendingPerfCount {
 		dest.pendingSumStartTime = getPendingSumStartTime();
 	}
 
+	@Override /* java.lang.Object */
 	public PendingPerfCount clone() {
+		return copy();
+	}
+	
+	@Override /* ICopySupport<> */
+	public PendingPerfCount copy() {
 		PendingPerfCount res = new PendingPerfCount();
 		copyTo(res);
 		return res;
 	}
 
-	public void setCopy(PendingPerfCount src) {
+
+	public void set(PendingPerfCount src) {
 		src.copyTo(this);
 	}
 

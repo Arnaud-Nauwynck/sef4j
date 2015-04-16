@@ -3,13 +3,15 @@ package org.sef4j.callstack.stats;
 import java.util.concurrent.Callable;
 
 import org.sef4j.callstack.CallStackElt;
+import org.sef4j.core.api.proptree.ICopySupport;
+import org.sef4j.core.api.proptree.PropTreeValueMapper.AbstractTypedPropTreeValueMapper;
 
 /**
  * class for aggregating PendingPerfCount + BasicTimeStatsLogHistogram (elapsed,threadUser,threadCpu)
  * 
  * this class is thread-safe, and lock-FREE !
  */
-public final class PerfStats {
+public final class PerfStats implements ICopySupport<PerfStats> {
 	
 	private PendingPerfCount pendingCounts = new PendingPerfCount();
 	
@@ -28,7 +30,34 @@ public final class PerfStats {
             return new PerfStats();
         }
     };
-    
+
+	public static final class PendingPerfCountDTOMapper extends AbstractTypedPropTreeValueMapper<PerfStats,PendingPerfCount> {
+		public static final PendingPerfCountDTOMapper INSTANCE = new PendingPerfCountDTOMapper();
+		public PendingPerfCount mapProp(PerfStats src) {
+			return src.pendingCounts.copy();
+		}
+	}
+
+	public static final class CumulatedElapsedBasicTimeStatsLogHistogramDTOMapper 
+			extends AbstractTypedPropTreeValueMapper<PerfStats,CumulatedBasicTimeStatsLogHistogramDTO> {
+		public static final CumulatedElapsedBasicTimeStatsLogHistogramDTOMapper INSTANCE = new CumulatedElapsedBasicTimeStatsLogHistogramDTOMapper();
+		public CumulatedBasicTimeStatsLogHistogramDTO mapProp(PerfStats src) {
+			return new CumulatedBasicTimeStatsLogHistogramDTO(src.elapsedTimeStats);
+		}
+	}
+	public static final class CumulatedThreadUserBasicTimeStatsLogHistogramDTOMapper extends AbstractTypedPropTreeValueMapper<PerfStats,CumulatedBasicTimeStatsLogHistogramDTO> {
+		public static final CumulatedThreadUserBasicTimeStatsLogHistogramDTOMapper INSTANCE = new CumulatedThreadUserBasicTimeStatsLogHistogramDTOMapper();
+		public CumulatedBasicTimeStatsLogHistogramDTO mapProp(PerfStats src) {
+			return new CumulatedBasicTimeStatsLogHistogramDTO(src.threadUserTimeStats);
+		}
+	}
+	public static final class CumulatedThreadCpuBasicTimeStatsLogHistogramDTOMapper extends AbstractTypedPropTreeValueMapper<PerfStats,CumulatedBasicTimeStatsLogHistogramDTO> {
+		public static final CumulatedThreadCpuBasicTimeStatsLogHistogramDTOMapper INSTANCE = new CumulatedThreadCpuBasicTimeStatsLogHistogramDTOMapper();
+		public CumulatedBasicTimeStatsLogHistogramDTO mapProp(PerfStats src) {
+			return new CumulatedBasicTimeStatsLogHistogramDTO(src.threadCpuTimeStats);
+		}
+	}
+
 	// ------------------------------------------------------------------------
 
 	public PendingPerfCount getPendingCounts() {
@@ -55,7 +84,7 @@ public final class PerfStats {
 		return pendingCounts.getPendingSumStartTime();
 	}
 
-	public void getCopyTo(PerfStats dest) {
+	public void copyTo(PerfStats dest) {
 		elapsedTimeStats.copyTo(dest.elapsedTimeStats);
 		threadUserTimeStats.copyTo(dest.threadUserTimeStats);
 		threadCpuTimeStats.copyTo(dest.threadCpuTimeStats);
@@ -63,14 +92,20 @@ public final class PerfStats {
 		pendingCounts.copyTo(dest.pendingCounts);
 	}
 
+	@Override /* java.lang.Object */
 	public PerfStats clone() {
+		return copy();
+	}
+	
+	@Override /* ICopySupport<> */
+	public PerfStats copy() {
 		PerfStats res = new PerfStats();
-		getCopyTo(res);
+		copyTo(res);
 		return res;
 	}
 
-	public void setCopy(PerfStats src) {
-		src.getCopyTo(this);
+	public void set(PerfStats src) {
+		src.copyTo(this);
 	}
 
 	// ------------------------------------------------------------------------

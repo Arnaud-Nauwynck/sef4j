@@ -106,7 +106,7 @@ public final class PendingCountChangeCollector extends AbstractPropTreeValueChan
 		if (srcPendingCount != prevPendingCount
 				|| srcPendingsCopy.getPendingSumStartTime() != prevPendings.getPendingSumStartTime()
 				) {
-			prevPendings.setCopy(srcPendingsCopy);
+			prevPendings.set(srcPendingsCopy);
 			res.put(currPath, srcPendingsCopy);
 		}
 
@@ -206,7 +206,7 @@ public final class PendingCountChangeCollector extends AbstractPropTreeValueChan
 		}
 
 		// collect change
-		prevPendings.setCopy(srcPendingsCopy);
+		prevPendings.set(srcPendingsCopy);
 		res.put(currPath, srcPendingsCopy);
 
 		// loop child (until reaching sum=prevPendings)

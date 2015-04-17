@@ -1,9 +1,9 @@
 package org.sef4j.callstack.stats;
 
 import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 
 import org.sef4j.core.api.proptree.ICopySupport;
-import org.sef4j.core.api.proptree.PropTreeValuePredicate.AbstractTypedPropTreeValuePredicate;
 
 
 /**
@@ -59,6 +59,10 @@ public final class BasicTimeStatsLogHistogram implements ICopySupport<BasicTimeS
 	public BasicTimeStatsLogHistogram() {
 	}
 
+	public BasicTimeStatsLogHistogram(BasicTimeStatsLogHistogram src) {
+		set(src);
+	}
+	
 	public static final Callable<BasicTimeStatsLogHistogram> FACTORY = new Callable<BasicTimeStatsLogHistogram>() {
         @Override
         public BasicTimeStatsLogHistogram call() throws Exception {
@@ -67,18 +71,19 @@ public final class BasicTimeStatsLogHistogram implements ICopySupport<BasicTimeS
     };
 
 
-	public static class MinCountPropTreeValuePredicate extends AbstractTypedPropTreeValuePredicate<BasicTimeStatsLogHistogram> {
+	public static class MinCountPropTreeValuePredicate implements Predicate<BasicTimeStatsLogHistogram> {
 		public static final MinCountPropTreeValuePredicate INSTANCE = new MinCountPropTreeValuePredicate(0, 0);
 		
 		private final int minCount;
 		private final long minSum;
+		
 		public MinCountPropTreeValuePredicate(int minCount, long minSum) {
 			this.minCount = minCount;
 			this.minSum = minSum;
 		}
 
 		@Override
-		public boolean apply(BasicTimeStatsLogHistogram src) {
+		public boolean test(BasicTimeStatsLogHistogram src) {
 			int cumulCount = src.cumulatedCount();
 			long cumulSum = src.cumulatedSum();
 			return cumulCount > minCount || cumulSum > minSum;
@@ -87,13 +92,37 @@ public final class BasicTimeStatsLogHistogram implements ICopySupport<BasicTimeS
 	}
 	
 	// ------------------------------------------------------------------------
+    
+	public int getCount(int index) {
+		assert index >= 0 && index < SLOT_LEN;
+		return UNSAFE.getIntVolatile(countSlots, byteOffsetInt(index));
+	}
+	
+	public long getSum(int index) {
+		assert index >= 0 && index < SLOT_LEN;
+		return UNSAFE.getLongVolatile(sumSlots, byteOffsetLong(index));
+	}
 
 	public void incr(long value) {
 		int index = valueToSlotIndex(value);
 		UNSAFE.getAndAddInt(countSlots, byteOffsetInt(index), 1);
 		UNSAFE.getAndAddLong(sumSlots, byteOffsetLong(index), value);
 	}
-	
+
+	public void incr(BasicTimeStatsLogHistogram src) {
+		for (int i = 0; i < SLOT_LEN; i++) {
+			UNSAFE.getAndAddInt(countSlots, byteOffsetInt(i), src.getCount(i));
+			UNSAFE.getAndAddLong(sumSlots, byteOffsetLong(i), src.getSum(i));
+		}
+	}
+
+	public void set(BasicTimeStatsLogHistogram src) {
+		// no atomic sync, TOCHANGE: may use array copy?
+		for (int i = 0; i < SLOT_LEN; i++) {
+			this.countSlots[i] = src.getCount(i);
+			this.sumSlots[i] = src.getSum(i);
+		}
+	}
 	
 	// ------------------------------------------------------------------------
 
@@ -139,17 +168,7 @@ public final class BasicTimeStatsLogHistogram implements ICopySupport<BasicTimeS
 	
 	@Override /* ICopySupport<> */
 	public BasicTimeStatsLogHistogram copy() {
-		BasicTimeStatsLogHistogram res = new BasicTimeStatsLogHistogram();
-		copyTo(res);
-		return res;
-	}
-
-	public void copyTo(BasicTimeStatsLogHistogram dest) {
-		// TOCHANGE: may use faster Unsafe copy array?
-		for (int i = 0; i < SLOT_LEN; i++) {
-			dest.countSlots[i] = getCount(i);
-			dest.sumSlots[i] = getSum(i);
-		}
+		return new BasicTimeStatsLogHistogram(this);
 	}
 
 	public boolean compareHasChangeCount(BasicTimeStatsLogHistogram cmp) {
@@ -270,15 +289,5 @@ public final class BasicTimeStatsLogHistogram implements ICopySupport<BasicTimeS
         return ((long) i << shiftLong) + ARRAY_BASE_OFFSET;
     }
 
-    
-	public int getCount(int index) {
-		assert index >= 0 && index < SLOT_LEN;
-		return UNSAFE.getIntVolatile(countSlots, byteOffsetInt(index));
-	}
-	
-	public long getSum(int index) {
-		assert index >= 0 && index < SLOT_LEN;
-		return UNSAFE.getLongVolatile(sumSlots, byteOffsetLong(index));
-	}
 
 }

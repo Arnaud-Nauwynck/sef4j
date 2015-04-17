@@ -1,8 +1,8 @@
 package org.sef4j.core.api.proptree;
 
 import java.util.Collection;
-import java.util.List;
 import java.util.Map;
+import java.util.function.Predicate;
 
 /**
  * copy Mapper for PropTreeNode -> PropTreeNodeDTO
@@ -31,13 +31,21 @@ public class PropTreeNodeMapper {
 		public final String propName;
 		public final String destPropName;
 		public final PropTreeValueMapper mapper;
-		public final PropTreeValuePredicate predicate;
+		public final PropTreeValuePredicate<Object> propPredicate;
+		public final Predicate<Object> valuePredicate;
 		
-		public PropMapperEntry(String propName, String destPropName, PropTreeValueMapper mapper, PropTreeValuePredicate predicate) {
+		@SuppressWarnings("unchecked")
+		public PropMapperEntry(String propName, String destPropName, 
+				PropTreeValueMapper mapper, 
+				PropTreeValuePredicate<?> propPredicate,
+				Predicate<?> valuePredicate
+				) {
 			this.propName = propName;
+			if (destPropName == null) destPropName = propName;
 			this.destPropName = destPropName;
 			this.mapper = mapper;
-			this.predicate = predicate;
+			this.propPredicate = (PropTreeValuePredicate<Object>) propPredicate;
+			this.valuePredicate = (Predicate<Object>) valuePredicate;
 		}
 		
 	}
@@ -82,7 +90,10 @@ public class PropTreeNodeMapper {
 			if (propValue == null) {
 				continue; // value not present on this node
 			}
-			if (e.predicate != null && ! e.predicate.apply(src, propName, propValue)) {
+			if (e.propPredicate != null && ! e.propPredicate.test(src, propName, propValue)) {
+				continue; // ignore this prop!
+			}
+			if (e.valuePredicate != null && ! e.valuePredicate.test(propValue)) {
 				continue; // ignore this prop!
 			}
 			Object destPropValue = e.mapper.mapProp(src, propName, propValue);

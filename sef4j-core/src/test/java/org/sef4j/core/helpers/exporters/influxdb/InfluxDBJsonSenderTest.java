@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import org.hamcrest.Matcher;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.mockito.internal.matchers.ArrayEquals;

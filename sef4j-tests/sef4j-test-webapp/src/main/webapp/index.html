@@ -1,4 +1,4 @@
-<!doctype html>
+<html>
     <head>
         <meta charset="utf-8">
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,26 +8,6 @@
         <!-- build:css(.tmp) styles/main.css
         <link rel="stylesheet" href="styles/main.css">
          -->
-        <!-- endbuild -->
-    </head>
-    <body ng-app="testwebapp">
-
-		<a href="#/home">home</a>
-		<a href="#/products">products</a>
-		<a href="#/statsTreeMetrics">statsTree</a>
-		<a href="#/other">other</a>
-
-
-
-        <div class="container">
-            <div ng-view></div>
-
-            <div class="footer">
-                <p> <a href="#/home">home</a> </p>
-            </div>
-        </div>
-
-
 
         <!-- build:js scripts/scripts.js -->
         <script src="bower_components/jquery/dist/jquery.js"></script>
@@ -42,11 +22,34 @@
 
         <script src="features/product/product-controller.js"></script>
         <script src="features/product/product-service.js"></script>
+        <script src="features/statsTree/statsTreeUtils.js"></script>
+        <script src="features/statsTree/pendingCountTree-controller.js"></script>
         <script src="features/statsTree/statsTree-controller.js"></script>
         <!-- endbuild -->
         
         <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.css" />    
         <link rel="stylesheet" href="bower_components/ng-table/dist/ng-table.css" />
+
+        <!-- endbuild -->
+    </head>
+    <body ng-app="testwebapp">
+
+		<a href="#/home">home</a>
+		<a href="#/products">products</a>
+		<a href="#/pendingCountTree">pendingCount</a>
+		<a href="#/statsTreeMetrics">stats</a>
+		<a href="#/other">other</a>
+
+
+
+        <div class="container">
+            <div ng-view></div>
+
+            <div class="footer">
+                <p> <a href="#/home">home</a> </p>
+            </div>
+        </div>
+
         
 </body>
 </html>

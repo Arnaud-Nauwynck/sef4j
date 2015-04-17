@@ -23,6 +23,10 @@ public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 	public PendingPerfCount() {
 	}
 
+	public PendingPerfCount(PendingPerfCount src) {
+		set(src);
+	}
+
 	public static final Callable<PendingPerfCount> FACTORY = new Callable<PendingPerfCount>() {
 		@Override
 		public PendingPerfCount call() throws Exception {
@@ -40,11 +44,6 @@ public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 		return UNSAFE.getLongVolatile(this, pendingSumStartTimeFieldOffset);
 	}
 
-	public void copyTo(PendingPerfCount dest) {
-		dest.pendingCount = getPendingCount();
-		dest.pendingSumStartTime = getPendingSumStartTime();
-	}
-
 	@Override /* java.lang.Object */
 	public PendingPerfCount clone() {
 		return copy();
@@ -52,20 +51,24 @@ public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 	
 	@Override /* ICopySupport<> */
 	public PendingPerfCount copy() {
-		PendingPerfCount res = new PendingPerfCount();
-		copyTo(res);
-		return res;
+		return new PendingPerfCount(this);
 	}
 
-
 	public void set(PendingPerfCount src) {
-		src.copyTo(this);
+		this.pendingCount = src.getPendingCount();
+		this.pendingSumStartTime = src.getPendingSumStartTime();
 	}
 
 	public void clear() {
 		UNSAFE.getAndSetInt(this, pendingCountFieldOffset, 0);
 		UNSAFE.getAndSetLong(this, pendingSumStartTimeFieldOffset, 0L);
 	}
+
+	public void incr(PendingPerfCount src) {
+		UNSAFE.getAndAddInt(this, pendingCountFieldOffset, src.getPendingCount()); 
+		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, src.getPendingSumStartTime()); 
+	}
+
 
 	// ------------------------------------------------------------------------
 	

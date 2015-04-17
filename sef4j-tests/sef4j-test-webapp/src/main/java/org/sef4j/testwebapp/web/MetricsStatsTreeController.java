@@ -1,20 +1,15 @@
 package org.sef4j.testwebapp.web;
 
 import java.io.Closeable;
-import java.util.HashMap;
-import java.util.Map;
 
 import org.sef4j.callstack.CallStackElt.StackPopper;
 import org.sef4j.callstack.CallStackPushPopHandler;
 import org.sef4j.callstack.LocalCallStack;
 import org.sef4j.callstack.handlers.CallTreeStatsUpdaterCallStackHandler;
-import org.sef4j.callstack.stats.PerfStatsUtils;
-import org.sef4j.callstack.stats.CumulatedBasicTimeStatsLogHistogramDTO.CumulatedBasicTimeStatsLogHistogramDTOMapper;
+import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapperUtils;
 import org.sef4j.core.api.proptree.PropTreeNode;
 import org.sef4j.core.api.proptree.PropTreeNodeDTO;
 import org.sef4j.core.api.proptree.PropTreeNodeMapper;
-import org.sef4j.core.api.proptree.PropTreeValueMapper;
-import org.sef4j.core.api.proptree.PropTreeValuePredicate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -31,20 +26,44 @@ public class MetricsStatsTreeController {
     private static final PropTreeNode rootWSStatsNode = PropTreeNode.newRoot();
     private static final CallTreeStatsUpdaterCallStackHandler callTreeWSStatsHandler = new CallTreeStatsUpdaterCallStackHandler(rootWSStatsNode);
 
-    private PropTreeNodeMapper propTreeNodeDTOMapper = PerfStatsUtils.createDefaultPerfStatsDTOMapper();
+    private PropTreeNodeMapper defaultPropTreeNodeDTOMapper = 
+    		PerfStatsDTOMapperUtils.createDTOMapper();
     
+    private PropTreeNodeMapper pendingPropTreeNodeDTOMapper = 
+    		PerfStatsDTOMapperUtils.createPropExtractorDTOMapper(true, false, false, false, 0, 0, 0);
+
     public MetricsStatsTreeController() {
     }
     
-    @RequestMapping(value="all", method=RequestMethod.GET)
+    @RequestMapping(value="stats", method=RequestMethod.GET)
 	public PropTreeNodeDTO findAll() {
         LOG.info("findAll");
 	    PropTreeNodeDTO res = PropTreeNodeDTO.newRoot();
-	    propTreeNodeDTOMapper.recursiveCopyToDTO(rootWSStatsNode, res, -1);
+	    defaultPropTreeNodeDTOMapper.recursiveCopyToDTO(rootWSStatsNode, res, -1);
 	    return res;
 	}
 
+    @RequestMapping(value="statsFilterByMin", method=RequestMethod.GET)
+	public PropTreeNodeDTO findFilterByMin(
+			int filterMinPendingCount, int filterMinCount, 
+			long filterMinSumElapsed, long filterMinSumThreadUserTime, long filterMinSumThreadCpuTime
+			) {
+        LOG.info("findFilterByMin");
+	    PropTreeNodeDTO res = PropTreeNodeDTO.newRoot();
+	    PropTreeNodeMapper mapper = PerfStatsDTOMapperUtils.createDTOMapper(
+	    		filterMinPendingCount, filterMinCount, 
+	    		filterMinSumElapsed, filterMinSumThreadUserTime, filterMinSumThreadCpuTime);
+	    mapper.recursiveCopyToDTO(rootWSStatsNode, res, -1);
+	    return res;
+	}
 
+    @RequestMapping(value="pendingCount", method=RequestMethod.GET)
+	public PropTreeNodeDTO findAllPending() {
+        LOG.info("findAll");
+	    PropTreeNodeDTO res = PropTreeNodeDTO.newRoot();
+	    pendingPropTreeNodeDTOMapper.recursiveCopyToDTO(rootWSStatsNode, res, -1);
+	    return res;
+	}
 	
 	public static StatsHandlerPopper pushStats(String className, String categoryMethod, String methodName) {
 	    return new StatsHandlerPopper(callTreeWSStatsHandler, className, categoryMethod, methodName);

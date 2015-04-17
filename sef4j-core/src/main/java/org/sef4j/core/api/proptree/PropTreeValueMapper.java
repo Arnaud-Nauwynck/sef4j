@@ -1,7 +1,5 @@
 package org.sef4j.core.api.proptree;
 
-import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
-import org.sef4j.callstack.stats.CumulatedBasicTimeStatsLogHistogramDTO;
 
 /**
  * 

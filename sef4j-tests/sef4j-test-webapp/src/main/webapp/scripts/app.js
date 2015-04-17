@@ -17,6 +17,9 @@ testwebapp.config(function ($routeProvider, $httpProvider) {
             templateUrl: 'features/home/home.html',
             controller: 'HomeController'
         })
+        .when('/pendingCountTree', {
+        	templateUrl: 'features/statsTree/pendingCountTree.html'
+        })
         .when('/statsTreeMetrics', {
         	templateUrl: 'features/statsTree/statsTree.html'
         })

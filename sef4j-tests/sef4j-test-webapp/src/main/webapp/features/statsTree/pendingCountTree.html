@@ -1,27 +1,23 @@
-<div ng-controller="StatsTreeController as statsCtrl">
+<div ng-controller="PendingCountTreeController as pendingCountTreeCtrl">
 
-<button class="btn btn-default" ng-click="statsCtrl.loadStats()">Load</button>
+<button class="btn btn-default" ng-click="pendingCountTreeCtrl.loadPendingCount()">Load Pending</button>
 <br/>
-{{statsCtrl.message}}
+{{pendingCountTreeCtrl.message}}
 
 <!-- 
 ng-table-resizable-columns
  -->
-<table ng-table="statsCtrl.statsTreeTableParams" 
+<table ng-table="pendingCountTreeCtrl.pendingCountTableParams" 
 	show-filter="true" 
-	class="table ng-table-filter ng-table-rowselected">
+	class="table ng-table-filter ng-table-rowselected ">
 	<tbody>
         <tr ng-repeat="e in $data"
         		ng-click="e.$selected = !e.$selected"
                 ng-class="{'active': e.$selected}"> 
-
-			<td data-title="'CountTotal'" sortable="'countTotal'" filter="{ 'countTotal': 'text' }">{{e.countTotal}}</td>
-			<td data-title="'SumTotal'" sortable="'sumTotal'" filter="{ 'sumTotal': 'text' }">{{e.sumTotal}}</td>
-
-			<td data-title="'CountFast'" sortable="'countFast01'" filter="{ 'countFast01': 'text' }">{{e.countFast01}}</td>
-			<td data-title="'SumFast'" sortable="'sumFast01'" filter="{ 'sumFast01': 'text' }">{{e.sumFast01}}</td>
-
             
+			<td data-title="'PendingCount'" sortable="'pendingCount'" filter="{ 'pendingCount': 'text' }">{{e.pendingCount}}</td>
+			<td data-title="'PendingSum'" sortable="'pendingSum'" filter="{ 'pendingSum': 'text' }">{{e.pendingSum}}</td>
+
 			<td data-title="'TreePath'" sortable="'treePath'" filter="{ 'treePath': 'text' }">{{e.treePath}}</td>
 			<td data-title="'ShortTreePath'" sortable="'shortTreePath'" filter="{ 'shortTreePath': 'text' }">{{e.shortTreePath}}</td>
 
@@ -33,10 +29,6 @@ ng-table-resizable-columns
 
 			<td data-title="'className'" sortable="'className'" filter="{ 'className': 'text' }">{{e.className}}</td>
 			<td data-title="'methodName'" sortable="'methodName'" filter="{ 'methodName': 'text' }">{{e.methodName}}</td>
-
-
-			<td data-title="'PendingCount'" sortable="'pendingCount'" filter="{ 'pendingCount': 'text' }">{{e.pendingCount}}</td>
-			<td data-title="'PendingSum'" sortable="'pendingSum'" filter="{ 'pendingSum': 'text' }">{{e.pendingSum}}</td>
 
 
         </tr>

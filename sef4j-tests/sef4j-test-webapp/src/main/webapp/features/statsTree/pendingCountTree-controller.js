@@ -1,14 +1,13 @@
 'use strict';
 
-testwebapp.controller('StatsTreeController', 
-		function ($scope, $filter, $http, ngTableParams, StatsTreeUtils) {
+testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $http, ngTableParams) {
 	var vm = this;
-	
+
 	vm.message = "";
 	vm.depthTreeTableData = 6;
-	vm.statsTreeMetrics = {};
+	vm.pendingCountTreeMetrics = {};
 
-	vm.statsTreeMetricsTableData = 
+	vm.pendingCountTableData = 
 		[
 	    {
 	    	treePath: "a.b.Class1:method1 / a.b.Class2:method2 / a.b.Class3:method3",
@@ -21,16 +20,12 @@ testwebapp.controller('StatsTreeController',
 	    	methodName: "method3",
 
 			pendingCount: 0,
-			pendingSum: 0,
-			countTotal: 10,
-			sumTotal: 2090,
-			countFast01: 9,
-			sumFast01: 90
-	    }
+			pendingSum: 0
+	    }	    
 	    ];
 
 
-	var recursiveStatsTreeToStatsTableData = function(res, tree, 
+	var recursivePendingCountTreeToTableData = function(res, tree, 
 			rootClassName, rootMethodName,
 			parentPath, parentShortPath, parentClassName, parentMethodName, 
 			remainDepth) {
@@ -49,8 +44,7 @@ testwebapp.controller('StatsTreeController',
 		var perfStats = (tree.propsMap != null)? tree.propsMap['stats'] : null;
 		if (perfStats) {
 			var elapsed = perfStats.elapsedTimeStats;
-			var elapsedCumulatedCounts = elapsed.cumulatedCountSlots;
-			var elapsedCumulatedSums = elapsed.cumulatedSumSlots;
+			var elapsedSlots = elapsed.slotInfoCopy;
 			var resElt = {
 		    	treePath: currPath,
 		    	shortTreePath: currShortPath,
@@ -63,13 +57,6 @@ testwebapp.controller('StatsTreeController',
 
 		    	pendingCount: perfStats.pendingCounts.pendingCount,
 				pendingSum: perfStats.pendingCounts.pendingSum,
-				countTotal: elapsedCumulatedCounts[9],
-				sumTotal: elapsedCumulatedSums[9],
-				countFast01: elapsedCumulatedCounts[1],
-				sumFast01: elapsedCumulatedSums[1],
-				countMedium: elapsedCumulatedCounts[5],
-				sumMedium: elapsedCumulatedSums[5],
-				
 			};
 			res.push(resElt);
 		}
@@ -79,7 +66,7 @@ testwebapp.controller('StatsTreeController',
 			var remainDepth = (remainDepth == -1)? -1 : remainDepth - 1;
 			jQuery.each(tree.childMap, function(childKey, childValue) {
 				// *** recurse ***
-				recursiveStatsTreeToStatsTableData(res, childValue, 
+				recursivePendingCountTreeToTableData(res, childValue, 
 						rootClassName, rootMethodName,
 						currPath, currShortPath, 
 						className, methodName, 
@@ -89,9 +76,9 @@ testwebapp.controller('StatsTreeController',
 		
 	}
 
-	var statsTreeToStatsTableData = function(src) {
+	var pendingCountTreeToTableData = function(src) {
 		var res = [];
-		recursiveStatsTreeToStatsTableData(res, src, 
+		recursivePendingCountTreeToTableData(res, src, 
 				'', '', 
 				'', '',
 				'', '',
@@ -99,22 +86,22 @@ testwebapp.controller('StatsTreeController',
 		return res;
 	}
 
-	
-	vm.loadStats = function() {
+
+	vm.loadPendingCount = function() {
 		vm.message = "Loading...";
-		$http.get('app/rest/metricsStatsTree/stats')
+		$http.get('app/rest/metricsStatsTree/pendingCount')
         .success(function(response, status) {
-        	vm.statsTreeMetrics = response;
-        	var resTableData = statsTreeToStatsTableData(response);
+        	vm.pendingCountTreeMetrics = response;
+        	vm.pendingCountTableData = pendingCountTreeToTableData(response);
         	
-        	vm.statsTreeMetricsTableData = resTableData;
-        	vm.statsTreeTableParams.reload();
-        	vm.message = "";
+        	vm.pendingCountTableParams.reload();
+    		vm.message = "";
         });
 	};
+
 	
     
-	vm.statsTreeTableParams = new ngTableParams({
+	vm.pendingCountTableParams = new ngTableParams({
         page: 1,            // show first page
         count: 25,          // count per page
         filter: {
@@ -124,9 +111,9 @@ testwebapp.controller('StatsTreeController',
             //name: 'asc'   // initial sorting
         }
     }, {
-        total: vm.statsTreeMetricsTableData.length, // length of data
+        total: vm.pendingCountTableData.length, // length of data
         getData: function ($defer, params) {
-        	var inputData = vm.statsTreeMetricsTableData;
+        	var inputData = vm.pendingCountTableData;
             var filteredData = params.filter() ?
                     $filter('filter')(inputData, params.filter()) :
                     data;
@@ -138,7 +125,7 @@ testwebapp.controller('StatsTreeController',
         }
     });
 
+	
 	// init
-	vm.loadStats();	
+	vm.loadPendingCount();
 });
-

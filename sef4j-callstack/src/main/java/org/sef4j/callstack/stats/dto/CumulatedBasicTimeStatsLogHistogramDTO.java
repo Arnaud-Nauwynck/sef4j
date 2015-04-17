@@ -1,7 +1,8 @@
-package org.sef4j.callstack.stats;
+package org.sef4j.callstack.stats.dto;
 
+import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
+import org.sef4j.callstack.stats.ThreadTimeUtils;
 import org.sef4j.core.api.proptree.ICopySupport;
-import org.sef4j.core.api.proptree.PropTreeNode;
 import org.sef4j.core.api.proptree.PropTreeValueMapper.AbstractTypedPropTreeValueMapper;
 
 
@@ -59,6 +60,10 @@ public final class CumulatedBasicTimeStatsLogHistogramDTO implements ICopySuppor
 	public CumulatedBasicTimeStatsLogHistogramDTO() {
 	}
 
+	public CumulatedBasicTimeStatsLogHistogramDTO(CumulatedBasicTimeStatsLogHistogramDTO src) {
+		set(src);
+	}
+
 	public CumulatedBasicTimeStatsLogHistogramDTO(BasicTimeStatsLogHistogram src) {
 		incr(src);
 	}
@@ -105,7 +110,7 @@ public final class CumulatedBasicTimeStatsLogHistogramDTO implements ICopySuppor
 		long cumulSum = 0;
 		for (int i = 0; i < SLOT_LEN; i++) {
 			cumulCount += src.getCount(i);
-			cumulSum += ThreadTimeUtils.approxMillisToMillis(src.getSum(i));
+			cumulSum += ThreadTimeUtils.nanosToMillis(src.getSum(i));
 			cumulatedCountSlots[i] = cumulCount;
 			cumulatedSumSlots[i] = cumulSum;
 		}
@@ -118,23 +123,6 @@ public final class CumulatedBasicTimeStatsLogHistogramDTO implements ICopySuppor
 		}
 	}
 
-//	/** @return copy of all slots */
-//	public BasicTimeStatsSlotInfo[] getCumulatedSlotInfo() {
-//		BasicTimeStatsSlotInfo[] res = new BasicTimeStatsSlotInfo[SLOT_LEN];
-//		for (int i = 0; i < SLOT_LEN; i++) {
-//			BasicTimeStatsSlotInfo slotInfo = SLOT_INFOS[i];
-//			res[i] = new BasicTimeStatsSlotInfo(slotInfo.getFrom(), slotInfo.getTo(), getCount(i), getSum(i));
-//		}
-//		return res;
-//	}
-//
-//	/** @return copy of nth-slot */
-//	public BasicTimeStatsSlotInfo getCumulatedSlotInfoAt(int i) {
-//		if (i < 0 || i >= SLOT_LEN) throw new ArrayIndexOutOfBoundsException();
-//		BasicTimeStatsSlotInfo slotInfo = SLOT_INFOS[i];
-//		return new BasicTimeStatsSlotInfo(slotInfo.getFrom(), slotInfo.getTo(), getCumulatedCount(i), getCumulatedSum(i));
-//	}
-
 	@Override /* java.lang.Object */
 	public CumulatedBasicTimeStatsLogHistogramDTO clone() {
 		return copy();
@@ -142,14 +130,12 @@ public final class CumulatedBasicTimeStatsLogHistogramDTO implements ICopySuppor
 	
 	@Override /* ICopySupport<> */
 	public CumulatedBasicTimeStatsLogHistogramDTO copy() {
-		CumulatedBasicTimeStatsLogHistogramDTO res = new CumulatedBasicTimeStatsLogHistogramDTO();
-		copyTo(res);
-		return res;
+		return new CumulatedBasicTimeStatsLogHistogramDTO(this);
 	}
 
-	public void copyTo(CumulatedBasicTimeStatsLogHistogramDTO dest) {
-		System.arraycopy(cumulatedCountSlots, 0, dest.cumulatedCountSlots, 0, SLOT_LEN);
-		System.arraycopy(cumulatedSumSlots, 0, dest.cumulatedSumSlots, 0, SLOT_LEN);
+	public void set(CumulatedBasicTimeStatsLogHistogramDTO src) {
+		System.arraycopy(src.cumulatedCountSlots, 0, cumulatedCountSlots, 0, SLOT_LEN);
+		System.arraycopy(src.cumulatedSumSlots, 0, cumulatedSumSlots, 0, SLOT_LEN);
 	}
 
 	public boolean compareHasChangeCount(CumulatedBasicTimeStatsLogHistogramDTO cmp) {

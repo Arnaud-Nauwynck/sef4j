@@ -1,21 +1,31 @@
 package org.sef4j.core.api.proptree;
 
-@FunctionalInterface
-public interface PropTreeValuePredicate {
+import java.util.function.Predicate;
 
-	boolean apply(PropTreeNode node, String propName, Object propValue);
+@FunctionalInterface
+public interface PropTreeValuePredicate<T> {
+
+	boolean test(PropTreeNode node, String propName, T propValue);
 
 	
 	// ------------------------------------------------------------------------
-	
-	public static abstract class AbstractTypedPropTreeValuePredicate<T> implements PropTreeValuePredicate {
 
-		@SuppressWarnings("unchecked")
-		public boolean apply(PropTreeNode node, String propName, Object propValue) {
-			return apply((T) propValue);
+	public static class DelegatePropTreeValuePredicate<T> implements PropTreeValuePredicate<T> {
+		private final Predicate<T> delegate;
+		
+		public DelegatePropTreeValuePredicate(Predicate<T> delegate) {
+			this.delegate = delegate;
 		}
 
-		public abstract boolean apply(T propValue);
+		public static <T> DelegatePropTreeValuePredicate<T> wrapOrNull(Predicate<T> delegate) {
+			return delegate != null? new DelegatePropTreeValuePredicate<T>(delegate) : null;
+		}
+		
+		@SuppressWarnings("unchecked")
+		public boolean test(PropTreeNode node, String propName, Object propValue) {
+			return delegate.test((T) propValue);
+		}
+
 	}
 	
 }

@@ -1,11 +1,9 @@
 package org.sef4j.jdbc.optional.tomcatpool;
 
-import java.sql.Connection;
 import java.sql.SQLException;
 
 import javax.sql.DataSource;
 
-import org.apache.tomcat.jdbc.pool.ConnectionPool;
 import org.apache.tomcat.jdbc.pool.PoolConfiguration;
 import org.sef4j.jdbc.wrappers.SefDataSourceProxy;
 import org.slf4j.Logger;

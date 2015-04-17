@@ -110,6 +110,9 @@ public final class PropTreeNodeDTO implements Serializable {
 
 	@SuppressWarnings("unchecked")
 	public <T> T putProp(String propName, T propValue) {
+		if (propsMap == null) {
+			propsMap = new HashMap<String, Object>();
+		}
 		return (T) propsMap.put(propName, propValue);
 	}
 

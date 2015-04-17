@@ -1,12 +1,11 @@
 package org.sef4j.callstack.stats;
 
 import java.util.concurrent.Callable;
+import java.util.function.Predicate;
 
 import org.sef4j.callstack.CallStackElt;
+import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram.MinCountPropTreeValuePredicate;
 import org.sef4j.core.api.proptree.ICopySupport;
-import org.sef4j.core.api.proptree.PropTreeNode;
-import org.sef4j.core.api.proptree.PropTreeValueMapper.AbstractTypedPropTreeValueMapper;
-import org.sef4j.core.api.proptree.PropTreeValuePredicate.AbstractTypedPropTreeValuePredicate;
 
 /**
  * class for aggregating PendingPerfCount + BasicTimeStatsLogHistogram (elapsed,threadUser,threadCpu)
@@ -26,55 +25,17 @@ public final class PerfStats implements ICopySupport<PerfStats> {
 	public PerfStats() {
 	}
 
+	public PerfStats(PerfStats src) {
+		set(src);
+	}
+
 	public static final Callable<PerfStats> FACTORY = new Callable<PerfStats>() {
         @Override
         public PerfStats call() throws Exception {
             return new PerfStats();
         }
     };
-
-	public static final class PendingPerfCountDTOMapper extends AbstractTypedPropTreeValueMapper<PerfStats,PendingPerfCount> {
-		public static final PendingPerfCountDTOMapper INSTANCE = new PendingPerfCountDTOMapper();
-		public PendingPerfCount mapProp(PerfStats src) {
-			return src.pendingCounts.copy();
-		}
-	}
-
-	public static class MinCountPropTreeValuePredicate extends AbstractTypedPropTreeValuePredicate<PerfStats> {
-		public static final MinCountPropTreeValuePredicate INSTANCE = new MinCountPropTreeValuePredicate(0);
-		
-		private final int minCount;
-		public MinCountPropTreeValuePredicate(int minCount) {
-			this.minCount = minCount;
-		}
-
-		@Override
-		public boolean apply(PerfStats src) {
-			return src.pendingCounts.getPendingCount() > minCount;
-		}
-		
-	}
 	
-	public static final class CumulatedElapsedBasicTimeStatsLogHistogramDTOMapper 
-			extends AbstractTypedPropTreeValueMapper<PerfStats,CumulatedBasicTimeStatsLogHistogramDTO> {
-		public static final CumulatedElapsedBasicTimeStatsLogHistogramDTOMapper INSTANCE = new CumulatedElapsedBasicTimeStatsLogHistogramDTOMapper();
-		public CumulatedBasicTimeStatsLogHistogramDTO mapProp(PerfStats src) {
-			return new CumulatedBasicTimeStatsLogHistogramDTO(src.elapsedTimeStats);
-		}
-	}
-	public static final class CumulatedThreadUserBasicTimeStatsLogHistogramDTOMapper extends AbstractTypedPropTreeValueMapper<PerfStats,CumulatedBasicTimeStatsLogHistogramDTO> {
-		public static final CumulatedThreadUserBasicTimeStatsLogHistogramDTOMapper INSTANCE = new CumulatedThreadUserBasicTimeStatsLogHistogramDTOMapper();
-		public CumulatedBasicTimeStatsLogHistogramDTO mapProp(PerfStats src) {
-			return new CumulatedBasicTimeStatsLogHistogramDTO(src.threadUserTimeStats);
-		}
-	}
-	public static final class CumulatedThreadCpuBasicTimeStatsLogHistogramDTOMapper extends AbstractTypedPropTreeValueMapper<PerfStats,CumulatedBasicTimeStatsLogHistogramDTO> {
-		public static final CumulatedThreadCpuBasicTimeStatsLogHistogramDTOMapper INSTANCE = new CumulatedThreadCpuBasicTimeStatsLogHistogramDTOMapper();
-		public CumulatedBasicTimeStatsLogHistogramDTO mapProp(PerfStats src) {
-			return new CumulatedBasicTimeStatsLogHistogramDTO(src.threadCpuTimeStats);
-		}
-	}
-
 	// ------------------------------------------------------------------------
 
 	public PendingPerfCount getPendingCounts() {
@@ -101,14 +62,6 @@ public final class PerfStats implements ICopySupport<PerfStats> {
 		return pendingCounts.getPendingSumStartTime();
 	}
 
-	public void copyTo(PerfStats dest) {
-		elapsedTimeStats.copyTo(dest.elapsedTimeStats);
-		threadUserTimeStats.copyTo(dest.threadUserTimeStats);
-		threadCpuTimeStats.copyTo(dest.threadCpuTimeStats);
-
-		pendingCounts.copyTo(dest.pendingCounts);
-	}
-
 	@Override /* java.lang.Object */
 	public PerfStats clone() {
 		return copy();
@@ -116,13 +69,15 @@ public final class PerfStats implements ICopySupport<PerfStats> {
 	
 	@Override /* ICopySupport<> */
 	public PerfStats copy() {
-		PerfStats res = new PerfStats();
-		copyTo(res);
-		return res;
+		return new PerfStats(this);
 	}
 
 	public void set(PerfStats src) {
-		src.copyTo(this);
+		this.elapsedTimeStats.set(src.elapsedTimeStats);
+		threadUserTimeStats.set(src.threadUserTimeStats);
+		threadCpuTimeStats.set(src.threadCpuTimeStats);
+
+		pendingCounts.set(src.pendingCounts);
 	}
 
 	// ------------------------------------------------------------------------

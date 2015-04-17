@@ -127,65 +127,83 @@ public class SefPreparedStatementProxy extends SefStatementProxy implements Prep
     // ------------------------------------------------------------------------
 
     public final ResultSet executeQuery() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth(CNAME, "executeQuery").push();
+        StackPopper toPop1 = LocalCallStack.meth(CNAME, "executeQuery").push();
         try {
-            ResultSet tmpres = to.executeQuery();
-
-            // SefResultSetProxy res = new SefResultSetProxy(this, tmpres);
-            ResultSet res = tmpres; // TODO temp disable proxy
-            
-            return toPop.returnValue(res);
-        } catch(SQLException ex) {
-            throw toPop.returnException(ex);
-        } catch(RuntimeException ex) {
-            throw toPop.returnException(ex);
+        	StackPopper toPop = LocalCallStack.meth(CNAME, sqlQuery).pushWithParentStartTime();
+	        try {
+	            ResultSet tmpres = to.executeQuery();
+	
+	            SefResultSetProxy res = new SefResultSetProxy(this, tmpres);
+	            return toPop.returnValue(res);
+	        } catch(SQLException ex) {
+	            throw toPop.returnException(ex);
+	        } catch(RuntimeException ex) {
+	            throw toPop.returnException(ex);
+	        } finally {
+	            toPop.close();
+	        }
         } finally {
-            toPop.close();
-        }
+        	toPop1.close();
+        }        
     }
 
     public final int executeUpdate() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth(CNAME, "executeUpdate").push();
+        StackPopper toPop1 = LocalCallStack.meth(CNAME, "executeUpdate").push();
         try {
-            int res = to.executeUpdate();
-
-            return toPop.returnValue(res);
-        } catch(SQLException ex) {
-            throw toPop.returnException(ex);
-        } catch(RuntimeException ex) {
-            throw toPop.returnException(ex);
+        	StackPopper toPop = LocalCallStack.meth(CNAME, sqlQuery).pushWithParentStartTime();
+	        try {
+	            int res = to.executeUpdate();
+	
+	            return toPop.returnValue(res);
+	        } catch(SQLException ex) {
+	            throw toPop.returnException(ex);
+	        } catch(RuntimeException ex) {
+	            throw toPop.returnException(ex);
+	        } finally {
+	            toPop.close();
+	        }
         } finally {
-            toPop.close();
-        }
+        	toPop1.close();
+        }        
     }
 
     public final boolean execute() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth(CNAME, "execute").push();
+        StackPopper toPop1 = LocalCallStack.meth(CNAME, "execute").push();
         try {
-            boolean res = to.execute();
-
-            return toPop.returnValue(res);
-        } catch(SQLException ex) {
-            throw toPop.returnException(ex);
-        } catch(RuntimeException ex) {
-            throw toPop.returnException(ex);
+        	StackPopper toPop = LocalCallStack.meth(CNAME, sqlQuery).pushWithParentStartTime();
+	        try {
+	            boolean res = to.execute();
+	
+	            return toPop.returnValue(res);
+	        } catch(SQLException ex) {
+	            throw toPop.returnException(ex);
+	        } catch(RuntimeException ex) {
+	            throw toPop.returnException(ex);
+	        } finally {
+	            toPop.close();
+	        }
         } finally {
-            toPop.close();
-        }
+        	toPop1.close();
+        }        
     }
 
     public final void addBatch() throws SQLException {
-        StackPopper toPop = LocalCallStack.meth(CNAME, "addBatch").push();
+        StackPopper toPop1 = LocalCallStack.meth(CNAME, "addBatch").push();
         try {
-            to.addBatch();
-
-        } catch(SQLException ex) {
-            throw toPop.returnException(ex);
-        } catch(RuntimeException ex) {
-            throw toPop.returnException(ex);
+        	StackPopper toPop = LocalCallStack.meth(CNAME, sqlQuery).pushWithParentStartTime();
+	        try {
+	            to.addBatch();
+	
+	        } catch(SQLException ex) {
+	            throw toPop.returnException(ex);
+	        } catch(RuntimeException ex) {
+	            throw toPop.returnException(ex);
+	        } finally {
+	            toPop.close();
+	        }
         } finally {
-            toPop.close();
-        }
+        	toPop1.close();
+        }        
     }
 
     public final ResultSetMetaData getMetaData() throws SQLException {

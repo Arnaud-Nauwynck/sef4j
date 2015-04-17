@@ -215,8 +215,8 @@ public class BasicStatIgnorePendingChangeCollectorTest {
 
 	
 	private static void assertStats(int expectedCount, long expectedSumElapsedTime, PerfStats actual) {
-		Assert.assertEquals(expectedCount, actual.getElapsedTimeStats().getSlotsCount());
-		Assert.assertEquals(expectedSumElapsedTime, actual.getElapsedTimeStats().getSlotsSum());
+		Assert.assertEquals(expectedCount, actual.getElapsedTimeStats().cumulatedCount());
+		Assert.assertEquals(expectedSumElapsedTime, actual.getElapsedTimeStats().cumulatedSum());
 	}
 
 }

@@ -1,5 +1,7 @@
 package org.sef4j.core.api.proptree;
 
+import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -25,31 +27,27 @@ import java.util.Map;
  */
 public class PropTreeNodeMapper {
 
-	// equivalent to... private Map<String,PropTreeValueMapper> propsMapper;
-	// faster for only iterating: list of Pair, or 2 array..
-	private final String[] propMapperKeys;
-	private final PropTreeValueMapper[] propMapperValues;
+	public static class PropMapperEntry {
+		public final String propName;
+		public final String destPropName;
+		public final PropTreeValueMapper mapper;
+		public final PropTreeValuePredicate predicate;
+		
+		public PropMapperEntry(String propName, String destPropName, PropTreeValueMapper mapper, PropTreeValuePredicate predicate) {
+			this.propName = propName;
+			this.destPropName = destPropName;
+			this.mapper = mapper;
+			this.predicate = predicate;
+		}
+		
+	}
 	
-	private final PropTreeValuePredicate[] propPredicates;
+	private final PropMapperEntry[] propMapperEntries;
 	
 	// ------------------------------------------------------------------------
 
-	public PropTreeNodeMapper(Map<String,PropTreeValueMapper> propsMapper,
-			Map<String,PropTreeValuePredicate> optionalPropPredicates) {
-		// equivalent to... this.propsMapper = new LinkedHashMap<String,PropTreeValueMapper>(propsMapper);
-		String keys[] = new String[propsMapper.size()];
-		PropTreeValueMapper[] values = new PropTreeValueMapper[propsMapper.size()];
-		PropTreeValuePredicate[] predicates = new PropTreeValuePredicate[propsMapper.size()];
-		int i = 0;
-		for(Map.Entry<String,PropTreeValueMapper> e : propsMapper.entrySet()) {
-			keys[i] = e.getKey();
-			values[i] = e.getValue();
-			predicates[i] = (optionalPropPredicates != null)? optionalPropPredicates.get(keys[i]) : null;
-			i++;
-		}
-		this.propMapperKeys = keys;
-		this.propMapperValues = values;
-		this.propPredicates = predicates;
+	public PropTreeNodeMapper(Collection<PropMapperEntry> mapperEntries) {
+		this.propMapperEntries = mapperEntries.toArray(new PropMapperEntry[mapperEntries.size()]);
 	}
 
 	// ------------------------------------------------------------------------
@@ -78,19 +76,18 @@ public class PropTreeNodeMapper {
 
 	protected  void copyPropValues(PropTreeNode src, PropTreeNodeDTO dest) {
 		Map<String, Object> propsMap = src.getPropsMap(); // read-only ref (copy-on-write field)
-		final int len = this.propMapperKeys.length;
-		for (int i = 0; i < len; i++) {
-			String propName = propMapperKeys[i];
+		for (PropMapperEntry e : propMapperEntries) {
+			String propName = e.propName;
 			Object propValue = propsMap.get(propName);
 			if (propValue == null) {
 				continue; // value not present on this node
 			}
-			if (propPredicates[i] != null && ! propPredicates[i].apply(src, propName, propValue)) {
+			if (e.predicate != null && ! e.predicate.apply(src, propName, propValue)) {
 				continue; // ignore this prop!
 			}
-			Object destPropValue = propMapperValues[i].mapProp(src, propName, propValue);
+			Object destPropValue = e.mapper.mapProp(src, propName, propValue);
 			if (destPropValue != null) {
-				dest.putProp(propName, destPropValue);
+				dest.putProp(e.destPropName, destPropValue);
 			}
 		}
 	}

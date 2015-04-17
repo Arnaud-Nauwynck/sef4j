@@ -31,7 +31,7 @@ public class MetricsStatsTreeController {
     private static final PropTreeNode rootWSStatsNode = PropTreeNode.newRoot();
     private static final CallTreeStatsUpdaterCallStackHandler callTreeWSStatsHandler = new CallTreeStatsUpdaterCallStackHandler(rootWSStatsNode);
 
-    private PropTreeNodeMapper propTreeNodeDTOMapper = PerfStatsUtils.defaultPerfStatsDTOMapper();
+    private PropTreeNodeMapper propTreeNodeDTOMapper = PerfStatsUtils.createDefaultPerfStatsDTOMapper();
     
     public MetricsStatsTreeController() {
     }

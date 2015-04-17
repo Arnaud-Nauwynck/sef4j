@@ -3,6 +3,7 @@ package org.sef4j.callstack.stats;
 import java.util.concurrent.Callable;
 
 import org.sef4j.core.api.proptree.ICopySupport;
+import org.sef4j.core.api.proptree.PropTreeValuePredicate.AbstractTypedPropTreeValuePredicate;
 
 
 /**
@@ -64,7 +65,27 @@ public final class BasicTimeStatsLogHistogram implements ICopySupport<BasicTimeS
             return new BasicTimeStatsLogHistogram();
         }
     };
-    
+
+
+	public static class MinCountPropTreeValuePredicate extends AbstractTypedPropTreeValuePredicate<BasicTimeStatsLogHistogram> {
+		public static final MinCountPropTreeValuePredicate INSTANCE = new MinCountPropTreeValuePredicate(0, 0);
+		
+		private final int minCount;
+		private final long minSum;
+		public MinCountPropTreeValuePredicate(int minCount, long minSum) {
+			this.minCount = minCount;
+			this.minSum = minSum;
+		}
+
+		@Override
+		public boolean apply(BasicTimeStatsLogHistogram src) {
+			int cumulCount = src.cumulatedCount();
+			long cumulSum = src.cumulatedSum();
+			return cumulCount > minCount || cumulSum > minSum;
+		}
+		
+	}
+	
 	// ------------------------------------------------------------------------
 
 	public void incr(long value) {
@@ -77,7 +98,7 @@ public final class BasicTimeStatsLogHistogram implements ICopySupport<BasicTimeS
 	// ------------------------------------------------------------------------
 
 	/** @return sum of values in all slots */
-	public long getSlotsSum() {
+	public long cumulatedSum() {
 		long res = 0;
 		for (int i = 0; i < SLOT_LEN; i++) {
 			res += getSum(i);
@@ -86,7 +107,7 @@ public final class BasicTimeStatsLogHistogram implements ICopySupport<BasicTimeS
 	}
 
 	/** @return sum of counts in all slots */
-	public int getSlotsCount() {
+	public int cumulatedCount() {
 		int res = 0;
 		for (int i = 0; i < SLOT_LEN; i++) {
 			res += getCount(i);
@@ -142,8 +163,8 @@ public final class BasicTimeStatsLogHistogram implements ICopySupport<BasicTimeS
 
 	@Override
 	public String toString() {
-		long count = getSlotsCount();
-		long avg = (count != 0)? getSlotsSum()/count : 0;
+		long count = cumulatedCount();
+		long avg = (count != 0)? cumulatedSum()/count : 0;
 		return "PerfStatsHistogram ["
 				+ "count:" + count 
 				+ ", avg:" + avg

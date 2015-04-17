@@ -77,13 +77,13 @@ public class CallStackEltTest {
 		}
 		
 		// Post-check
-		long actualElapsedMillis = ThreadTimeUtils.approxMillisToMillis(perfStats.getElapsedTimeStats().getSlotsSum());
+		long actualElapsedMillis = ThreadTimeUtils.approxMillisToMillis(perfStats.getElapsedTimeStats().cumulatedSum());
 		ThreadTimeUtilsTest.assertApproxEquals(threadSleepMillis, 
 				actualElapsedMillis,  PREC_MILLIS);
-		long actualThreadUserMillis = ThreadTimeUtils.approxMillisToMillis(perfStats.getThreadUserTimeStats().getSlotsSum());
+		long actualThreadUserMillis = ThreadTimeUtils.approxMillisToMillis(perfStats.getThreadUserTimeStats().cumulatedSum());
 		ThreadTimeUtilsTest.assertApproxEquals(0, 
 				actualThreadUserMillis,  PREC_MILLIS);
-		long actualThreadCpuMillis = ThreadTimeUtils.approxMillisToMillis(perfStats.getThreadCpuTimeStats().getSlotsSum());
+		long actualThreadCpuMillis = ThreadTimeUtils.approxMillisToMillis(perfStats.getThreadCpuTimeStats().cumulatedSum());
 		ThreadTimeUtilsTest.assertApproxEquals(0, 
 				actualThreadCpuMillis,  PREC_MILLIS);		
 	}
@@ -110,9 +110,9 @@ public class CallStackEltTest {
 		}
 		
 		// Post-check
-		long actualElapsedMillis = ThreadTimeUtils.approxMillisToMillis(perfStats.getElapsedTimeStats().getSlotsSum());
-		long actualThreadUserMillis = ThreadTimeUtils.approxMillisToMillis(perfStats.getThreadUserTimeStats().getSlotsSum());
-		long actualThreadCpuMillis = ThreadTimeUtils.approxMillisToMillis(perfStats.getThreadCpuTimeStats().getSlotsSum());
+		long actualElapsedMillis = ThreadTimeUtils.approxMillisToMillis(perfStats.getElapsedTimeStats().cumulatedSum());
+		long actualThreadUserMillis = ThreadTimeUtils.approxMillisToMillis(perfStats.getThreadUserTimeStats().cumulatedSum());
+		long actualThreadCpuMillis = ThreadTimeUtils.approxMillisToMillis(perfStats.getThreadCpuTimeStats().cumulatedSum());
 		long expectedLoopMillis = cpuLoopMillis + 3;
 		ThreadTimeUtilsTest.assertApproxEquals(expectedLoopMillis, 
 				actualElapsedMillis,  PREC_MILLIS);

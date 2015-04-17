@@ -31,7 +31,7 @@ public class SinglePerfStatsUpdaterCallStackHandlerTest {
 		foo.fooBar();		
 		// Post-check
 		LocalCallStack.get().curr().removeRootCallStackHandler(sut);
-		Assert.assertEquals(1, perfStats.getElapsedTimeStats().getSlotsCount());
+		Assert.assertEquals(1, perfStats.getElapsedTimeStats().cumulatedCount());
 	}
 	
 }

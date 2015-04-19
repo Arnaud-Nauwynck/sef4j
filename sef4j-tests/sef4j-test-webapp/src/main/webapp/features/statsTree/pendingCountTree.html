@@ -1,7 +1,14 @@
 <div ng-controller="PendingCountTreeController as pendingCountTreeCtrl">
 
-<button class="btn btn-default" ng-click="pendingCountTreeCtrl.loadPendingCount()">Load Pending</button>
+Pending Task Count: <input ng-model="pendingCountTreeCtrl.pendingTaskCount"></input>
+Depth: <input ng-model="pendingCountTreeCtrl.pendingTaskDepth"></input>
+<button class="btn btn-default glyphicon glyphicon-plus" ng-click="pendingCountTreeCtrl.startPendingTask(pendingCountTreeCtrl.pendingTaskCount, pendingCountTreeCtrl.pendingTaskDepth)"> </button>
+<button class="btn btn-default glyphicon glyphicon-minus" ng-click="pendingCountTreeCtrl.stopPendingTask(pendingCountTreeCtrl.pendingTaskCount)"> </button>
 <br/>
+
+<button class="btn btn-default glyphicon glyphicon-refresh" ng-click="pendingCountTreeCtrl.loadPendingCount()"> </button>
+<br/>
+
 {{pendingCountTreeCtrl.message}}
 
 <!-- 

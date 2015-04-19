@@ -7,6 +7,9 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * PropTreeNode are nodes of a Tree, containing property name-values
  * <p/>
@@ -89,6 +92,14 @@ import java.util.concurrent.Callable;
  */
 public class PropTreeNode {
 
+	private static final Logger LOG = LoggerFactory.getLogger(PropTreeNode.class);
+	
+	private static final boolean DEBUG_NEW_NODE = true;
+	private static final boolean DEBUG_NEW_PROP = false;
+	private static int nodeIdGenerator = 1;
+	private final int nodeId = nodeIdGenerator++;
+	
+	
 	private static final LinkedHashMap<String,PropTreeNode> EMPTY_CHILD_MAP = new LinkedHashMap<String, PropTreeNode>();
 	private static final HashMap<String,Object> EMPTY_PROP_MAP = new HashMap<String,Object>();
 
@@ -203,6 +214,10 @@ public class PropTreeNode {
 				newChildMap.putAll(childMap);
 				newChildMap.put(childName, res);
 				this.childMap = newChildMap;
+				
+				if (DEBUG_NEW_NODE) {
+					LOG.info("created node: " + childName + " (" + res.nodeId + ") on parent (" + nodeId + ")");
+				}
 			}
 		}
 		return res;
@@ -242,6 +257,11 @@ public class PropTreeNode {
 				newPropsMap.putAll(propsMap);
 				newPropsMap.put(propName, res);
 				this.propsMap = newPropsMap;
+
+				if (DEBUG_NEW_PROP) {
+					LOG.info("created Prop " + propName + " on node: " + name + " (" + nodeId + ")");
+				}
+			
 			}
 		}
 		return res;
@@ -251,7 +271,11 @@ public class PropTreeNode {
 	public Map<String,Object> getPropsMap() {
 	    return Collections.unmodifiableMap(propsMap);
 	}
-	
+
+	public Object getPropOrNull(String propName) {
+	    return propsMap.get(propName);
+	}
+
 	// ------------------------------------------------------------------------
 	
 

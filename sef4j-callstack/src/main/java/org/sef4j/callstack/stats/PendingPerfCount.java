@@ -72,14 +72,14 @@ public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 
 	// ------------------------------------------------------------------------
 	
-	public void addPending(long currTime) {
+	public void addPending(long startTime) {
 		UNSAFE.getAndAddInt(this, pendingCountFieldOffset, 1); 
-		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, currTime); 
+		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, startTime); 
 	}
 
-	public void removePending(long startedTime) {
+	public void removePending(long startTime) {
 		UNSAFE.getAndAddInt(this, pendingCountFieldOffset, -1); 
-		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, - startedTime); 
+		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, -startTime); 
 	}
 
 	// Helper method using StackElt start/end times
@@ -101,8 +101,7 @@ public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 		final long sum = this.pendingSumStartTime;
 		final long avgApproxMillis = (count != 0)? ThreadTimeUtils.nanosToApproxMillis(sum / count) : 0; 
 		return "PendingPerfCounts[" 
-				+ ((count != 0)? "count:" + count: "")
-				+ ((count != 0)? ", avg:" + avgApproxMillis + " ms": "")
+				+ ((count != 0)? "count:" + count + ", avg:" + avgApproxMillis + " ms": "")
 				+ "]";
 	}
 

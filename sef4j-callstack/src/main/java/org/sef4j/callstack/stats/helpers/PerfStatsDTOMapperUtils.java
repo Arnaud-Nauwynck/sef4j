@@ -1,7 +1,5 @@
 package org.sef4j.callstack.stats.helpers;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.function.Predicate;
 
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
@@ -10,12 +8,13 @@ import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapper.CumulatedElapsedBasi
 import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapper.CumulatedThreadCpuBasicTimeStatsLogHistogramDTOMapper;
 import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapper.CumulatedThreadUserBasicTimeStatsLogHistogramDTOMapper;
 import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapper.PendingPerfCountDTOMapper;
-import org.sef4j.core.api.proptree.PropTreeNodeMapper;
-import org.sef4j.core.api.proptree.PropTreeNodeMapper.PropMapperEntry;
+import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.api.proptree.PropTreeNodeDTOMapper;
+import org.sef4j.core.api.proptree.PropTreeNodeDTOMapper.PropMapperEntry;
 
 public class PerfStatsDTOMapperUtils {
 
-	public static PropTreeNodeMapper createDTOMapper() {
+	public static PropTreeNodeDTOMapper createDTOMapper() {
 		return createDTOMapper(0, 0, 0, 0, 0);
 	}
 
@@ -23,12 +22,10 @@ public class PerfStatsDTOMapperUtils {
 	 * mapper for PropTreeNode (props: PerfStats stats) 
 	 *   -> PropTreeNodeDTO (props: PerfStatsDTO stats)
 	 */
-	public static PropTreeNodeMapper createDTOMapper(
+	public static PropTreeNodeDTOMapper createDTOMapper(
 			int filterMinPendingCount, int filterMinCount, 
 			long filterMinSumElapsed, long filterMinSumThreadUserTime, long filterMinSumThreadCpuTime
 			) {
-		List<PropMapperEntry> propMapperEntries = new ArrayList<PropMapperEntry>();
-
 		final Predicate<PerfStats> pendingCountPred = (filterMinPendingCount != -1)?
 				new PerfStatsPredicates.MinPendingCountPredicate(filterMinPendingCount) : null;
 
@@ -48,31 +45,67 @@ public class PerfStatsDTOMapperUtils {
 			}
 		};
 
-		propMapperEntries.add(new PropMapperEntry("stats", "stats",
+		PropMapperEntry propMap = new PropMapperEntry("stats", "stats",
 				PerfStatsDTOMapper.INSTANCE,
-				null, pred));
+				null, pred);
 
-		return new PropTreeNodeMapper(propMapperEntries);
+		return new PropTreeNodeDTOMapper.Builder()
+			.withPropMapperEntries(propMap)
+			.build();
 	}
 
 	
+	/**
+	 * mapper for PropTreeNode (props: PerfStats stats) 
+	 *   -> PropTreeNodeDTO (props: PendingCount pendingCount)
+	 */
+	public static PropTreeNodeDTOMapper createPendingCountFilterDTOMapper(
+			final int filterMinPendingCount
+			) {
+		Predicate<PerfStats> pred = (filterMinPendingCount != -1)?
+				new PerfStatsPredicates.MinPendingCountPredicate(filterMinPendingCount) : null;
+
+		Predicate<PropTreeNode> recurseNodePredicate = (filterMinPendingCount != -1)?
+				new Predicate<PropTreeNode>() {
+			public boolean test(PropTreeNode node) {
+				PerfStats perfStats = (PerfStats) node.getPropOrNull("perfStats");
+				if (perfStats != null && perfStats.getPendingCount() > filterMinPendingCount) {
+					return true;
+				}
+				return false;
+			}
+		} : null;
+
+		return new PropTreeNodeDTOMapper.Builder()
+			.withPropMapperEntries(new PropMapperEntry("stats", "pending",
+				PendingPerfCountDTOMapper.INSTANCE,
+				null, pred))
+			.withRecuseNodePredicate(recurseNodePredicate)
+			.build();		
+	}
 	
-	public static PropTreeNodeMapper createPropExtractorDTOMapper() {
+				
+	
+	// deprecated ?
+	// ------------------------------------------------------------------------
+	
+	public static PropTreeNodeDTOMapper createPropExtractorDTOMapper() {
 		return createPropExtractorDTOMapper(true, true, true, true,
 				0, 0, 0);
 	}
 	
 	/**
 	 * mapper for PropTreeNode (props: stats) 
-	 *   -> PropTreeNodeDTO (props: stats.pendingCount, stats.cumulElapsedTime, cumulThreadUserTime, cumulThreadCpuTime)
+	 *   -> extract single PerfStats to several DTO properties 
+	 *      PropTreeNodeDTO (props: stats.pendingCount, stats.cumulElapsedTime, cumulThreadUserTime, cumulThreadCpuTime)
 	 */
-	public static PropTreeNodeMapper createPropExtractorDTOMapper(
+	public static PropTreeNodeDTOMapper createPropExtractorDTOMapper(
 			boolean useStatsPendingCount, 
 			boolean useStatsCumulElapsed, boolean useStatsCumulThreadCpu, boolean useStatsCumulThreadUser,
 			int filterMinPendingCount,
 			int filterMinCount, long filterMinSum
 			) {
-		List<PropMapperEntry> propMapperEntries = new ArrayList<PropMapperEntry>();
+		PropTreeNodeDTOMapper.Builder builder = new PropTreeNodeDTOMapper.Builder();
 
 		Predicate<BasicTimeStatsLogHistogram> timeStatsPred = 
 				new BasicTimeStatsLogHistogram.MinCountPropTreeValuePredicate(filterMinCount, filterMinSum);
@@ -81,28 +114,28 @@ public class PerfStatsDTOMapperUtils {
 			Predicate<PerfStats> pred = (filterMinPendingCount != -1)?
 					new PerfStatsPredicates.MinPendingCountPredicate(filterMinPendingCount) : null;
 			 		
-			propMapperEntries.add(new PropMapperEntry("stats", "stats.pendingCount",
+			builder.withPropMapperEntries(new PropMapperEntry("stats", "stats.pendingCount",
 					PendingPerfCountDTOMapper.INSTANCE,
 					null, pred));
 		}
 		if (useStatsCumulElapsed) {
-			propMapperEntries.add(new PropMapperEntry("stats", "stats.cumulElapsedTime",
+			builder.withPropMapperEntries(new PropMapperEntry("stats", "stats.cumulElapsedTime",
 					CumulatedElapsedBasicTimeStatsLogHistogramDTOMapper.INSTANCE,
 					null, timeStatsPred));
 		}
 		if (useStatsCumulThreadUser) {
-			propMapperEntries.add(new PropMapperEntry("stats", "stats.cumulThreadUserTime",
+			builder.withPropMapperEntries(new PropMapperEntry("stats", "stats.cumulThreadUserTime",
 					CumulatedThreadUserBasicTimeStatsLogHistogramDTOMapper.INSTANCE,
 					null, timeStatsPred));
 		}
 
 		if (useStatsCumulThreadCpu) {
-			propMapperEntries.add(new PropMapperEntry("stats", "stats.cumulThreadCpuTime",
+			builder.withPropMapperEntries(new PropMapperEntry("stats", "stats.cumulThreadCpuTime",
 					CumulatedThreadCpuBasicTimeStatsLogHistogramDTOMapper.INSTANCE,
 					null, timeStatsPred));
 		}
 
-		return new PropTreeNodeMapper(propMapperEntries);
+		return builder.build();
 	}
 	
 }

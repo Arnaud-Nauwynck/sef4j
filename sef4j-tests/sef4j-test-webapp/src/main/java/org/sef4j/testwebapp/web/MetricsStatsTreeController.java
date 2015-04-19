@@ -9,7 +9,7 @@ import org.sef4j.callstack.handlers.CallTreeStatsUpdaterCallStackHandler;
 import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapperUtils;
 import org.sef4j.core.api.proptree.PropTreeNode;
 import org.sef4j.core.api.proptree.PropTreeNodeDTO;
-import org.sef4j.core.api.proptree.PropTreeNodeMapper;
+import org.sef4j.core.api.proptree.PropTreeNodeDTOMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -24,22 +24,22 @@ public class MetricsStatsTreeController {
 	private static final Logger LOG = LoggerFactory.getLogger(MetricsStatsTreeController.class);
 
     private static final PropTreeNode rootWSStatsNode = PropTreeNode.newRoot();
-    private static final CallTreeStatsUpdaterCallStackHandler callTreeWSStatsHandler = new CallTreeStatsUpdaterCallStackHandler(rootWSStatsNode);
 
-    private PropTreeNodeMapper defaultPropTreeNodeDTOMapper = 
+    private PropTreeNodeDTOMapper defaultPropTreeNodeDTOMapper = 
     		PerfStatsDTOMapperUtils.createDTOMapper();
     
-    private PropTreeNodeMapper pendingPropTreeNodeDTOMapper = 
-    		PerfStatsDTOMapperUtils.createPropExtractorDTOMapper(true, false, false, false, 0, 0, 0);
+    private PropTreeNodeDTOMapper pendingPropTreeNodeDTOMapper = 
+    		PerfStatsDTOMapperUtils.createPendingCountFilterDTOMapper(0);
 
+    // ------------------------------------------------------------------------
+    
     public MetricsStatsTreeController() {
     }
     
     @RequestMapping(value="stats", method=RequestMethod.GET)
 	public PropTreeNodeDTO findAll() {
         LOG.info("findAll");
-	    PropTreeNodeDTO res = PropTreeNodeDTO.newRoot();
-	    defaultPropTreeNodeDTOMapper.recursiveCopyToDTO(rootWSStatsNode, res, -1);
+	    PropTreeNodeDTO res = defaultPropTreeNodeDTOMapper.map(rootWSStatsNode);
 	    return res;
 	}
 
@@ -49,24 +49,25 @@ public class MetricsStatsTreeController {
 			long filterMinSumElapsed, long filterMinSumThreadUserTime, long filterMinSumThreadCpuTime
 			) {
         LOG.info("findFilterByMin");
-	    PropTreeNodeDTO res = PropTreeNodeDTO.newRoot();
-	    PropTreeNodeMapper mapper = PerfStatsDTOMapperUtils.createDTOMapper(
+	    PropTreeNodeDTOMapper mapper = PerfStatsDTOMapperUtils.createDTOMapper(
 	    		filterMinPendingCount, filterMinCount, 
 	    		filterMinSumElapsed, filterMinSumThreadUserTime, filterMinSumThreadCpuTime);
-	    mapper.recursiveCopyToDTO(rootWSStatsNode, res, -1);
+	    PropTreeNodeDTO res = mapper.map(rootWSStatsNode);
 	    return res;
 	}
 
     @RequestMapping(value="pendingCount", method=RequestMethod.GET)
 	public PropTreeNodeDTO findAllPending() {
         LOG.info("findAll");
-	    PropTreeNodeDTO res = PropTreeNodeDTO.newRoot();
-	    pendingPropTreeNodeDTOMapper.recursiveCopyToDTO(rootWSStatsNode, res, -1);
+	    PropTreeNodeDTO res = pendingPropTreeNodeDTOMapper.map(rootWSStatsNode);
 	    return res;
 	}
 	
-	public static StatsHandlerPopper pushStats(String className, String categoryMethod, String methodName) {
-	    return new StatsHandlerPopper(callTreeWSStatsHandler, className, categoryMethod, methodName);
+    // ------------------------------------------------------------------------
+    
+	public static StatsHandlerPopper pushTopLevelStats(String className, String categoryMethod, String methodName) {
+	    CallTreeStatsUpdaterCallStackHandler threadCallTreeWSStatsHandler = new CallTreeStatsUpdaterCallStackHandler(rootWSStatsNode);
+		return new StatsHandlerPopper(threadCallTreeWSStatsHandler, className, categoryMethod, methodName);
 	}
     
     public static class StatsHandlerPopper implements Closeable {

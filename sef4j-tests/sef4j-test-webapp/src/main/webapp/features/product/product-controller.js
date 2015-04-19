@@ -3,11 +3,17 @@
 testwebapp.controller('ProductsController', function ($scope, $filter, ngTableParams, ProductService) {
 	var vm = this;
 	
+	vm.message = "";
 	vm.products = [];
 	
-    ProductService.asyncFindAll().then(function(data){
-        vm.products = data;
-    });
+	vm.load = function() {
+		ProductService.asyncFindAll().then(function(data){
+			vm.products = data;
+		});
+	}
+	vm.launchTasks = function() {
+		ProductService.launchTasks();
+	};
 	
     
 	vm.productTableParams = new ngTableParams({
@@ -97,5 +103,12 @@ testwebapp.controller('ProductsController', function ($scope, $filter, ngTablePa
 			vm.refreshSelectedList();
 		}
 	};
+	
+	
+	// init
+//	if (vm.products.length == 0) {
+//		vm.load();
+//	}
+	
 });
 

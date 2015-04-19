@@ -1,10 +1,8 @@
 package org.sef4j.callstack.stats;
 
 import java.util.concurrent.Callable;
-import java.util.function.Predicate;
 
 import org.sef4j.callstack.CallStackElt;
-import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram.MinCountPropTreeValuePredicate;
 import org.sef4j.core.api.proptree.ICopySupport;
 
 /**
@@ -124,7 +122,7 @@ public final class PerfStats implements ICopySupport<PerfStats> {
 	public String toString() {
 		int pendingCount = pendingCounts.getPendingCount();
 		return "PerfStats [" 
-				+ ((pendingCount != 0)? ", pending:" + pendingCount : "")
+				+ ((pendingCount != 0)? "pending:" + pendingCount + ", ": "")
 				+ "count:" + elapsedTimeStats.cumulatedCount()
 				+ ", sum ms elapsed: " + elapsedTimeStats.cumulatedSum()
 				+ ", cpu:" + threadCpuTimeStats.cumulatedSum()

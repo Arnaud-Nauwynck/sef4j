@@ -7,6 +7,43 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 	vm.depthTreeTableData = 6;
 	vm.pendingCountTreeMetrics = {};
 
+	vm.pendingTaskCount = 1;
+	vm.pendingTaskDepth = 2;
+	
+	vm.startPendingTask = function() {
+		vm.message = "...";
+		var req = {
+				params: {
+					count: vm.pendingTaskCount,
+					depth: vm.pendingTaskDepth
+				}
+		};
+		$http.get('app/rest/dummyPendingTask/startPendingTask', req)
+        .success(function(response) {
+        	vm.message = "";
+        })
+        .error(function(response) {
+        	vm.message = "ERROR:" + response.message;
+        });
+	};
+	
+	vm.stopPendingTask = function(depth) {
+		vm.message = "...";
+		var req = {
+				params: {
+					count: vm.pendingTaskCount
+				}
+		};
+		$http.get('app/rest/dummyPendingTask/stopPendingTask', req)
+        .success(function(response) {
+        	vm.message = "";
+        })
+        .error(function(response) {
+        	vm.message = "ERROR:" + response.message;
+        });
+	};
+	
+	
 	vm.pendingCountTableData = 
 		[
 	    {
@@ -41,10 +78,8 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 			rootMethodName = methodName;
 		}
 		
-		var perfStats = (tree.propsMap != null)? tree.propsMap['stats'] : null;
-		if (perfStats) {
-			var elapsed = perfStats.elapsedTimeStats;
-			var elapsedSlots = elapsed.slotInfoCopy;
+		var pending = (tree.propsMap != null)? tree.propsMap['pending'] : null;
+		if (pending) {
 			var resElt = {
 		    	treePath: currPath,
 		    	shortTreePath: currShortPath,
@@ -55,8 +90,8 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		    	className: className,
 		    	methodName: methodName,
 
-		    	pendingCount: perfStats.pendingCounts.pendingCount,
-				pendingSum: perfStats.pendingCounts.pendingSum,
+		    	pendingCount: pending.pendingCount,
+				pendingSum: pending.pendingSum,
 			};
 			res.push(resElt);
 		}
@@ -88,14 +123,20 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 
 
 	vm.loadPendingCount = function() {
+		if (vm.message === "Loading...") {
+			return;
+		}
 		vm.message = "Loading...";
 		$http.get('app/rest/metricsStatsTree/pendingCount')
-        .success(function(response, status) {
+        .success(function(response) {
         	vm.pendingCountTreeMetrics = response;
         	vm.pendingCountTableData = pendingCountTreeToTableData(response);
         	
         	vm.pendingCountTableParams.reload();
     		vm.message = "";
+        })
+        .error(function(response) {
+        	vm.message = "Failed";
         });
 	};
 
@@ -127,5 +168,5 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 
 	
 	// init
-	vm.loadPendingCount();
+	// vm.loadPendingCount();
 });

@@ -34,15 +34,19 @@
     </head>
     <body ng-app="testwebapp">
 
-		<a href="#/home">home</a>
-		<a href="#/products">products</a>
-		<a href="#/pendingCountTree">pendingCount</a>
-		<a href="#/statsTreeMetrics">stats</a>
-		<a href="#/other">other</a>
+		<ul class="nav nav-tabs" role="tablist" id="myTab">
+			<li><a href="#/home"><i class="glyphicon glyphicon-home"></i></a></li>
+			<li><a href="#/products">Products</a></li>
+			<li><a href="#/pendingCountTree">Pending</a></li>
+			<li><a href="#/statsTreeMetrics">Stats</a></li>
+			<li><a href="#/other">other</a></li>
+			</ul>
+		</div>
 
 
 
         <div class="container">
+
             <div ng-view></div>
 
             <div class="footer">
@@ -50,6 +54,13 @@
             </div>
         </div>
 
-        
+<!-- 
+ 	<script>
+	$('#myTab a').click(function (e) {
+		  e.preventDefault()
+		  $(this).tab('show')
+		})
+	</script>        
+ -->
 </body>
 </html>

@@ -1,6 +1,8 @@
 package org.sef4j.core.api.proptree;
 
-import java.util.Collection;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Predicate;
 
@@ -25,7 +27,7 @@ import java.util.function.Predicate;
  * delegate to PropTreeValueMapper for mapping property values
  * see also Orika Mapper sub-class OrikaPropTreeValueMapper for copying some key-value properties
  */
-public class PropTreeNodeMapper {
+public class PropTreeNodeDTOMapper {
 
 	public static class PropMapperEntry {
 		public final String propName;
@@ -51,24 +53,65 @@ public class PropTreeNodeMapper {
 	}
 	
 	private final PropMapperEntry[] propMapperEntries;
+	private final int maxDepth;
+
+	private final Predicate<PropTreeNode> nodePredicate;
+	private final Predicate<PropTreeNode> recurseNodePredicate;
 	
 	// ------------------------------------------------------------------------
 
-	public PropTreeNodeMapper(Collection<PropMapperEntry> mapperEntries) {
-		this.propMapperEntries = mapperEntries.toArray(new PropMapperEntry[mapperEntries.size()]);
+	protected PropTreeNodeDTOMapper(Builder b) {
+		this.propMapperEntries = b.propMapperEntries.toArray(new PropMapperEntry[b.propMapperEntries.size()]);
+		this.maxDepth = b.maxDepth;
+		this.nodePredicate = b.nodePredicate;
+		this.recurseNodePredicate = b.recurseNodePredicate;
 	}
+	
+	public static class Builder {
+		private List<PropMapperEntry> propMapperEntries = new ArrayList<PropMapperEntry>();
+		private int maxDepth = -1;
+		private Predicate<PropTreeNode> nodePredicate;
+		private Predicate<PropTreeNode> recurseNodePredicate;
+	
+		public PropTreeNodeDTOMapper build() {
+			return new PropTreeNodeDTOMapper(this);
+		}
 
-	// ------------------------------------------------------------------------
-	
-	public void recursiveCopyToDTO(PropTreeNode src, PropTreeNodeDTO dest) {
-		recursiveCopyToDTO(src, dest, -1);
-	}
-	
-	public void recursiveCopyToDTO(PropTreeNode src, PropTreeNodeDTO dest, int maxDepth) {
-		copyPropValues(src, dest);
+		public Builder withPropMapperEntries(PropMapperEntry... p) {
+			this.propMapperEntries.addAll(Arrays.asList(p));
+			return this;
+		}
+		public Builder withMaxDepth(int p) {
+			this.maxDepth = p;
+			return this;
+		}
+		public Builder withNodePredicate(Predicate<PropTreeNode> p) {
+			this.nodePredicate = p;
+			return this;
+		}
+		public Builder withRecuseNodePredicate(Predicate<PropTreeNode> p) {
+			this.recurseNodePredicate = p;
+			return this;
+		}
 		
-		if (maxDepth == -1 || maxDepth > 0) {
-			int childMaxDepth = (maxDepth == -1)? -1 : maxDepth-1;
+	}
+	
+	// ------------------------------------------------------------------------
+	
+	public PropTreeNodeDTO map(PropTreeNode src) {
+		PropTreeNodeDTO res = PropTreeNodeDTO.newRoot();
+		recursiveCopyToDTO(src, res, maxDepth);
+		return res;
+	}
+	
+	protected void recursiveCopyToDTO(PropTreeNode src, PropTreeNodeDTO dest, int remainDepth) {
+		if (nodePredicate == null || nodePredicate.test(src)) {
+			// Notice: map propValues may change in another thread => should copy to apply filtering then conversion...
+			copyPropValues(src, dest);
+		}
+		
+		if (remainDepth == -1 || remainDepth > 0) {
+			int childMaxDepth = (remainDepth == -1)? -1 : remainDepth-1;
 			for(Map.Entry<String,PropTreeNode> e : src.getChildMap().entrySet()) { // read-only ref (copy-on-write field)
 				String childName = e.getKey();
 				if (childName == null) {
@@ -77,11 +120,15 @@ public class PropTreeNodeMapper {
 				PropTreeNode srcChild = e.getValue();
 				PropTreeNodeDTO destChild = dest.getOrCreateChild(childName);
 				// *** recurse ***
-				recursiveCopyToDTO(srcChild, destChild, childMaxDepth);
+				if (srcChild.getParent() == null || srcChild.getParent().getParent() == null 
+						|| recurseNodePredicate == null || recurseNodePredicate.test(srcChild)) {
+					recursiveCopyToDTO(srcChild, destChild, childMaxDepth);
+				}
 			}
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	protected  void copyPropValues(PropTreeNode src, PropTreeNodeDTO dest) {
 		Map<String, Object> propsMap = src.getPropsMap(); // read-only ref (copy-on-write field)
 		for (PropMapperEntry e : propMapperEntries) {
@@ -89,6 +136,10 @@ public class PropTreeNodeMapper {
 			Object propValue = propsMap.get(propName);
 			if (propValue == null) {
 				continue; // value not present on this node
+			}
+			// propValue may change in another thread => create local immutable copy to apply filtering then conversion...
+			if (propValue instanceof ICopySupport) {
+				propValue = ((ICopySupport<Object>) propValue).copy();
 			}
 			if (e.propPredicate != null && ! e.propPredicate.test(src, propName, propValue)) {
 				continue; // ignore this prop!

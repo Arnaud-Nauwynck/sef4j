@@ -1,6 +1,5 @@
 package org.sef4j.callstack.stats.dto;
 
-import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
 import org.sef4j.core.api.proptree.ICopySupport;
 
@@ -9,7 +8,7 @@ import org.sef4j.core.api.proptree.ICopySupport;
  */
 public final class PerfStatsDTO implements ICopySupport<PerfStatsDTO> {
 	
-	private PendingPerfCount pendingCounts = new PendingPerfCount();
+	private PendingPerfCountDTO pendingCounts = new PendingPerfCountDTO();
 	
 	private CumulatedBasicTimeStatsLogHistogramDTO elapsedTimeStats = new CumulatedBasicTimeStatsLogHistogramDTO();
 	private CumulatedBasicTimeStatsLogHistogramDTO threadUserTimeStats = new CumulatedBasicTimeStatsLogHistogramDTO();
@@ -30,7 +29,7 @@ public final class PerfStatsDTO implements ICopySupport<PerfStatsDTO> {
 
 	// ------------------------------------------------------------------------
 
-	public PendingPerfCount getPendingCounts() {
+	public PendingPerfCountDTO getPendingCounts() {
 		return pendingCounts;
 	}
 

@@ -1,8 +1,8 @@
 package org.sef4j.callstack.stats.helpers;
 
-import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
 import org.sef4j.callstack.stats.dto.CumulatedBasicTimeStatsLogHistogramDTO;
+import org.sef4j.callstack.stats.dto.PendingPerfCountDTO;
 import org.sef4j.callstack.stats.dto.PerfStatsDTO;
 import org.sef4j.core.api.proptree.PropTreeValueMapper.AbstractTypedPropTreeValueMapper;
 
@@ -15,10 +15,10 @@ public class PerfStatsDTOMapper extends AbstractTypedPropTreeValueMapper<PerfSta
 	}
 	
 	/** deprecated? Mapper for extract PerfStats.pendingCount to DTO */
-	public static final class PendingPerfCountDTOMapper extends AbstractTypedPropTreeValueMapper<PerfStats,PendingPerfCount> {
+	public static final class PendingPerfCountDTOMapper extends AbstractTypedPropTreeValueMapper<PerfStats,PendingPerfCountDTO> {
 		public static final PendingPerfCountDTOMapper INSTANCE = new PendingPerfCountDTOMapper();
-		public PendingPerfCount mapProp(PerfStats src) {
-			return src.getPendingCounts().copy();
+		public PendingPerfCountDTO mapProp(PerfStats src) {
+			return new PendingPerfCountDTO(src.getPendingCounts());
 		}
 	}
 

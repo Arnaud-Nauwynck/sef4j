@@ -52,7 +52,7 @@ public class DummyPendingTaskController {
 
     protected void dummyTask(int depth) {
     	LOG.info("dummyTask " + depth + " ...");
-    	try (StatsHandlerPopper toPop = pushTopLevelWSStatsHandler("dummyTask")) {
+    	try (StatsHandlerPopper toPop = pushTopLevelTaskStatsHandler("dummyTask")) {
     	    recursiveFoo(depth);
     	}
     	LOG.info("... done dummyTask " + depth);
@@ -85,7 +85,12 @@ public class DummyPendingTaskController {
 
 	public StatsHandlerPopper pushTopLevelWSStatsHandler(String methodName) {
         String className = LOG.getName();
-        return MetricsStatsTreeController.pushTopLevelStats(className, "dummy", methodName);
+        return MetricsStatsTreeController.pushTopLevelStats(className, "dummyWS", methodName);
+    }
+
+	public StatsHandlerPopper pushTopLevelTaskStatsHandler(String methodName) {
+        String className = LOG.getName();
+        return MetricsStatsTreeController.pushTopLevelStats(className, "dummyTasks", methodName);
     }
 
 }

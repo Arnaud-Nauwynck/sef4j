@@ -57,7 +57,8 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 	    	methodName: "method3",
 
 			pendingCount: 0,
-			pendingSum: 0
+			pendingAverageStartTimeMillis: 0,
+			pendingAverageTimeMillis: 0
 	    }	    
 	    ];
 
@@ -91,7 +92,8 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		    	methodName: methodName,
 
 		    	pendingCount: pending.pendingCount,
-				pendingSum: pending.pendingSum,
+		    	pendingAverageStartTimeMillis: pending.pendingAverageStartTimeMillis,
+		    	pendingAverageTimeMillis: 0 // cf updateTime() ... (pending.pendingAverageStartTimeMillis - new Date().getTime())
 			};
 			res.push(resElt);
 		}
@@ -113,15 +115,36 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 
 	var pendingCountTreeToTableData = function(src) {
 		var res = [];
+		var serverTimeNow = src.propsMap["timeNow"];
+		var timeNow = new Date().getTime();
+
 		recursivePendingCountTreeToTableData(res, src, 
 				'', '', 
 				'', '',
 				'', '',
 				vm.depthTreeTableData);
+		
+		vm.pendingCountTableData.forEach(function(e) {
+			e.pendingAverageStartTimeMillis = (e.pendingAverageStartTimeMillis - serverTimeNow + timeNow);
+			e.pendingAverageTimeMillis = e.pendingAverageStartTimeMillis - new Date().getTime();
+		});
+		
 		return res;
 	}
 
+	vm.updateTime = function() {
+		var timeNow = new Date().getTime();
+		vm.pendingCountTableData.forEach(function(e) {
+			e.pendingAverageTimeMillis = e.pendingAverageStartTimeMillis - new Date().getTime();
+		});
+	}
 
+
+	vm.showTreePath = function(e) {
+		var treePath = e.treePath;
+		alert(treePath);
+	};
+	
 	vm.loadPendingCount = function() {
 		if (vm.message === "Loading...") {
 			return;
@@ -132,6 +155,7 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
         	vm.pendingCountTreeMetrics = response;
         	vm.pendingCountTableData = pendingCountTreeToTableData(response);
         	
+        	vm.updateTime();
         	vm.pendingCountTableParams.reload();
     		vm.message = "";
         })

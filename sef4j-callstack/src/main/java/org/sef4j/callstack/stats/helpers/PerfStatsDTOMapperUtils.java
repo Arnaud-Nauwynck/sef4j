@@ -68,7 +68,7 @@ public class PerfStatsDTOMapperUtils {
 		Predicate<PropTreeNode> recurseNodePredicate = (filterMinPendingCount != -1)?
 				new Predicate<PropTreeNode>() {
 			public boolean test(PropTreeNode node) {
-				PerfStats perfStats = (PerfStats) node.getPropOrNull("perfStats");
+				PerfStats perfStats = (PerfStats) node.getPropOrNull("stats");
 				if (perfStats != null && perfStats.getPendingCount() > filterMinPendingCount) {
 					return true;
 				}

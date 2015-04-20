@@ -60,6 +60,10 @@ public class MetricsStatsTreeController {
 	public PropTreeNodeDTO findAllPending() {
         LOG.info("findAll");
 	    PropTreeNodeDTO res = pendingPropTreeNodeDTOMapper.map(rootWSStatsNode);
+	    
+	    long timeNow = System.currentTimeMillis();
+	    res.putProp("timeNow", timeNow);
+	    
 	    return res;
 	}
 	

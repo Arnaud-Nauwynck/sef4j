@@ -44,6 +44,13 @@ public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 		return UNSAFE.getLongVolatile(this, pendingSumStartTimeFieldOffset);
 	}
 
+	public long getPendingAverageStartTimeMillis() {
+		long sum = getPendingSumStartTime();
+		int count = getPendingCount();
+		long avg = (count != 0)? sum/count : 0;
+		return ThreadTimeUtils.nanosToMillis(avg);
+	}
+	
 	@Override /* java.lang.Object */
 	public PendingPerfCount clone() {
 		return copy();

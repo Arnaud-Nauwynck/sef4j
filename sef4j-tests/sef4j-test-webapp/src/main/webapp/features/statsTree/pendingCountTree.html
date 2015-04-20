@@ -7,6 +7,8 @@ Depth: <input ng-model="pendingCountTreeCtrl.pendingTaskDepth"></input>
 <br/>
 
 <button class="btn btn-default glyphicon glyphicon-refresh" ng-click="pendingCountTreeCtrl.loadPendingCount()"> </button>
+
+<button class="btn btn-default glyphicon glyphicon-refresh" ng-click="pendingCountTreeCtrl.updateTime()"> time</button>
 <br/>
 
 {{pendingCountTreeCtrl.message}}
@@ -23,10 +25,12 @@ ng-table-resizable-columns
                 ng-class="{'active': e.$selected}"> 
             
 			<td data-title="'PendingCount'" sortable="'pendingCount'" filter="{ 'pendingCount': 'text' }">{{e.pendingCount}}</td>
-			<td data-title="'PendingSum'" sortable="'pendingSum'" filter="{ 'pendingSum': 'text' }">{{e.pendingSum}}</td>
+			<td data-title="'PendingTime'" sortable="'pendingAverageTimeMillis'" filter="{ 'pendingAverageTimeMillis': 'text' }">{{e.pendingAverageTimeMillis}}</td>
 
-			<td data-title="'TreePath'" sortable="'treePath'" filter="{ 'treePath': 'text' }">{{e.treePath}}</td>
 			<td data-title="'ShortTreePath'" sortable="'shortTreePath'" filter="{ 'shortTreePath': 'text' }">{{e.shortTreePath}}</td>
+
+			<td data-title="'className'" sortable="'className'" filter="{ 'className': 'text' }">{{e.className}}</td>
+			<td data-title="'methodName'" sortable="'methodName'" filter="{ 'methodName': 'text' }">{{e.methodName}}</td>
 
 			<td data-title="'rootClassName'" sortable="'rootClassName'" filter="{ 'rootClassName': 'text' }">{{e.rootClassName}}</td>
 			<td data-title="'rootMethodName'" sortable="'rootMethodName'" filter="{ 'rootMethodName': 'text' }">{{e.rootMethodName}}</td>
@@ -34,9 +38,19 @@ ng-table-resizable-columns
 			<td data-title="'parentClassName'" sortable="'parentClassName'" filter="{ 'parentClassName': 'text' }">{{e.parentClassName}}</td>
 			<td data-title="'parentMethodName'" sortable="'parentMethodName'" filter="{ 'parentMethodName': 'text' }">{{e.parentMethodName}}</td>
 
-			<td data-title="'className'" sortable="'className'" filter="{ 'className': 'text' }">{{e.className}}</td>
-			<td data-title="'methodName'" sortable="'methodName'" filter="{ 'methodName': 'text' }">{{e.methodName}}</td>
+			<td data-title="'TreePath'">
+				<button type="button" class="btn btn-sm glyphicon glyphicon-copy" ng-click="pendingCountTreeCtrl.showTreePath(e)"> </button>
 
+<!-- 
+				<button type="button" class="btn btn-sm" data-toggle="popover" data-placement="botton" 
+					title="TreePath" 
+					data-content="{{e.treePath}}">...</button>
+ -->
+ 			</td>
+<!-- 
+			<td data-title="'TreePath'" sortable="'treePath'" filter="{ 'treePath': 'text' }">{{e.treePath}}</td>
+ -->
+ 
 
         </tr>
 	</tbody>

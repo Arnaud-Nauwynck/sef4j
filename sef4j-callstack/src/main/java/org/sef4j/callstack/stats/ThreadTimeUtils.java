@@ -50,7 +50,7 @@ public class ThreadTimeUtils {
 	private static final long APPROX_1M_BIT_SHIFT = 20;
 
 	public static long nanosToApproxMillis(long nanos) {
-		return nanos >> 20;
+		return nanos >> APPROX_1M_BIT_SHIFT;
 				// nanos >>> 20;  //??
 	}
 

@@ -8,13 +8,15 @@ Depth: <input ng-model="pendingCountTreeCtrl.pendingTaskDepth"></input>
 
 <button class="btn btn-default glyphicon glyphicon-refresh" ng-click="pendingCountTreeCtrl.loadPendingCount()"> </button>
 
+<!-- TODO
 <button class="btn btn-default glyphicon glyphicon-refresh" ng-click="pendingCountTreeCtrl.updateTime()"> time</button>
+ -->
 <br/>
 
 {{pendingCountTreeCtrl.message}}
 
 <!-- 
-ng-table-resizable-columns
+ng-table-resizable-columns   ... layout bug: when adding this css class => huge empty div inserted above table
  -->
 <table ng-table="pendingCountTreeCtrl.pendingCountTableParams" 
 	show-filter="true" 
@@ -24,9 +26,13 @@ ng-table-resizable-columns
         		ng-click="e.$selected = !e.$selected"
                 ng-class="{'active': e.$selected}"> 
             
-			<td data-title="'PendingCount'" sortable="'pendingCount'" filter="{ 'pendingCount': 'text' }">{{e.pendingCount}}</td>
-			<td data-title="'PendingTime'" sortable="'pendingAverageTimeMillis'" filter="{ 'pendingAverageTimeMillis': 'text' }">{{e.pendingAverageTimeMillis}}</td>
+			<td data-title="'Count'" sortable="'pendingCount'" filter="{ 'pendingCount': 'text' }">{{e.pendingCount}}</td>
 
+			<td data-title="'AvgTime(load)'" sortable="'pendingAverageMillisOnLoad'" filter="{ 'pendingAverageMillisOnLoad': 'text' }">{{e.pendingAverageMillisOnLoad}}</td>
+<!-- TODO
+			<td data-title="'AvgTime(t)'" sortable="'pendingAverageMillisUntilNow'" filter="{ 'pendingAverageMillisUntilNow': 'text' }">{{e.pendingAverageMillisUntilNow}}</td>
+ -->
+ 
 			<td data-title="'ShortTreePath'" sortable="'shortTreePath'" filter="{ 'shortTreePath': 'text' }">{{e.shortTreePath}}</td>
 
 			<td data-title="'className'" sortable="'className'" filter="{ 'className': 'text' }">{{e.className}}</td>

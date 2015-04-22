@@ -47,7 +47,7 @@ public class HttpPostBytesSenderTest {
         // Post-check
         Mockito.verify(mockCon).getOutputStream();
         Mockito.verify(mockCon).getResponseCode();
-        Assert.assertEquals("[\n" + jsonFragment + "\n]", mockConOutput.toString());
+        Assert.assertEquals(jsonFragment, mockConOutput.toString());
     }
 
 }

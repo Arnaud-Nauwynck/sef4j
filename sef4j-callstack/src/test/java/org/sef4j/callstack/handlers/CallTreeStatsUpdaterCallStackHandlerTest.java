@@ -33,16 +33,17 @@ public class CallTreeStatsUpdaterCallStackHandlerTest {
 		foo.fooRecurseBarBaz();
 		
 		// Post-check
+		String cName = org.sef4j.callstack.dummy.InstrumentedRecurseCallStackFoo.class.getName();
 		LocalCallStack.get().curr().removeRootCallStackHandler(handler);
-		PropTreeNode fooNode = root.getChildMap().get("foo");
+		PropTreeNode fooNode = root.getChildMap().get(cName + ":foo");
 		Assert.assertNotNull(fooNode);
-		PropTreeNode recurseBarNode = fooNode.getChildMap().get("recurseBar");
+		PropTreeNode recurseBarNode = fooNode.getChildMap().get(cName + ":recurseBar");
 		Assert.assertNotNull(recurseBarNode);
-		PropTreeNode recurseBar1Node = recurseBarNode.getChildMap().get("recurseBar");
+		PropTreeNode recurseBar1Node = recurseBarNode.getChildMap().get(cName + ":recurseBar");
 		Assert.assertNotNull(recurseBar1Node);
-		PropTreeNode barNode = recurseBar1Node.getChildMap().get("bar");		
+		PropTreeNode barNode = recurseBar1Node.getChildMap().get(cName + ":bar");		
 		Assert.assertNotNull(barNode);
-		PropTreeNode bazNode = barNode.getChildMap().get("baz");		
+		PropTreeNode bazNode = barNode.getChildMap().get(cName + ":baz");		
 		Assert.assertNotNull(bazNode);
 		
 		PerfStats bazStats = bazNode.getOrCreateProp("stats", PerfStats.FACTORY);

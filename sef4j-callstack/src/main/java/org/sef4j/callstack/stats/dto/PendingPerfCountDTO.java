@@ -12,11 +12,16 @@ public class PendingPerfCountDTO implements ICopySupport<PendingPerfCountDTO> {
 
 	private int pendingCount;
 	
-	private long pendingSumStartTime;  // in millis
-	private long pendingSumStartTimeNanos;
+	/**
+	 * cf PendingPerfCount:
+	 * sum of startTime in nanos for all currently pending threads.
+	 * notice that will probably overflow long (2^64 bits), so the value is "correct modulo 2^64"
+	 * 
+	 * to compute average until given timeNow, use <code>(pendingCount * timeNow - pendingSumStartTime) / pendingCount</code>
+	 * see getPendingAverageTimeNanosUntilTime(timeNow)
+	 */
+	private long pendingSumStartTime;
 	
-//	private long pendingAverageStartTimeMillis;
-
 	// ------------------------------------------------------------------------
 
 	public PendingPerfCountDTO() {
@@ -47,26 +52,7 @@ public class PendingPerfCountDTO implements ICopySupport<PendingPerfCountDTO> {
 	public void setPendingSumStartTime(long p) {
 		this.pendingSumStartTime = p;
 	}
-	
-	public long getPendingSumStartTimeNanos() {
-		return pendingSumStartTimeNanos;
-	}
-
-	public void setPendingSumStartTimeNanos(long pendingSumStartTimeNanos) {
-		this.pendingSumStartTimeNanos = pendingSumStartTimeNanos;
-	}
-
-	public long getPendingAverageStartTimeMillis() {
-		long res = (pendingCount != 0)? pendingSumStartTime/pendingCount : 0;
-		return res;
-//		return pendingAverageStartTimeMillis;
-	}
-
-//	public void setPendingAverageStartTimeMillis(long p) {
-//		this.pendingAverageStartTimeMillis = p;
-//	}
 		
-	
 	@Override /* java.lang.Object */
 	public PendingPerfCountDTO clone() {
 		return copy();
@@ -80,31 +66,26 @@ public class PendingPerfCountDTO implements ICopySupport<PendingPerfCountDTO> {
 	public void set(PendingPerfCountDTO src) {
 		this.pendingCount = src.pendingCount;
 		this.pendingSumStartTime = src.pendingSumStartTime;
-		this.pendingSumStartTimeNanos = src.pendingSumStartTimeNanos;
 	}
 
 	public void set(PendingPerfCount src) {
 		this.pendingCount = src.getPendingCount();
-		this.pendingSumStartTime = src.getPendingSumStartTimeMillis();
-		this.pendingSumStartTimeNanos = src.getPendingSumStartTimeNanos();
+		this.pendingSumStartTime = src.getPendingSumStartTime();
 	}
 
 	public void clear() {
 		this.pendingCount = 0;
 		this.pendingSumStartTime = 0;
-		this.pendingSumStartTimeNanos = 0;
 	}
 
 	public void incr(PendingPerfCountDTO src) {
 		this.pendingCount += src.pendingCount;
 		this.pendingSumStartTime += src.pendingSumStartTime;
-		this.pendingSumStartTimeNanos += src.pendingSumStartTimeNanos;
 	}
 
 	public void incr(PendingPerfCount src) {
 		this.pendingCount += src.getPendingCount();
-		this.pendingSumStartTime += src.getPendingSumStartTimeMillis();
-		this.pendingSumStartTimeNanos += src.getPendingSumStartTimeNanos();
+		this.pendingSumStartTime += src.getPendingSumStartTime();
 	}
 
 	// ------------------------------------------------------------------------
@@ -113,14 +94,16 @@ public class PendingPerfCountDTO implements ICopySupport<PendingPerfCountDTO> {
 	public String toString() {
 		final int count = pendingCount;
 		if (count == 0) return "PendingPerfCountsDTO[]"; 
-		final long sum = pendingSumStartTime;
-		final long avgStartTimeMillis = (count != 0)? ThreadTimeUtils.approxMillisToMillis(sum / count) : 0; 
-		long avgElapsedMillis = avgStartTimeMillis - System.currentTimeMillis();
+		final long sumStart = pendingSumStartTime;
+
+		long timeNow = ThreadTimeUtils.getTime();
+		long avgNanos = (count * timeNow - sumStart) / count;
+		long avgMillis = ThreadTimeUtils.nanosToMillis(avgNanos);
+		
 		return "PendingPerfCountsDTO[" 
 				+ "count:" + count 
-				+ ", sum:" + pendingSumStartTime
-				+ ", sumNanos:" + pendingSumStartTimeNanos
-				+ ", avgElapsed:" + avgElapsedMillis + " ms"
+				+ ", sum:" + sumStart
+				+ ", avgPending:" + avgMillis + " ms until now(" + timeNow + ")"
 				+ "]";
 	}
 

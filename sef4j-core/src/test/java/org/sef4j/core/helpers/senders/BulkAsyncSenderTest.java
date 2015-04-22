@@ -52,7 +52,7 @@ public class BulkAsyncSenderTest {
 
 	protected int maxBulkEventsCount = 10;
 	
-	protected BulkAsyncSender<E> sut = new BulkAsyncSender.Builder()
+	protected BulkAsyncSender<E> sut = new BulkAsyncSender.Builder<E>()
 		.flushPeriod(60) // flush after 60 seconds
 		.maxBulkEventsCount(maxBulkEventsCount)
 		.maxBulkByteLength(4000)

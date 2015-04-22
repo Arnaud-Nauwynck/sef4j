@@ -5,10 +5,38 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 
 	vm.message = "";
 	vm.depthTreeTableData = 6;
-	vm.pendingCountTreeMetrics = {};
 
 	vm.pendingTaskCount = 1;
 	vm.pendingTaskDepth = 2;
+	
+	vm.pendingCountData = {
+		// treeData: null,
+		tableData: [],
+		serverClockNanos: 0,
+		serverTimeMillis: 0,
+		clientTimeMillis: 0
+	};
+
+	
+	vm.dummyPendingCountTableData =
+		[
+	    {
+	    	treePath: "a.b.Class1:method1 / a.b.Class2:method2 / a.b.Class3:method3",
+	    	shortTreePath: "method1 / method2 / method3",
+	    	rootClassName: "a.b.Class1",
+	    	rootMethodName: "method1",
+	    	parentClassName: "a.b.Class2",
+	    	parentMethodName: "method2",
+	    	className: "a.b.Class3",
+	    	methodName: "method3",
+
+			pendingCount: 0,
+			pendingSumStartTime: 0, // in nanos, using server-side clock time
+			
+			pendingAverageMillisOnLoad: 0, // pending elapsed time in millis, when receiving data from server
+			pendingAverageMillisUntilNow: 0 // time dependent, update on client-side
+	    }	    
+	    ];
 	
 	vm.startPendingTask = function() {
 		vm.message = "...";
@@ -43,27 +71,14 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
         });
 	};
 	
-	
-	vm.pendingCountTableData = [];
-	
-	vm.dummyPendingCountTableData =
-		[
-	    {
-	    	treePath: "a.b.Class1:method1 / a.b.Class2:method2 / a.b.Class3:method3",
-	    	shortTreePath: "method1 / method2 / method3",
-	    	rootClassName: "a.b.Class1",
-	    	rootMethodName: "method1",
-	    	parentClassName: "a.b.Class2",
-	    	parentMethodName: "method2",
-	    	className: "a.b.Class3",
-	    	methodName: "method3",
 
-			pendingCount: 0,
-			pendingAverageStartTimeMillis: 0,
-			pendingAverageTimeMillis: 0
-	    }	    
-	    ];
-
+	vm.updateTime = function() {
+		var timeNow = new Date().getTime();
+		var elapsedMillisUntilNow = timeNow - vm.pendingCountData.clientTimeMillis;
+		vm.pendingCountData.tableData.forEach(function(e) {
+			e.pendingAverageMillisUntilNow = e.pendingCount * (e.pendingAverageMillisOnLoad + elapsedMillisUntilNow);
+		});
+	}
 
 	var recursivePendingCountTreeToTableData = function(res, tree, 
 			rootClassName, rootMethodName,
@@ -94,9 +109,8 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		    	methodName: methodName,
 
 		    	pendingCount: pending.pendingCount,
-		    	pendingAverageStartTimeMillis: pending.pendingAverageStartTimeMillis,
-		    	pendingSumStartTimeNanos: pending.pendingSumStartTimeNanos,
-		    	pendingAverageTimeMillis: 0 // cf updateTime() ... (pending.pendingAverageStartTimeMillis - new Date().getTime())
+		    	pendingSumStartTime: pending.pendingSumStartTime,
+				pendingAverageMillisUntilNow: 0, // cf updateTime() : time dependent, update on client-side
 			};
 			res.push(resElt);
 		}
@@ -116,17 +130,20 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		
 	}
 
-	var pendingCountTreeToTableData = function(src) {
-		var res = [];
-		var clockNanos = src.propsMap["clockNanos"];
-		var clockMillis = src.propsMap["clockMillis"];
+	var pendingCountTreeToTableData = function(src, resData) {
+		var res = resData.tableData;
+		
 		var timeNow = new Date().getTime();
-		// nanoToMillis?  / 1000000
-		var serverTimeNowMillis = src.propsMap["timeNowMillis"];
-		var diffServerTime = timeNow - serverTimeNowMillis;
+		var serverClockNanos = src.propsMap["clockNanos"];
+		var serverTimeMillis = src.propsMap["timeNowMillis"];
 
-		console.info("server clockNanos: " + clockNanos + ", clockMillis:" + clockMillis);
-		console.info("serverTimeNowMillis:" + serverTimeNowMillis + ", timeNow:" + timeNow + ", diffServerTime:" + diffServerTime);
+		res.serverClockNanos = serverClockNanos;
+		res.serverTimeMillis = serverTimeMillis;
+		res.clientTimeMillis = timeNow;
+
+		// var diffServerTime = timeNow - serverTimeNowMillis;
+//		console.info("server clockNanos: " + clockNanos);
+//		console.info("serverTimeMillis:" + serverTimeMillis + ", timeNow:" + timeNow + ", diffServerTime:" + diffServerTime);
 		
 		
 		recursivePendingCountTreeToTableData(res, src, 
@@ -135,39 +152,36 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 				'', '',
 				vm.depthTreeTableData);
 		
+		
+		res.forEach(function(e) {
+			if (e.pendingCount != 0) {
+				var avgNanosOnLoad = (e.pendingCount * serverClockNanos - e.pendingSumStartTime ) / e.pendingCount;
+				e.pendingAverageMillisOnLoad = avgNanosOnLoad / 1000000;
+				e.pendingAverageStartTimeMillis = timeNow - e.pendingAverageMillisOnLoad;
+			}
+		});
+
 		var i;
 		for(i = 1; i < 3; i++) {
 			var e = res[i];
 			if (e != null) {
 				var count = e.count;
-				var sumNanos = e.pendingSumStartTimeNanos - e.count * clockNanos;
+				var sumNanos = e.pendingSumStartTimeNanos - e.count * serverClockNanos;
 				var sumMillis = sumNanos / 1000000;
-				var newStartTime = (e.pendingAverageStartTimeMillis - clockMillis + timeNow);
-				console.info("[" + i + "].pendingAverageStartTimeMillis:" + (e.pendingAverageStartTimeMillis)
+				console.info("[" + i + "]" 
+						+ " pendingAverageStartTimeMillis:" + e.pendingAverageStartTimeMillis
 						+ " sumNanos:" + e.pendingSumStartTimeNanos
-						+ " => " + newStartTime
-						+ " " + (timeNow - newStartTime) + " ms"
 						+ " sumNanos:" + sumNanos
 						+ " sumMillis:" + sumMillis
-						+ " avgMillis:" + (sumMillis/count)
+						+ " pendingAverageMillisOnLoad:" + e.pendingAverageMillisOnLoad
+						+ " pendingAverageStartTimeMillis:" + e.pendingAverageStartTimeMillis
 						);
 			}
 		}
-		
-		res.forEach(function(e) {
-			e.pendingAverageStartTimeMillis = (e.pendingAverageStartTimeMillis - clockMillis + timeNow);
-			e.pendingAverageTimeMillis = timeNow - e.pendingAverageStartTimeMillis;
-		});
-		
-		return res;
+
+    	vm.updateTime();
 	}
 
-	vm.updateTime = function() {
-		var timeNow = new Date().getTime();
-		vm.pendingCountTableData.forEach(function(e) {
-			e.pendingAverageTimeMillis = timeNow - e.pendingAverageStartTimeMillis;
-		});
-	}
 
 
 	vm.showTreePath = function(e) {
@@ -182,10 +196,8 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		vm.message = "Loading...";
 		$http.get('app/rest/metricsStatsTree/pendingCount')
         .success(function(response) {
-        	vm.pendingCountTreeMetrics = response;
-        	vm.pendingCountTableData = pendingCountTreeToTableData(response);
+        	pendingCountTreeToTableData(response, vm.pendingCountData);
         	
-        	vm.updateTime();
         	vm.pendingCountTableParams.reload();
     		vm.message = "";
         })
@@ -206,9 +218,9 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
             //name: 'asc'   // initial sorting
         }
     }, {
-        total: vm.pendingCountTableData.length, // length of data
+        total: vm.pendingCountData.tableData.length, // length of data
         getData: function ($defer, params) {
-        	var inputData = vm.pendingCountTableData;
+        	var inputData = vm.pendingCountData.tableData;
             var filteredData = params.filter() ?
                     $filter('filter')(inputData, params.filter()) :
                     data;

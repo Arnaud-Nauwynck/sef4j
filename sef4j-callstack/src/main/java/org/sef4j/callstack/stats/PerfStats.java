@@ -104,7 +104,7 @@ public final class PerfStats implements ICopySupport<PerfStats> {
 	// ------------------------------------------------------------------------
 	
 	public void addPending(CallStackElt stackElt) {
-		pendingCounts.addPending(stackElt.getStartTime());
+		pendingCounts.addPending(stackElt);
 	}
 
 	public void incrAndRemovePending(CallStackElt stackElt) {
@@ -113,7 +113,7 @@ public final class PerfStats implements ICopySupport<PerfStats> {
 		long elapsedThreadCpuTime = stackElt.getThreadCpuEndTime() - stackElt.getThreadCpuStartTime();
 		incr(elapsedTime, elapsedThreadUserTime, elapsedThreadCpuTime);
 
-		pendingCounts.removePending(stackElt.getStartTime());		
+		pendingCounts.removePending(stackElt);		
 	}
 
 	// ------------------------------------------------------------------------

@@ -32,8 +32,10 @@ public class ThreadTimeUtils {
 		}
 	}
 
+	private static long TIME_OFFSET = System.nanoTime();
+	
 	public static long getTime() {
-		return System.nanoTime();	
+		return System.nanoTime() - TIME_OFFSET;	
 	}
 	
 	public static long getCurrentThreadCpuTime() {
@@ -44,20 +46,26 @@ public class ThreadTimeUtils {
 		return threadMXBean.getCurrentThreadUserTime();
 	}
 
+	private static final long MILLIS_TO_NANOS = 1000000;
+	private static final long APPROX_1M_BIT_SHIFT = 20;
+
 	public static long nanosToApproxMillis(long nanos) {
-		return nanos >>> 20;
+		return nanos >> 20;
+				// nanos >>> 20;  //??
 	}
 
 	public static long nanosToMillis(long nanos) {
-		return nanos / 1000000;
+		return nanos / MILLIS_TO_NANOS;
 	}
 
 	public static long millisToNanos(long nanos) {
-		return nanos * 1000000;
+		return nanos * MILLIS_TO_NANOS;
 	}
 
 	public static long approxMillisToMillis(long millis) {
-		return (millis << 20) / 1000000;
+		return // (millis / MILLIS_TO_NANOS) << 20; // may truncate to 0 
+				(millis << 20) / MILLIS_TO_NANOS; // ... may overflow?? 
+				// (((millis << 10) / 1000) << 10) / 1000) 
 	}
 
 	public static long approxMillisToNanos(long millis) {

@@ -14,9 +14,17 @@ import org.sef4j.core.api.proptree.ICopySupport;
 @SuppressWarnings("restriction")
 public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 
+	/**
+	 * count of currently pending threads
+	 */
 	private int pendingCount;
-	
+
+	/**
+	 * sum of startTime in approximate millis for all currently pending threads
+	 */
 	private long pendingSumStartTime;
+
+	private long pendingSumStartTimeNanos;
 
 	// ------------------------------------------------------------------------
 
@@ -44,11 +52,21 @@ public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 		return UNSAFE.getLongVolatile(this, pendingSumStartTimeFieldOffset);
 	}
 
+	public long getPendingSumStartTimeNanos() {
+		return UNSAFE.getLongVolatile(this, pendingSumStartTimeNanosFieldOffset);
+	}
+
+	
+	public long getPendingSumStartTimeMillis() {
+		long approxMillis = getPendingSumStartTime();
+		return ThreadTimeUtils.approxMillisToMillis(approxMillis);
+	}
+
 	public long getPendingAverageStartTimeMillis() {
 		long sum = getPendingSumStartTime();
 		int count = getPendingCount();
 		long avg = (count != 0)? sum/count : 0;
-		return ThreadTimeUtils.nanosToMillis(avg);
+		return ThreadTimeUtils.approxMillisToMillis(avg);
 	}
 	
 	@Override /* java.lang.Object */
@@ -64,40 +82,58 @@ public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 	public void set(PendingPerfCount src) {
 		this.pendingCount = src.getPendingCount();
 		this.pendingSumStartTime = src.getPendingSumStartTime();
+		this.pendingSumStartTimeNanos = src.getPendingSumStartTimeNanos();
 	}
 
 	public void clear() {
 		UNSAFE.getAndSetInt(this, pendingCountFieldOffset, 0);
 		UNSAFE.getAndSetLong(this, pendingSumStartTimeFieldOffset, 0L);
+		UNSAFE.getAndSetLong(this, pendingSumStartTimeNanosFieldOffset, 0L);
 	}
 
 	public void incr(PendingPerfCount src) {
-		UNSAFE.getAndAddInt(this, pendingCountFieldOffset, src.getPendingCount()); 
-		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, src.getPendingSumStartTime()); 
+		int incrCount = src.getPendingCount();
+		long incrPendingSum = src.getPendingSumStartTime();
+		long incrPendingSumNanos = src.getPendingSumStartTimeNanos();
+		UNSAFE.getAndAddInt(this, pendingCountFieldOffset, incrCount);
+		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, incrPendingSum); 
+		UNSAFE.getAndAddLong(this, pendingSumStartTimeNanosFieldOffset, incrPendingSumNanos); 
 	}
 
 
 	// ------------------------------------------------------------------------
+	@Deprecated
+	public void addPending(long startTimeMillis) {
+		addPending(startTimeMillis, 0);
+	}
+	@Deprecated
+	public void removePending(long startTimeMillis) {
+		removePending(startTimeMillis, 0);
+	}
 	
-	public void addPending(long startTime) {
+	public void addPending(long startTimeMillis, long startTimeNanos) {
 		UNSAFE.getAndAddInt(this, pendingCountFieldOffset, 1); 
-		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, startTime); 
+		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, startTimeMillis); 
+		UNSAFE.getAndAddLong(this, pendingSumStartTimeNanosFieldOffset, startTimeNanos); 
 	}
 
-	public void removePending(long startTime) {
+	public void removePending(long startTimeMillis, long startTimeNanos) {
 		UNSAFE.getAndAddInt(this, pendingCountFieldOffset, -1); 
-		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, -startTime); 
+		UNSAFE.getAndAddLong(this, pendingSumStartTimeFieldOffset, -startTimeMillis); 
+		UNSAFE.getAndAddLong(this, pendingSumStartTimeNanosFieldOffset, -startTimeNanos); 
 	}
 
 	// Helper method using StackElt start/end times
 	// ------------------------------------------------------------------------
 	
 	public void addPending(CallStackElt stackElt) {
-		addPending(stackElt.getStartTime());
+		long startTimeMillis = stackElt.getStartTimeApproxMillis();
+		addPending(startTimeMillis, stackElt.getStartTime());
 	}
 
 	public void removePending(CallStackElt stackElt) {
-		removePending(stackElt.getStartTime());		
+		long startTimeMillis = stackElt.getStartTimeApproxMillis();
+		removePending(startTimeMillis, stackElt.getStartTime());		
 	}
 
 	// ------------------------------------------------------------------------
@@ -105,10 +141,15 @@ public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 	@Override
 	public String toString() {
 		final int count = pendingCount;
+		if (count == 0) return "PendingPerfCounts[]";
 		final long sum = this.pendingSumStartTime;
-		final long avgApproxMillis = (count != 0)? ThreadTimeUtils.nanosToApproxMillis(sum / count) : 0; 
+		final long sumNanos = this.pendingSumStartTimeNanos;
+		final long avgMillis = (count != 0)? ThreadTimeUtils.approxMillisToMillis(sum / count) : 0; 
+		
 		return "PendingPerfCounts[" 
-				+ ((count != 0)? "count:" + count + ", avg:" + avgApproxMillis + " ms": "")
+				+ "count:" + count 
+				+ "sum:" + sum + ", sumNanos:" + sumNanos
+				+ ", avg:" + avgMillis + " ms"
 				+ "]";
 	}
 
@@ -119,6 +160,7 @@ public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 
 	private static final long pendingCountFieldOffset;
 	private static final long pendingSumStartTimeFieldOffset;
+	private static final long pendingSumStartTimeNanosFieldOffset;
 	
 	static {
 		UNSAFE = UnsafeUtils.getUnsafe();
@@ -129,6 +171,9 @@ public class PendingPerfCount implements ICopySupport<PendingPerfCount> {
 
         Field pendingSumStartTimeField = getField(thisClass, "pendingSumStartTime");
         pendingSumStartTimeFieldOffset = UNSAFE.objectFieldOffset(pendingSumStartTimeField);
+
+        Field pendingSumStartTimeNanosField = getField(thisClass, "pendingSumStartTimeNanos");
+        pendingSumStartTimeNanosFieldOffset = UNSAFE.objectFieldOffset(pendingSumStartTimeNanosField);
     }
 	
 	private static Field getField(Class<?> clss, String name) {

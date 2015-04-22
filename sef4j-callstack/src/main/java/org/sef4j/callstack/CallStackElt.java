@@ -302,7 +302,11 @@ public final class CallStackElt {
 	public long getStartTime() {
 		return startTime;
 	}
-	
+
+	public long getStartTimeApproxMillis() {
+		return ThreadTimeUtils.nanosToApproxMillis(startTime);
+	}
+
 	public long getThreadCpuStartTime() {
 		return threadCpuStartTime;
 	}

@@ -89,13 +89,13 @@ public class Slf4jLoggerAdapterCallStackHandler extends CallStackPushPopHandler 
 		return sb.toString();
 	}
 
-	public static String formatLogMessagePop(String name, long elapsedTime) {
+	public static String formatLogMessagePop(String name, long elapsedTimeNanos) {
 		StringBuilder sb = new StringBuilder();
 		sb.append("< ");
 		sb.append(name);
 
 		sb.append(", took ");
-		long millis = ThreadTimeUtils.nanosToApproxMillis(elapsedTime);
+		long millis = ThreadTimeUtils.nanosToMillis(elapsedTimeNanos);
 		sb.append(millis);
 		sb.append(" ms");
 		

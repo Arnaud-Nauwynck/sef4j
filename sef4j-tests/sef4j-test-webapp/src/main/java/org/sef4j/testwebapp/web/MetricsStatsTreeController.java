@@ -5,7 +5,9 @@ import java.io.Closeable;
 import org.sef4j.callstack.CallStackElt.StackPopper;
 import org.sef4j.callstack.CallStackPushPopHandler;
 import org.sef4j.callstack.LocalCallStack;
+import org.sef4j.callstack.ThreadCpuTstUtils;
 import org.sef4j.callstack.handlers.CallTreeStatsUpdaterCallStackHandler;
+import org.sef4j.callstack.stats.ThreadTimeUtils;
 import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapperUtils;
 import org.sef4j.core.api.proptree.PropTreeNode;
 import org.sef4j.core.api.proptree.PropTreeNodeDTO;
@@ -61,9 +63,15 @@ public class MetricsStatsTreeController {
         LOG.info("findAll");
 	    PropTreeNodeDTO res = pendingPropTreeNodeDTOMapper.map(rootWSStatsNode);
 	    
-	    long timeNow = System.currentTimeMillis();
-	    res.putProp("timeNow", timeNow);
+	    long clockNanos = ThreadTimeUtils.getTime();
+		long clockMillis = ThreadTimeUtils.nanosToMillis(clockNanos);
+	    		// System.currentTimeMillis();
+		res.putProp("clockNanos", clockNanos);
+	    res.putProp("clockMillis", clockMillis);
 	    
+	    long timeNowMillis = System.currentTimeMillis();
+	    res.putProp("timeNowMillis", timeNowMillis);
+
 	    return res;
 	}
 	

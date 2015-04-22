@@ -44,7 +44,9 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 	};
 	
 	
-	vm.pendingCountTableData = 
+	vm.pendingCountTableData = [];
+	
+	vm.dummyPendingCountTableData =
 		[
 	    {
 	    	treePath: "a.b.Class1:method1 / a.b.Class2:method2 / a.b.Class3:method3",
@@ -93,6 +95,7 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 
 		    	pendingCount: pending.pendingCount,
 		    	pendingAverageStartTimeMillis: pending.pendingAverageStartTimeMillis,
+		    	pendingSumStartTimeNanos: pending.pendingSumStartTimeNanos,
 		    	pendingAverageTimeMillis: 0 // cf updateTime() ... (pending.pendingAverageStartTimeMillis - new Date().getTime())
 			};
 			res.push(resElt);
@@ -115,18 +118,45 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 
 	var pendingCountTreeToTableData = function(src) {
 		var res = [];
-		var serverTimeNow = src.propsMap["timeNow"];
+		var clockNanos = src.propsMap["clockNanos"];
+		var clockMillis = src.propsMap["clockMillis"];
 		var timeNow = new Date().getTime();
+		// nanoToMillis?  / 1000000
+		var serverTimeNowMillis = src.propsMap["timeNowMillis"];
+		var diffServerTime = timeNow - serverTimeNowMillis;
 
+		console.info("server clockNanos: " + clockNanos + ", clockMillis:" + clockMillis);
+		console.info("serverTimeNowMillis:" + serverTimeNowMillis + ", timeNow:" + timeNow + ", diffServerTime:" + diffServerTime);
+		
+		
 		recursivePendingCountTreeToTableData(res, src, 
 				'', '', 
 				'', '',
 				'', '',
 				vm.depthTreeTableData);
 		
-		vm.pendingCountTableData.forEach(function(e) {
-			e.pendingAverageStartTimeMillis = (e.pendingAverageStartTimeMillis - serverTimeNow + timeNow);
-			e.pendingAverageTimeMillis = e.pendingAverageStartTimeMillis - new Date().getTime();
+		var i;
+		for(i = 1; i < 3; i++) {
+			var e = res[i];
+			if (e != null) {
+				var count = e.count;
+				var sumNanos = e.pendingSumStartTimeNanos - e.count * clockNanos;
+				var sumMillis = sumNanos / 1000000;
+				var newStartTime = (e.pendingAverageStartTimeMillis - clockMillis + timeNow);
+				console.info("[" + i + "].pendingAverageStartTimeMillis:" + (e.pendingAverageStartTimeMillis)
+						+ " sumNanos:" + e.pendingSumStartTimeNanos
+						+ " => " + newStartTime
+						+ " " + (timeNow - newStartTime) + " ms"
+						+ " sumNanos:" + sumNanos
+						+ " sumMillis:" + sumMillis
+						+ " avgMillis:" + (sumMillis/count)
+						);
+			}
+		}
+		
+		res.forEach(function(e) {
+			e.pendingAverageStartTimeMillis = (e.pendingAverageStartTimeMillis - clockMillis + timeNow);
+			e.pendingAverageTimeMillis = timeNow - e.pendingAverageStartTimeMillis;
 		});
 		
 		return res;
@@ -135,7 +165,7 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 	vm.updateTime = function() {
 		var timeNow = new Date().getTime();
 		vm.pendingCountTableData.forEach(function(e) {
-			e.pendingAverageTimeMillis = e.pendingAverageStartTimeMillis - new Date().getTime();
+			e.pendingAverageTimeMillis = timeNow - e.pendingAverageStartTimeMillis;
 		});
 	}
 

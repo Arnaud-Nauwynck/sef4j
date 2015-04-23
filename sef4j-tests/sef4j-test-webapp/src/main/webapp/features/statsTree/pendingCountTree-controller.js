@@ -131,6 +131,7 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 	}
 
 	var pendingCountTreeToTableData = function(src, resData) {
+		resData.tableData = [];
 		var res = resData.tableData;
 		
 		var timeNow = new Date().getTime();

@@ -165,17 +165,7 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		for(i = 1; i < 3; i++) {
 			var e = res[i];
 			if (e != null) {
-				var count = e.count;
-				var sumNanos = e.pendingSumStartTimeNanos - e.count * serverClockNanos;
-				var sumMillis = sumNanos / 1000000;
-				console.info("[" + i + "]" 
-						+ " pendingAverageStartTimeMillis:" + e.pendingAverageStartTimeMillis
-						+ " sumNanos:" + e.pendingSumStartTimeNanos
-						+ " sumNanos:" + sumNanos
-						+ " sumMillis:" + sumMillis
-						+ " pendingAverageMillisOnLoad:" + e.pendingAverageMillisOnLoad
-						+ " pendingAverageStartTimeMillis:" + e.pendingAverageStartTimeMillis
-						);
+				console.info("[" + i + "] %o", e);
 			}
 		}
 

@@ -90,6 +90,15 @@ public class PendingPerfCountDTO implements ICopySupport<PendingPerfCountDTO> {
 
 	// ------------------------------------------------------------------------
 	
+	public String toStringUntil(long timeNow) {
+		final int count = pendingCount;
+		if (count == 0) return "-"; 
+		final long sumStart = pendingSumStartTime;
+		long avgNanos = (count * timeNow - sumStart) / count;
+		long avgMillis = ThreadTimeUtils.nanosToMillis(avgNanos);
+		return "count:" + count + ", avgPending:" + avgMillis + " ms";
+	}
+	
 	@Override
 	public String toString() {
 		final int count = pendingCount;

@@ -2,15 +2,28 @@
 
 Pending Task Count: <input ng-model="pendingCountTreeCtrl.pendingTaskCount"></input>
 Depth: <input ng-model="pendingCountTreeCtrl.pendingTaskDepth"></input>
-<button class="btn btn-default glyphicon glyphicon-plus" ng-click="pendingCountTreeCtrl.startPendingTask(pendingCountTreeCtrl.pendingTaskCount, pendingCountTreeCtrl.pendingTaskDepth)"> </button>
-<button class="btn btn-default glyphicon glyphicon-minus" ng-click="pendingCountTreeCtrl.stopPendingTask(pendingCountTreeCtrl.pendingTaskCount)"> </button>
+<button class="btn btn-default btn-small glyphicon glyphicon-plus" ng-click="pendingCountTreeCtrl.startPendingTask(pendingCountTreeCtrl.pendingTaskCount, pendingCountTreeCtrl.pendingTaskDepth)"> </button>
+<button class="btn btn-default btn-small glyphicon glyphicon-minus" ng-click="pendingCountTreeCtrl.stopPendingTask(pendingCountTreeCtrl.pendingTaskCount)"> </button>
 <br/>
 
-<button class="btn btn-default glyphicon glyphicon-refresh" ng-click="pendingCountTreeCtrl.loadPendingCount()"> </button>
+<button class="btn btn-default btn-small" ng-click="pendingCountTreeCtrl.loadPendingCount()"><i class="glyphicon glyphicon-refresh"/></button>
+<br/>
 
-<!-- TODO
-<button class="btn btn-default glyphicon glyphicon-refresh" ng-click="pendingCountTreeCtrl.updateTime()"> time</button>
- -->
+<label for="showRealTimeColumn">
+	<input type="checkbox" id="showRealTimeColumn"
+		ng-model="pendingCountTreeCtrl.showRealTimeColumn" />
+	Show real-time column</label>
+
+<span ng-show="pendingCountTreeCtrl.showRealTimeColumn">
+<label for="enableUpdateTime">
+	<input type="checkbox" id="enableUpdateTime"
+		ng-model="pendingCountTreeCtrl.enableUpdateTime"
+	ng-change="pendingCountTreeCtrl.onChangeEnableUpdateTime()"/>
+	auto update time</label>
+  <button ng-show="! pendingCountTreeCtrl.enableUpdateTime"
+  	class="btn btn-default btn-small" ng-click="pendingCountTreeCtrl.updateTime()"><i class="glyphicon glyphicon-refresh"></i></button>
+</span>
+
 <br/>
 
 {{pendingCountTreeCtrl.message}}
@@ -29,9 +42,10 @@ ng-table-resizable-columns   ... layout bug: when adding this css class => huge 
 			<td data-title="'Count'" sortable="'pendingCount'" filter="{ 'pendingCount': 'text' }">{{e.pendingCount}}</td>
 
 			<td data-title="'AvgTime(load)'" sortable="'pendingAverageMillisOnLoad'" filter="{ 'pendingAverageMillisOnLoad': 'text' }">{{e.pendingAverageMillisOnLoad}}</td>
-<!-- TODO
-			<td data-title="'AvgTime(t)'" sortable="'pendingAverageMillisUntilNow'" filter="{ 'pendingAverageMillisUntilNow': 'text' }">{{e.pendingAverageMillisUntilNow}}</td>
- -->
+
+			<td ng-show="pendingCountTreeCtrl.showRealTimeColumn"
+				data-title="'AvgTime(t)'" sortable="'pendingAverageMillisUntilNow'" filter="{ 'pendingAverageMillisUntilNow': 'text' }">{{e.pendingAverageMillisUntilNow}}</td>
+
  
 			<td data-title="'ShortTreePath'" sortable="'shortTreePath'" filter="{ 'shortTreePath': 'text' }">{{e.shortTreePath}}</td>
 

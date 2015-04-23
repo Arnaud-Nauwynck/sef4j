@@ -1,6 +1,6 @@
 'use strict';
 
-testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $http, ngTableParams) {
+testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $http, $interval, ngTableParams) {
 	var vm = this;
 
 	vm.message = "";
@@ -17,6 +17,10 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		clientTimeMillis: 0
 	};
 
+	vm.showRealTimeColumn = false;
+	vm.enableUpdateTime = false;
+	vm.stopTime = null;
+	
 	
 	vm.dummyPendingCountTableData =
 		[
@@ -80,6 +84,41 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		});
 	}
 
+	vm.startUpdateTimer = function() {
+		if (vm.stopTime != null) {
+			return;
+		}
+		var updateTimeCallback = function() {
+			vm.updateTime();
+		};
+		vm.stopTime = $interval(updateTimeCallback, 1000);
+
+        element.on('$destroy', function() {
+        	if (vm.stopTime != null) {
+        		$interval.cancel(vm.stopTime);
+        	}
+        });
+	};
+
+	vm.stopUpdateTimer = function() {
+		var toStop = vm.stopTime;
+		vm.stopTime = null;
+		if (toStop == null) {
+			return;
+		}
+		$interval.cancel(toStop);
+	}
+
+	vm.onChangeEnableUpdateTime = function() {
+		if (vm.enableUpdateTime) {
+			vm.startUpdateTimer();
+		} else {
+			vm.stopUpdateTimer();
+		}
+	}
+	
+	
+	
 	var recursivePendingCountTreeToTableData = function(res, tree, 
 			rootClassName, rootMethodName,
 			parentPath, parentShortPath, parentClassName, parentMethodName, 

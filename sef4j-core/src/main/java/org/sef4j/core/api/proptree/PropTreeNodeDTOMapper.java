@@ -118,10 +118,10 @@ public class PropTreeNodeDTOMapper {
 				    continue; //should not occur!!
 				}
 				PropTreeNode srcChild = e.getValue();
-				PropTreeNodeDTO destChild = dest.getOrCreateChild(childName);
 				// *** recurse ***
 				if (srcChild.getParent() == null || srcChild.getParent().getParent() == null 
 						|| recurseNodePredicate == null || recurseNodePredicate.test(srcChild)) {
+					PropTreeNodeDTO destChild = dest.getOrCreateChild(childName);
 					recursiveCopyToDTO(srcChild, destChild, childMaxDepth);
 				}
 			}

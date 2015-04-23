@@ -33,8 +33,10 @@ public abstract class PropTreeNodeDTOVisitor {
 	public void visitProps(PropTreeNodeDTO node) {
 		currDepth++;
 		Map<String, Object> propsMap = node.getPropsMap();
-		for(Map.Entry<String, Object> e : propsMap.entrySet()) {
-			visitProp(node, e.getKey(), e.getValue());
+		if (propsMap != null) {
+			for(Map.Entry<String, Object> e : propsMap.entrySet()) {
+				visitProp(node, e.getKey(), e.getValue());
+			}
 		}
 		currDepth--;
 	}

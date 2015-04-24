@@ -1,0 +1,16 @@
+{
+  "main": "atmosphere.js",
+  "version": "2.2.7",
+  "name": "atmosphere",
+  "homepage": "https://github.com/Atmosphere/bower-atmosphere",
+  "_release": "2.2.7",
+  "_resolution": {
+    "type": "version",
+    "tag": "v2.2.7",
+    "commit": "8991266a09119927d626cda155e0453d0027d66c"
+  },
+  "_source": "git://github.com/Atmosphere/bower-atmosphere.git",
+  "_target": "~2.2.7",
+  "_originalSource": "atmosphere",
+  "_direct": true
+}

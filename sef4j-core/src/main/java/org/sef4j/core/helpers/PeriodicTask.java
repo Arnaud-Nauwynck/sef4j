@@ -92,6 +92,20 @@ public class PeriodicTask implements Closeable {
 		}
 	}
 
+	public void setPeriod(int period, TimeUnit periodTimeUnit) {
+		synchronized(lock) {
+			boolean running = isStarted();
+			if (running) {
+				stop();
+			}
+			this.period = period;
+			this.periodTimeUnit = periodTimeUnit;
+			if (running) {
+				start();
+			}
+		}		
+	}
+	
 	public long getNextScheduledFutureTime() {
 		synchronized(lock) {
 			return nextScheduledFutureTime;

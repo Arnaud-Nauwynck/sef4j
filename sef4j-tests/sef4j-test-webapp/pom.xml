@@ -23,7 +23,15 @@
     
         <springboot.version>1.2.3.RELEASE</springboot.version>
         <HikariCP.version>2.2.5</HikariCP.version>
-        <atmosphere-spring.version>2.2.0</atmosphere-spring.version>
+
+        <atmosphere-spring.version>2.2.1</atmosphere-spring.version>
+
+        <atmosphere-version>2.2.1</atmosphere-version>
+        <!-- 
+        <atmosphere-version>2.2.6</atmosphere-version>
+        <atmosphere-version>2.3.0</atmosphere-version>
+        <atmosphere-version>3.0.0-SNAPSHOT</atmosphere-version>
+         -->
         <commons-io.version>2.4</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
         <hibernate.version>4.3.6.Final</hibernate.version>
@@ -33,6 +41,45 @@
         <json-path.version>0.9.1</json-path.version>
         <orika.version>1.4.5</orika.version>
     </properties>
+
+
+	<dependencyManagement>
+		<dependencies>
+	        <dependency>
+	            <groupId>org.atmosphere</groupId>
+	            <artifactId>atmosphere-spring</artifactId>
+	            <version>${atmosphere-spring.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.atmosphere</groupId>
+	            <artifactId>atmosphere-runtime</artifactId>
+	            <version>${atmosphere-version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.atmosphere</groupId>
+	            <artifactId>atmosphere-runtime-native</artifactId>
+	            <version>${atmosphere-version}</version>
+	        </dependency>
+	        <dependency>
+	        	<groupId>org.atmosphere</groupId>
+			    <artifactId>atmosphere-compat-tomcat</artifactId>
+			    <type>bundle</type>
+	            <version>${atmosphere-version}</version>
+	        </dependency>
+	        <dependency>
+	        	<groupId>org.atmosphere</groupId>
+			    <artifactId>atmosphere-compat-tomcat7</artifactId>
+			    <type>bundle</type>
+	            <version>${atmosphere-version}</version>
+	        </dependency>
+	        <dependency>
+	        	<groupId>org.atmosphere</groupId>
+			    <artifactId>atmosphere-compat-jbossweb</artifactId>
+			    <type>bundle</type>
+	            <version>${atmosphere-version}</version>
+	        </dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 
@@ -141,12 +188,10 @@
         <dependency>
             <groupId>org.atmosphere</groupId>
             <artifactId>atmosphere-runtime-native</artifactId>
-            <version>2.2.3</version>
         </dependency>
         <dependency>
             <groupId>org.atmosphere</groupId>
             <artifactId>atmosphere-spring</artifactId>
-            <version>${atmosphere-spring.version}</version>
             <exclusions>
                 <exclusion>
                     <groupId>org.atmosphere</groupId>

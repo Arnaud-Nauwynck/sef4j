@@ -1,34 +1,74 @@
 <div ng-controller="PendingCountTreeController as pendingCountTreeCtrl">
 
-Pending Task Count: <input ng-model="pendingCountTreeCtrl.pendingTaskCount"></input>
-Depth: <input ng-model="pendingCountTreeCtrl.pendingTaskDepth"></input>
-<button class="btn btn-default btn-small glyphicon glyphicon-plus" ng-click="pendingCountTreeCtrl.startPendingTask(pendingCountTreeCtrl.pendingTaskCount, pendingCountTreeCtrl.pendingTaskDepth)"> </button>
-<button class="btn btn-default btn-small glyphicon glyphicon-minus" ng-click="pendingCountTreeCtrl.stopPendingTask(pendingCountTreeCtrl.pendingTaskCount)"> </button>
-<br/>
+<div class="row">
+	Pending Task Count: <input ng-model="pendingCountTreeCtrl.pendingTaskCount"></input>
+	Depth: <input ng-model="pendingCountTreeCtrl.pendingTaskDepth"></input>
+	<button class="btn btn-small glyphicon glyphicon-plus" ng-click="pendingCountTreeCtrl.startPendingTask(pendingCountTreeCtrl.pendingTaskCount, pendingCountTreeCtrl.pendingTaskDepth)"> </button>
+	<button class="btn btn-small glyphicon glyphicon-minus" ng-click="pendingCountTreeCtrl.stopPendingTask(pendingCountTreeCtrl.pendingTaskCount)"> </button>
+</div>
 
-<button class="btn btn-default btn-small" ng-click="pendingCountTreeCtrl.loadPendingCount()"><i class="glyphicon glyphicon-refresh"/></button>
-<br/>
+<div class="row">
+	<button class="btn btn-small" ng-click="pendingCountTreeCtrl.loadPendingCount()"><i class="glyphicon glyphicon-refresh"/></button>
+</div>
 
-<label for="showRealTimeColumn">
-	<input type="checkbox" id="showRealTimeColumn"
-		ng-model="pendingCountTreeCtrl.showRealTimeColumn" />
-	Show real-time column</label>
+<div class="row">
+	<label for="showRealTimeColumn">
+		<input type="checkbox" id="showRealTimeColumn"
+			ng-model="pendingCountTreeCtrl.showRealTimeColumn" />
+		Show real-time column</label>
+	
+	<span ng-show="pendingCountTreeCtrl.showRealTimeColumn">
+		<label for="enableUpdateTime"> <input type="checkbox"
+					id="enableUpdateTime"
+					ng-model="pendingCountTreeCtrl.enableUpdateTime"
+					ng-change="pendingCountTreeCtrl.onChangeEnableUpdateTime()" /> 
+					update time column
+		</label>
+		<button ng-show="! pendingCountTreeCtrl.enableUpdateTime"
+			class="btn btn-small"
+			ng-click="pendingCountTreeCtrl.updateTime()">
+			<i class="glyphicon glyphicon-refresh"></i>
+		</button>
+	</span>
+</div>
 
-<span ng-show="pendingCountTreeCtrl.showRealTimeColumn">
-<label for="autoRefreshFrequency"></label>
-<input type="number" id="autoRefreshFrequency"
-		ng-model="pendingCountTreeCtrl.autoRefreshFrequency"
-		pendingCountTreeCtrl.onChangeAutoRefreshFrequency()/>
-<label for="enableUpdateTime">
-	<input type="checkbox" id="enableUpdateTime"
-		ng-model="pendingCountTreeCtrl.enableUpdateTime"
-	ng-change="pendingCountTreeCtrl.onChangeEnableUpdateTime()"/>
-	auto update time</label>
-  <button ng-show="! pendingCountTreeCtrl.enableUpdateTime"
-  	class="btn btn-default btn-small" ng-click="pendingCountTreeCtrl.updateTime()"><i class="glyphicon glyphicon-refresh"></i></button>
-</span>
+<div class="row">
+	<label for="enablePolling">
+		<input type="checkbox" id="enablePolling"
+			ng-model="pendingCountTreeCtrl.enablePolling" />
+		Polling
+	</label>	
+	<label for="autoRefreshFrequency"></label>
+	<input type="number"
+			id="autoRefreshFrequency"
+			ng-model="pendingCountTreeCtrl.autoRefreshFrequency" 
+			ng-change="pendingCountTreeCtrl.onChangeAutoRefreshFrequency()"/>
+</div>
 
-<br/>
+
+<div class="row">
+	<label for="enableWebSocket"> 
+		<input type="checkbox"
+				id="enableWebSocket"
+				ng-model="pendingCountTreeCtrl.enableWebSocket"
+				ng-change="pendingCountTreeCtrl.onChangeEnableWebSocket()" />
+		Use WebSocket
+	</label>
+</div>
+<div class="row">
+	<span ng-show="pendingCountTreeCtrl.enableWebSocket">
+		<label>Server Publisher PeriodicTask</label>
+		<button class="btn btn-small"
+			ng-click="pendingCountTreeCtrl.stopServerPublisherPeriodicTask()">
+			 <i class="glyphicon glyphicon-stop"> </i>
+		</button>
+		<button class="btn btn-small"
+			ng-click="pendingCountTreeCtrl.startServerPublisherPeriodicTask()">
+			 <i class="glyphicon glyphicon-play"> </i>
+		</button>
+	</span>
+</div>
+
 
 {{pendingCountTreeCtrl.message}}
 

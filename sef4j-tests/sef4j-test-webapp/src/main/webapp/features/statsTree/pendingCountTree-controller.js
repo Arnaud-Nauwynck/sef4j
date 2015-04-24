@@ -80,14 +80,6 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 
 	
 	vm.updateTime = function() {
-		if (vm.autoRefreshFrequency > 0) {
-			vm.autoRefreshRemainCount--;
-			if (vm.autoRefreshRemainCount < 0) {
-				vm.autoRefreshRemainCount = vm.autoRefreshFrequency;
-				vm.loadPendingCount();
-				return;
-			}
-		}		
 		var timeNow = new Date().getTime();
 		var elapsedMillisUntilNow = timeNow - vm.pendingCountData.clientTimeMillis;
 		vm.pendingCountData.tableData.forEach(function(e) {
@@ -95,47 +87,6 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		});
 	}
 
-	
-	vm.startUpdateTimer = function() {
-		if (vm.stopTime != null) {
-			return;
-		}
-		var updateTimeCallback = function() {
-			vm.updateTime();
-		};
-		vm.stopTime = $interval(updateTimeCallback, 1000);
-
-		//TODO
-//        vm.on('$destroy', function() {
-//        	if (vm.stopTime != null) {
-//        		$interval.cancel(vm.stopTime);
-//        	}
-//        });
-	};
-
-	vm.stopUpdateTimer = function() {
-		var toStop = vm.stopTime;
-		vm.stopTime = null;
-		if (toStop == null) {
-			return;
-		}
-		$interval.cancel(toStop);
-	}
-
-	vm.onChangeEnableUpdateTime = function() {
-		if (vm.enableUpdateTime || v.autoRefreshFrequency > 0) {
-			vm.startUpdateTimer();
-		} else {
-			vm.stopUpdateTimer();
-		}
-	}
-	vm.onChangeAutoRefreshFrequency = function() {
-		if (vm.enableUpdateTime || v.autoRefreshFrequency > 0) {
-			vm.startUpdateTimer();
-		} else {
-			vm.stopUpdateTimer();
-		}
-	}
 	
 	
 	
@@ -220,15 +171,6 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 				e.pendingAverageStartTimeMillis = timeNow - e.pendingAverageMillisOnLoad;
 			}
 		});
-
-		var i;
-		for(i = 1; i < 3; i++) {
-			var e = res[i];
-			if (e != null) {
-				console.info("[" + i + "] %o", e);
-			}
-		}
-
     	vm.updateTime();
 	}
 
@@ -283,6 +225,149 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
     });
 
 	
+	// Client-side polling timer
+	// ---------------------------------------------------------------
+	
+	vm.startUpdateTimer = function() {
+		if (vm.stopTime != null) {
+			return;
+		}
+		var updateTimeCallback = function() {
+			if (vm.autoRefreshFrequency > 0) {
+				vm.autoRefreshRemainCount--;
+				if (vm.autoRefreshRemainCount < 0) {
+					vm.autoRefreshRemainCount = vm.autoRefreshFrequency;
+					vm.loadPendingCount();
+					return;
+				}
+			}		
+			vm.updateTime();
+		};
+		vm.stopTime = $interval(updateTimeCallback, 1000);
+
+		//TODO
+//        vm.on('$destroy', function() {
+//        	if (vm.stopTime != null) {
+//        		$interval.cancel(vm.stopTime);
+//        	}
+//        });
+	};
+
+	vm.stopUpdateTimer = function() {
+		var toStop = vm.stopTime;
+		vm.stopTime = null;
+		if (toStop == null) {
+			return;
+		}
+		$interval.cancel(toStop);
+	}
+
+	vm.onChangeEnableUpdateTime = function() {
+		if (vm.enableUpdateTime || vm.autoRefreshFrequency > 0) {
+			vm.startUpdateTimer();
+		} else {
+			vm.stopUpdateTimer();
+		}
+	}
+
+	vm.onChangeAutoRefreshFrequency = function() {
+		if (vm.enableUpdateTime || v.autoRefreshFrequency > 0) {
+			vm.startUpdateTimer();
+		} else {
+			vm.stopUpdateTimer();
+		}
+	}
+
+	
+	// WebSocket for server-push
+	// ------------------------------------------------------------------------
+	
+    function getUrl() {
+        var url = window.location.origin;
+        return url + '/websocket/perfstats'; // cf server-side AtmosphereStatsResourceService.PATH
+    }
+
+    var websocketTransport = "ws"; // websocket";
+    var websocketRequest = {
+    		url : getUrl(),
+    		contentType : "application/json",
+    		transport : websocketTransport,
+    		trackMessageLength : true,
+    		withCredentials : true,
+    		reconnectInterval : 5000,
+    		enableXDR : true,
+    		timeout : 60000
+    };
+
+    websocketRequest.onOpen = function(response) {
+    	console.log('Trying to use transport: ' + response.transport);
+    	websocketTransport = response.transport;
+    };
+
+    websocketRequest.onClientTimeout = function(r) {
+    	setTimeout(function() {
+        	console.log("client timeout, try reconnect...");
+    		vm.websocketSubSocket = atmosphere.subscribe(websocketRequest);
+    	}, websocketRequest.reconnectInterval);
+    };
+
+    websocketRequest.onClose = function(response) {
+    	console.log('Server closed websocket connection. Changing transport to: '+ response.transport);
+    };
+
+    websocketRequest.onMessage = function(message) {
+    	var data = message.responseBody;
+    	console.log("receive server data");
+    	
+    	pendingCountTreeToTableData(data, vm.pendingCountData);
+    	vm.pendingCountTableParams.reload();
+		
+    }
+
+    
+	vm.onChangeEnableWebSocket = function() {
+		if (vm.enableWebSocket) {
+			vm.startSubscribeWebSocket();
+		} else {
+			vm.stopSubscribeWebSocket();
+		}
+	}
+    
+    vm.startSubscribeWebSocket = function() {
+    	if (vm.websocketSubSocket == null) {
+	    	console.log("WebSocket atmosphere.subscribe");
+	    	vm.websocketSubSocket = atmosphere.subscribe(websocketRequest);
+    	}
+    }
+    
+    vm.stopSubscribeWebSocket = function() {
+    	if (vm.websocketSubSocket != null) {
+        	console.log("WebSocket atmosphere.unsubscribe");
+    		atmosphere.unsubscribe(vm.websocketSubSocket);
+    		vm.websocketSubSocket = null;
+    	}
+    }
+
+    vm.stopServerPublisherPeriodicTask = function() {
+    	vm.message = "stop...";
+    	$http.post("/app/rest/metricsStatsTree/stopAtmospherePeriodicTaskPublisher")
+    	.success(function(data) {
+    		vm.message = "";
+    	}).error(function(response) {
+    		vm.message = "ERROR: " + response.message;
+    	});
+    }
+    vm.startServerPublisherPeriodicTask = function() {
+    	vm.message = "start...";
+    	$http.post("/app/rest/metricsStatsTree/startAtmospherePeriodicTaskPublisher")
+    	.success(function(data) {
+    		vm.message = "";
+    	}).error(function(response) {
+    		vm.message = "ERROR: " + response.message;
+    	});
+    }
+    
+
 	// init
 	// vm.loadPendingCount();
 });

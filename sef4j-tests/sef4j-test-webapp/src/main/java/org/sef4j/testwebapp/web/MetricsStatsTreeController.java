@@ -1,6 +1,7 @@
 package org.sef4j.testwebapp.web;
 
 import java.io.Closeable;
+import java.util.concurrent.TimeUnit;
 
 import org.sef4j.callstack.CallStackElt.StackPopper;
 import org.sef4j.callstack.CallStackPushPopHandler;
@@ -8,12 +9,15 @@ import org.sef4j.callstack.LocalCallStack;
 import org.sef4j.callstack.handlers.CallTreeStatsUpdaterCallStackHandler;
 import org.sef4j.callstack.stats.ThreadTimeUtils;
 import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapperUtils;
-import org.sef4j.callstack.stats.helpers.PropTreeNodeDTOPrinter;
 import org.sef4j.core.api.proptree.PropTreeNode;
 import org.sef4j.core.api.proptree.PropTreeNodeDTO;
 import org.sef4j.core.api.proptree.PropTreeNodeDTOMapper;
+import org.sef4j.core.helpers.AsyncUtils;
+import org.sef4j.core.helpers.PeriodicTask;
+import org.sef4j.testwebapp.service.AtmospherePerfStatsPublishService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,6 +37,15 @@ public class MetricsStatsTreeController {
     private PropTreeNodeDTOMapper pendingPropTreeNodeDTOMapper = 
     		PerfStatsDTOMapperUtils.createPendingCountFilterDTOMapper(0);
 
+    private PeriodicTask publisherPeriodicTask = new PeriodicTask("pendingDiffPublisherPeriodicTask", 
+    		() -> pendingDiffPublisher(),
+    		10, TimeUnit.SECONDS, AsyncUtils.defaultScheduledThreadPool());
+    
+	@Autowired 
+	private AtmospherePerfStatsPublishService statsPublishService;
+
+	
+	
     // ------------------------------------------------------------------------
     
     public MetricsStatsTreeController() {
@@ -75,7 +88,34 @@ public class MetricsStatsTreeController {
 	    return res;
 	}
 
-	
+    @RequestMapping(value="startAtmospherePeriodicTaskPublisher", method=RequestMethod.POST)
+	public void startAtmospherePeriodicTaskPublisher() {
+    	LOG.info("starAtmospherePeriodicTaskPublisher");
+    	if (! publisherPeriodicTask.isStarted()) {
+    		publisherPeriodicTask.start();
+    	}
+    }
+    
+    @RequestMapping(value="stopAtmospherePeriodicTaskPublisher", method=RequestMethod.POST)
+	public void stopAtmospherePeriodicTaskPublisher() {
+    	LOG.info("stopAtmospherePeriodicTaskPublisher");
+    	if (publisherPeriodicTask.isStarted()) {
+    		publisherPeriodicTask.stop();
+    	}
+    }
+
+    @RequestMapping(value="setPeriodPublisher", method=RequestMethod.POST)
+	public void setPeriod(int period) {
+    	publisherPeriodicTask.setPeriod(period, TimeUnit.SECONDS);
+    }
+    
+    protected void pendingDiffPublisher() {
+	    // TODO ... use incremental publisher (collect diff PendingCount only !)
+    	PropTreeNodeDTO pendingTreeNode = pendingPropTreeNodeDTOMapper.map(rootWSStatsNode);
+    	LOG.info("publish stats");
+    	statsPublishService.publish(pendingTreeNode);
+    }
+    
     // ------------------------------------------------------------------------
     
 	public static StatsHandlerPopper pushTopLevelStats(String className, String categoryMethod, String methodName) {

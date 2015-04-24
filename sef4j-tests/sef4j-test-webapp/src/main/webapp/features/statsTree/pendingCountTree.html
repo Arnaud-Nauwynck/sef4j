@@ -15,6 +15,10 @@ Depth: <input ng-model="pendingCountTreeCtrl.pendingTaskDepth"></input>
 	Show real-time column</label>
 
 <span ng-show="pendingCountTreeCtrl.showRealTimeColumn">
+<label for="autoRefreshFrequency"></label>
+<input type="number" id="autoRefreshFrequency"
+		ng-model="pendingCountTreeCtrl.autoRefreshFrequency"
+		pendingCountTreeCtrl.onChangeAutoRefreshFrequency()/>
 <label for="enableUpdateTime">
 	<input type="checkbox" id="enableUpdateTime"
 		ng-model="pendingCountTreeCtrl.enableUpdateTime"

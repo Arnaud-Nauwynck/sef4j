@@ -1,18 +1,14 @@
 package org.sef4j.testwebapp.web;
 
-import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
-import java.io.PrintStream;
 
 import org.sef4j.callstack.CallStackElt.StackPopper;
 import org.sef4j.callstack.CallStackPushPopHandler;
 import org.sef4j.callstack.LocalCallStack;
 import org.sef4j.callstack.handlers.CallTreeStatsUpdaterCallStackHandler;
 import org.sef4j.callstack.stats.ThreadTimeUtils;
-import org.sef4j.callstack.stats.dto.PendingPerfCountDTO;
 import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapperUtils;
 import org.sef4j.callstack.stats.helpers.PropTreeNodeDTOPrinter;
-import org.sef4j.callstack.stats.helpers.PropTreeNodeDTOPrinter.SinglePropPropTreeNodeDTOPrinter;
 import org.sef4j.core.api.proptree.PropTreeNode;
 import org.sef4j.core.api.proptree.PropTreeNodeDTO;
 import org.sef4j.core.api.proptree.PropTreeNodeDTOMapper;
@@ -75,7 +71,7 @@ public class MetricsStatsTreeController {
 	    long timeNowMillis = System.currentTimeMillis();
 	    res.putProp("timeNowMillis", timeNowMillis);
 
-	    LOG.info("findAllPending => \n" + PropTreeNodeDTOPrinter.recursiveDumpPendingCount(res));
+	    // LOG.info("findAllPending => \n" + PropTreeNodeDTOPrinter.recursiveDumpPendingCount(res));
 	    return res;
 	}
 

@@ -19,6 +19,8 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 
 	vm.showRealTimeColumn = false;
 	vm.enableUpdateTime = false;
+	vm.autoRefreshFrequency = 0;
+	vm.autoRefreshRemainCount = 0;
 	vm.stopTime = null;
 	
 	
@@ -76,7 +78,16 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 	};
 	
 
+	
 	vm.updateTime = function() {
+		if (vm.autoRefreshFrequency > 0) {
+			vm.autoRefreshRemainCount--;
+			if (vm.autoRefreshRemainCount < 0) {
+				vm.autoRefreshRemainCount = vm.autoRefreshFrequency;
+				vm.loadPendingCount();
+				return;
+			}
+		}		
 		var timeNow = new Date().getTime();
 		var elapsedMillisUntilNow = timeNow - vm.pendingCountData.clientTimeMillis;
 		vm.pendingCountData.tableData.forEach(function(e) {
@@ -84,6 +95,7 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		});
 	}
 
+	
 	vm.startUpdateTimer = function() {
 		if (vm.stopTime != null) {
 			return;
@@ -93,11 +105,12 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		};
 		vm.stopTime = $interval(updateTimeCallback, 1000);
 
-        element.on('$destroy', function() {
-        	if (vm.stopTime != null) {
-        		$interval.cancel(vm.stopTime);
-        	}
-        });
+		//TODO
+//        vm.on('$destroy', function() {
+//        	if (vm.stopTime != null) {
+//        		$interval.cancel(vm.stopTime);
+//        	}
+//        });
 	};
 
 	vm.stopUpdateTimer = function() {
@@ -110,7 +123,14 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 	}
 
 	vm.onChangeEnableUpdateTime = function() {
-		if (vm.enableUpdateTime) {
+		if (vm.enableUpdateTime || v.autoRefreshFrequency > 0) {
+			vm.startUpdateTimer();
+		} else {
+			vm.stopUpdateTimer();
+		}
+	}
+	vm.onChangeAutoRefreshFrequency = function() {
+		if (vm.enableUpdateTime || v.autoRefreshFrequency > 0) {
 			vm.startUpdateTimer();
 		} else {
 			vm.stopUpdateTimer();

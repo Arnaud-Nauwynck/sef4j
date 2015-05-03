@@ -9,8 +9,9 @@ import javax.inject.Inject;
 
 import org.sef4j.testwebapp.dto.ProductDTO;
 import org.sef4j.testwebapp.service.InMemoryProductService;
+import org.sef4j.testwebapp.service.MetricsStatsTreeRegistry;
+import org.sef4j.testwebapp.service.MetricsStatsTreeRegistry.StatsHandlerPopper;
 import org.sef4j.testwebapp.service.ProductService;
-import org.sef4j.testwebapp.web.MetricsStatsTreeController.StatsHandlerPopper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -100,7 +101,7 @@ public class ProductController {
 	
     public StatsHandlerPopper pushTopLevelWSStatsHandler(String methodName) {
         String className = LOG.getName();
-        return MetricsStatsTreeController.pushTopLevelStats(className, "ws", methodName);
+        return MetricsStatsTreeRegistry.pushTopLevelStats(className, "ws", methodName);
     }
 	
 }

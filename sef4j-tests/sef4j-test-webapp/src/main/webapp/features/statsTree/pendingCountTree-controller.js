@@ -1,6 +1,8 @@
 'use strict';
 
-testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $http, ngTableParams) {
+testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $http, ngTableParams
+		, StatsAsyncService
+		) {
 	var vm = this;
 
 	vm.message = "";
@@ -223,6 +225,28 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
         }
     });
 
+	
+	vm.startPendingCountPublisherPeriodicTask = function() {
+		$http.post('app/rest/metricsStatsTree/startPendingCountPublisherPeriodicTask');
+	}
+	vm.stopPendingCountPublisherPeriodicTask = function() {
+		$http.post('app/rest/metricsStatsTree/stopPendingCountPublisherPeriodicTask');
+	}
+	
+	vm.pendingCountListener = function(data) {
+		vm.message = "last received msg at " + new Date();
+		
+		pendingCountTreeToTableData(data, vm.pendingCountData);
+    	
+    	vm.pendingCountTableParams.reload();
+		vm.message = "";
+	};
+	
+	StatsAsyncService.addListener(vm.pendingCountListener);
+	
+	$scope.$on('$destroy', function() {
+		StatsAsyncService.removeListener(pendingCountListener);
+	})
 	
 	// init
 	// vm.loadPendingCount();

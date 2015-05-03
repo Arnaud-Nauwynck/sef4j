@@ -5,7 +5,8 @@ import java.util.concurrent.Executors;
 
 import org.sef4j.callstack.CallStackElt.StackPopper;
 import org.sef4j.callstack.LocalCallStack;
-import org.sef4j.testwebapp.web.MetricsStatsTreeController.StatsHandlerPopper;
+import org.sef4j.testwebapp.service.MetricsStatsTreeRegistry;
+import org.sef4j.testwebapp.service.MetricsStatsTreeRegistry.StatsHandlerPopper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.MediaType;
@@ -85,12 +86,12 @@ public class DummyPendingTaskController {
 
 	public StatsHandlerPopper pushTopLevelWSStatsHandler(String methodName) {
         String className = LOG.getName();
-        return MetricsStatsTreeController.pushTopLevelStats(className, "dummyWS", methodName);
+        return MetricsStatsTreeRegistry.pushTopLevelStats(className, "dummyWS", methodName);
     }
 
 	public StatsHandlerPopper pushTopLevelTaskStatsHandler(String methodName) {
         String className = LOG.getName();
-        return MetricsStatsTreeController.pushTopLevelStats(className, "dummyTasks", methodName);
+        return MetricsStatsTreeRegistry.pushTopLevelStats(className, "dummyTasks", methodName);
     }
 
 }

@@ -42,7 +42,7 @@ public class ProductService {
         alreadyFound.stream().forEach(x -> alreadyFoundByDescr.put(x.getShortDescr(), x));
         
         List<ProductEntity> toCreate = new ArrayList<ProductEntity>();
-        for (int i = 0; i < 20000; i++) {
+        for (int i = 0; i < 2000; i++) {
             String name = null;
             switch(i % 3) {
                 case 0: name = "book"; break; 

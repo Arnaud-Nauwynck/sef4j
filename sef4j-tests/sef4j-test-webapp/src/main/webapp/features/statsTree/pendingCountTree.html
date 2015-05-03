@@ -15,6 +15,13 @@ Depth: <input ng-model="pendingCountTreeCtrl.pendingTaskDepth"></input>
 
 {{pendingCountTreeCtrl.message}}
 
+
+<div class="row">
+	<label>server-side publish task</label>
+	<button class="btn btn-default glyphicon glyphicon-start" ng-click="pendingCountTreeCtrl.startPendingCountPublisherPeriodicTask()"> </button>
+	<button class="btn btn-default glyphicon glyphicon-stop" ng-click="pendingCountTreeCtrl.stopPendingCountPublisherPeriodicTask()"> </button>
+</div>
+
 <!-- 
 ng-table-resizable-columns   ... layout bug: when adding this css class => huge empty div inserted above table
  -->

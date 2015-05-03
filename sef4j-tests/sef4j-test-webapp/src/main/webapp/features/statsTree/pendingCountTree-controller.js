@@ -1,8 +1,5 @@
 'use strict';
-
-testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $http, ngTableParams
-		, StatsAsyncService
-		) {
+testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $http, ngTableParams, StatsAsyncService) {
 	var vm = this;
 
 	vm.message = "";
@@ -19,6 +16,12 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		clientTimeMillis: 0
 	};
 
+	vm.showRealTimeColumn = false;
+	vm.enableUpdateTime = false;
+	vm.autoRefreshFrequency = 0;
+	vm.autoRefreshRemainCount = 0;
+	vm.stopTime = null;
+	
 	
 	vm.dummyPendingCountTableData =
 		[
@@ -74,6 +77,7 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 	};
 	
 
+	
 	vm.updateTime = function() {
 		var timeNow = new Date().getTime();
 		var elapsedMillisUntilNow = timeNow - vm.pendingCountData.clientTimeMillis;
@@ -82,6 +86,9 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		});
 	}
 
+	
+	
+	
 	var recursivePendingCountTreeToTableData = function(res, tree, 
 			rootClassName, rootMethodName,
 			parentPath, parentShortPath, parentClassName, parentMethodName, 
@@ -163,15 +170,6 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 				e.pendingAverageStartTimeMillis = timeNow - e.pendingAverageMillisOnLoad;
 			}
 		});
-
-		var i;
-		for(i = 1; i < 3; i++) {
-			var e = res[i];
-			if (e != null) {
-				console.info("[" + i + "] %o", e);
-			}
-		}
-
     	vm.updateTime();
 	}
 
@@ -226,6 +224,64 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
     });
 
 	
+	
+	// Client-side polling timer
+	// ---------------------------------------------------------------
+	
+	vm.startUpdateTimer = function() {
+		if (vm.stopTime != null) {
+			return;
+		}
+		var updateTimeCallback = function() {
+			if (vm.autoRefreshFrequency > 0) {
+				vm.autoRefreshRemainCount--;
+				if (vm.autoRefreshRemainCount < 0) {
+					vm.autoRefreshRemainCount = vm.autoRefreshFrequency;
+					vm.loadPendingCount();
+					return;
+				}
+			}		
+			vm.updateTime();
+		};
+		vm.stopTime = $interval(updateTimeCallback, 1000);
+
+		//TODO
+//        vm.on('$destroy', function() {
+//        	if (vm.stopTime != null) {
+//        		$interval.cancel(vm.stopTime);
+//        	}
+//        });
+	};
+
+	vm.stopUpdateTimer = function() {
+		var toStop = vm.stopTime;
+		vm.stopTime = null;
+		if (toStop == null) {
+			return;
+		}
+		$interval.cancel(toStop);
+	}
+
+	vm.onChangeEnableUpdateTime = function() {
+		if (vm.enableUpdateTime || vm.autoRefreshFrequency > 0) {
+			vm.startUpdateTimer();
+		} else {
+			vm.stopUpdateTimer();
+		}
+	}
+
+	vm.onChangeAutoRefreshFrequency = function() {
+		if (vm.enableUpdateTime || v.autoRefreshFrequency > 0) {
+			vm.startUpdateTimer();
+		} else {
+			vm.stopUpdateTimer();
+		}
+	}
+
+	
+	// WebSocket for server-push
+	// ------------------------------------------------------------------------
+
 	vm.startPendingCountPublisherPeriodicTask = function() {
 		$http.post('app/rest/metricsStatsTree/startPendingCountPublisherPeriodicTask');
 	}
@@ -246,7 +302,10 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 	
 	$scope.$on('$destroy', function() {
 		StatsAsyncService.removeListener(pendingCountListener);
-	})
+	});
+	
+	
+
 	
 	// init
 	// vm.loadPendingCount();

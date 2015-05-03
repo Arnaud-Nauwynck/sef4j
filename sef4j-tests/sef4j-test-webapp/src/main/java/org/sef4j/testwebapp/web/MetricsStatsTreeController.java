@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import org.sef4j.core.api.proptree.PropTreeNodeDTO;
 import org.sef4j.core.helpers.AsyncUtils;
 import org.sef4j.core.helpers.PeriodicTask;
+import org.sef4j.testwebapp.service.AtmospherePerfStatsPublishService;
 import org.sef4j.testwebapp.service.MetricsStatsTreeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -32,6 +33,9 @@ public class MetricsStatsTreeController {
 	protected PeriodicTask pendingCountPublisherPeriodicTask = new PeriodicTask("pendingCountPublisherPeriodicTask",
 	        () -> pendingCountPublisherPeriodicTask(), 
 	        15, TimeUnit.SECONDS, AsyncUtils.defaultScheduledThreadPool()); 
+
+	@Autowired 
+	private AtmospherePerfStatsPublishService statsPublishService;
 	
     // ------------------------------------------------------------------------
     
@@ -60,7 +64,6 @@ public class MetricsStatsTreeController {
 	    PropTreeNodeDTO res = metricsStatsTreeRegistry.findAllPending();
 	    return res;
 	}
-
     
     @RequestMapping(value="startPendingCountPublisherPeriodicTask", method=RequestMethod.POST)
     public void startPendingCountPublisherPeriodicTask() {

@@ -22,6 +22,7 @@
     	<sef4j.version>1.0.0</sef4j.version>
     
         <springboot.version>1.2.3.RELEASE</springboot.version>
+        <HikariCP.version>2.2.5</HikariCP.version>
         <commons-io.version>2.4</commons-io.version>
         <commons-lang.version>2.6</commons-lang.version>
         <hibernate.version>4.3.6.Final</hibernate.version>
@@ -31,6 +32,45 @@
         <json-path.version>0.9.1</json-path.version>
         <orika.version>1.4.5</orika.version>
     </properties>
+
+
+	<dependencyManagement>
+		<dependencies>
+	        <dependency>
+	            <groupId>org.atmosphere</groupId>
+	            <artifactId>atmosphere-spring</artifactId>
+	            <version>${atmosphere-spring.version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.atmosphere</groupId>
+	            <artifactId>atmosphere-runtime</artifactId>
+	            <version>${atmosphere-version}</version>
+	        </dependency>
+	        <dependency>
+	            <groupId>org.atmosphere</groupId>
+	            <artifactId>atmosphere-runtime-native</artifactId>
+	            <version>${atmosphere-version}</version>
+	        </dependency>
+	        <dependency>
+	        	<groupId>org.atmosphere</groupId>
+			    <artifactId>atmosphere-compat-tomcat</artifactId>
+			    <type>bundle</type>
+	            <version>${atmosphere-version}</version>
+	        </dependency>
+	        <dependency>
+	        	<groupId>org.atmosphere</groupId>
+			    <artifactId>atmosphere-compat-tomcat7</artifactId>
+			    <type>bundle</type>
+	            <version>${atmosphere-version}</version>
+	        </dependency>
+	        <dependency>
+	        	<groupId>org.atmosphere</groupId>
+			    <artifactId>atmosphere-compat-jbossweb</artifactId>
+			    <type>bundle</type>
+	            <version>${atmosphere-version}</version>
+	        </dependency>
+		</dependencies>
+	</dependencyManagement>
 
 	<dependencies>
 

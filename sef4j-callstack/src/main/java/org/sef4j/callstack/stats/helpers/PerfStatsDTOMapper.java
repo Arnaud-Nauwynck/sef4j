@@ -20,6 +20,10 @@ public class PerfStatsDTOMapper extends AbstractTypedPropTreeValueMapper<PerfSta
 		public PendingPerfCountDTO mapProp(PerfStats src) {
 			return new PendingPerfCountDTO(src.getPendingCounts());
 		}
+		@Override
+		public String toString() {
+			return "PendingPerfCountDTOMapper[]";
+		}		
 	}
 
 	/** Mapper for extract PerfStats.elapsedTime to DTO */
@@ -29,6 +33,10 @@ public class PerfStatsDTOMapper extends AbstractTypedPropTreeValueMapper<PerfSta
 		public CumulatedBasicTimeStatsLogHistogramDTO mapProp(PerfStats src) {
 			return new CumulatedBasicTimeStatsLogHistogramDTO(src.getElapsedTimeStats());
 		}
+		@Override
+		public String toString() {
+			return "CumulatedElapsedBasicTimeStatsLogHistogramDTOMapper[]";
+		}		
 	}
 	
 	/** Mapper for extract PerfStats.threadUserTime to DTO */
@@ -37,6 +45,10 @@ public class PerfStatsDTOMapper extends AbstractTypedPropTreeValueMapper<PerfSta
 		public CumulatedBasicTimeStatsLogHistogramDTO mapProp(PerfStats src) {
 			return new CumulatedBasicTimeStatsLogHistogramDTO(src.getThreadUserTimeStats());
 		}
+		@Override
+		public String toString() {
+			return "CumulatedThreadUserBasicTimeStatsLogHistogramDTOMapper[]";
+		}		
 	}
 
 	/** Mapper for extract PerfStats.threadCpuTime to DTO */
@@ -45,6 +57,10 @@ public class PerfStatsDTOMapper extends AbstractTypedPropTreeValueMapper<PerfSta
 		public CumulatedBasicTimeStatsLogHistogramDTO mapProp(PerfStats src) {
 			return new CumulatedBasicTimeStatsLogHistogramDTO(src.getThreadCpuTimeStats());
 		}
+		@Override
+		public String toString() {
+			return "CumulatedThreadCpuBasicTimeStatsLogHistogramDTOMapper[]";
+		}		
 	}
 
 }

@@ -1,37 +1,37 @@
 package org.sef4j.testwebapp.web;
 
-import java.util.concurrent.TimeUnit;
+import java.util.List;
 
 import org.sef4j.core.api.proptree.PropTreeNodeDTO;
-import org.sef4j.core.helpers.AsyncUtils;
-import org.sef4j.core.helpers.PeriodicTask;
+import org.sef4j.testwebapp.dto.SubscriptionCommandDTO;
+import org.sef4j.testwebapp.service.MetricsStatsPublisher;
 import org.sef4j.testwebapp.service.MetricsStatsTreeRegistry;
+import org.sef4j.testwebapp.service.PerfStatsSubscriptionSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.handler.annotation.MessageMapping;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.socket.WebSocketSession;
 
 @RestController
 @RequestMapping(value="app/rest/metricsStatsTree", produces = MediaType.APPLICATION_JSON_VALUE)
 public class MetricsStatsTreeController {
-
-	private static final String TOPIC_PENDING_COUNT = "/topic/pendingCount";
 
     private static final Logger LOG = LoggerFactory.getLogger(MetricsStatsTreeController.class);
 
 	@Autowired 
 	protected MetricsStatsTreeRegistry metricsStatsTreeRegistry;
 
-	@Autowired
-    private SimpMessagingTemplate simpMessageSender;
-    
-	protected PeriodicTask pendingCountPublisherPeriodicTask = new PeriodicTask("pendingCountPublisherPeriodicTask",
-	        () -> pendingCountPublisherPeriodicTask(), 
-	        15, TimeUnit.SECONDS, AsyncUtils.defaultScheduledThreadPool()); 
+	@Autowired 
+	protected MetricsStatsPublisher metricsStatsPublisher;
+	
+	@Autowired 
+	protected PerfStatsSubscriptionSessionManager perfStatsSubscriptionSessionManager;
 	
     // ------------------------------------------------------------------------
     
@@ -63,24 +63,20 @@ public class MetricsStatsTreeController {
     
     @RequestMapping(value="startPendingCountPublisherPeriodicTask", method=RequestMethod.POST)
     public void startPendingCountPublisherPeriodicTask() {
-        LOG.info("startPendingCountPublisherPeriodicTask");
-        pendingCountPublisherPeriodicTask.start();
+        metricsStatsPublisher.startPendingCountPublisherPeriodicTask();
     }
 
     @RequestMapping(value="stopPendingCountPublisherPeriodicTask", method=RequestMethod.POST)
     public void stopPendingCountPublisherPeriodicTask() {
-        LOG.info("stopPendingCountPublisherPeriodicTask");
-        pendingCountPublisherPeriodicTask.stop();
+        metricsStatsPublisher.stopPendingCountPublisherPeriodicTask();
     }
     
-    public void pendingCountPublisherPeriodicTask() {
-        PropTreeNodeDTO res = metricsStatsTreeRegistry.findAllPending();
-        if (res.getChildMap().isEmpty()) {
-            LOG.info("pendingCountPublisherPeriodicTask ... skip sending");
-            return;
-        }
-        LOG.info("pendingCountPublisherPeriodicTask ... sending message to " + TOPIC_PENDING_COUNT);
-        simpMessageSender.convertAndSend(TOPIC_PENDING_COUNT, res);
+    @MessageMapping(value="/pendingCount/subscription")
+    @SendToUser(broadcast=false)
+    public List<String> asyncSubscriptionCommandsRequest(WebSocketSession webSocketSession, List<SubscriptionCommandDTO> subscriptionCommands) {
+    	List<String> res = perfStatsSubscriptionSessionManager.handleSubscriptionCommandsRequest(webSocketSession, subscriptionCommands);
+    	return res;
     }
     
 }
+ 

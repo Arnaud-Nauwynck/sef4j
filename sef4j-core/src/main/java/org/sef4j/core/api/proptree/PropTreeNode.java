@@ -223,6 +223,10 @@ public class PropTreeNode {
 		return res;
 	}
 
+	public PropTreeNode getChildOrNull(String childName) {
+		return childMap.get(childName);
+	}
+	
 	/**
 	 * helper method for repeating getOrCreateChild() with path elements
 	 * @param path
@@ -237,6 +241,19 @@ public class PropTreeNode {
 		return res;
 	}
 
+	public PropTreeNode getChildByPathOrNull(String[] path) {
+		PropTreeNode res = this;
+		final int len = path.length;
+		for (int i = 0; i < len; i++) {
+			res = res.getChildOrNull(path[i]);
+			if (res == null) {
+				return null;
+			}
+		}
+		return res;
+	}
+
+	
 	/**
 	 * @param propName
 	 * @return prop with name "propName", newly created if did not exist before
@@ -283,4 +300,5 @@ public class PropTreeNode {
 	public String toString() {
 		return "CallTreeNode[" + name + "]";
 	}
+
 }

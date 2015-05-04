@@ -2,8 +2,10 @@ package org.sef4j.testwebapp.config;
 
 import java.util.Map;
 
+import org.sef4j.testwebapp.web.PerfStatsWebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -12,13 +14,18 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.config.annotation.AbstractWebSocketMessageBrokerConfigurer;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
+import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
+import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.server.HandshakeInterceptor;
 
 @Configuration
 @EnableWebSocketMessageBroker
-public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
+public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer implements WebSocketConfigurer{
     
     private static final Logger LOG = LoggerFactory.getLogger(WebSocketConfig.class);
+    
+    @Autowired 
+    protected PerfStatsWebSocketHandler appWebSocketHandler;
     
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -33,6 +40,11 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
     		.withSockJS();
 	}
 
+	@Override
+	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+		registry.addHandler(new PerfStatsWebSocketHandler(), "/pendingCount");
+	}
+	
 
 	
 	protected static class LoggerHandshakeInterceptor implements HandshakeInterceptor {

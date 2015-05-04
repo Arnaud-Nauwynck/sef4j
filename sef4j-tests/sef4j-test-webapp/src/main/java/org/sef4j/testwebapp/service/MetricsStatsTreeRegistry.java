@@ -72,6 +72,10 @@ public class MetricsStatsTreeRegistry {
 	}
 
 	
+    public PropTreeNode getPropTreeNodeByPathOrNull(String[] path) {
+    	return rootWSStatsNode.getChildByPathOrNull(path);
+    }
+    
     // ------------------------------------------------------------------------
     
 	public static StatsHandlerPopper pushTopLevelStats(String className, String categoryMethod, String methodName) {

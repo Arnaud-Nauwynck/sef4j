@@ -84,7 +84,7 @@ public class PerfStatsDTOMapperUtils {
 			.build();		
 	}
 	
-				
+	public static final PropTreeNodeDTOMapper DEFAULT_Filter1_PendingCountDTOMapper = createPendingCountFilterDTOMapper(1);
 	
 	// deprecated ?
 	// ------------------------------------------------------------------------

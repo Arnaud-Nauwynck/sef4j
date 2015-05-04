@@ -90,6 +90,32 @@ public class PendingPerfCountDTO implements ICopySupport<PendingPerfCountDTO> {
 
 	// ------------------------------------------------------------------------
 	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + pendingCount;
+		result = prime * result + (int) (pendingSumStartTime ^ (pendingSumStartTime >>> 32));
+		return result;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		PendingPerfCountDTO other = (PendingPerfCountDTO) obj;
+		if (pendingCount != other.pendingCount)
+			return false;
+		if (pendingSumStartTime != other.pendingSumStartTime)
+			return false;
+		return true;
+	}
+	
+	
 	public String toStringUntil(long timeNow) {
 		final int count = pendingCount;
 		if (count == 0) return "-"; 

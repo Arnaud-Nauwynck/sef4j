@@ -9,9 +9,9 @@ import org.sef4j.callstack.stats.PerfStats;
 import org.sef4j.callstack.stattree.changes.BasicStatIgnorePendingChangeCollector;
 import org.sef4j.callstack.stattree.changes.PerfStatsChangesEvent;
 import org.sef4j.core.api.proptree.PropTreeNode;
-import org.sef4j.core.helpers.AsyncUtils;
 import org.sef4j.core.helpers.proptree.changes.AsyncChangeCollectorSender;
 import org.sef4j.core.helpers.senders.InMemoryEventSender;
+import org.sef4j.core.util.AsyncUtils;
 
 
 public class AsyncChangeCollectorSenderTest {

@@ -1,4 +1,4 @@
-package org.sef4j.core.helpers;
+package org.sef4j.core.util;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;

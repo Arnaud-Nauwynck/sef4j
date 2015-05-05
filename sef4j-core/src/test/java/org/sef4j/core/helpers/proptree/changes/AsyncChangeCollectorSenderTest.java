@@ -6,9 +6,9 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.core.api.proptree.PropTreeNode;
-import org.sef4j.core.helpers.AsyncUtils;
 import org.sef4j.core.helpers.proptree.DummyCount;
 import org.sef4j.core.helpers.senders.InMemoryEventSender;
+import org.sef4j.core.util.AsyncUtils;
 
 
 public class AsyncChangeCollectorSenderTest {

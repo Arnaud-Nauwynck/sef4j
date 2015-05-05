@@ -7,8 +7,8 @@ import org.sef4j.callstack.stattree.changes.PendingCountChangeCollector;
 import org.sef4j.callstack.stattree.changes.PendingPerfCountChangesEvent;
 import org.sef4j.callstack.stattree.changes.PerfStatsChangesEvent;
 import org.sef4j.core.api.proptree.PropTreeNode;
-import org.sef4j.core.helpers.AsyncUtils;
 import org.sef4j.core.helpers.proptree.changes.AsyncChangeCollectorSender.Builder;
+import org.sef4j.core.util.AsyncUtils;
 
 public class CallStatsExportBuilderUtils {
 

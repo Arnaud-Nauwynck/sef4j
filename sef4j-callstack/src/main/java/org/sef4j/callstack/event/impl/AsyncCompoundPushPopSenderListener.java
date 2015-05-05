@@ -8,7 +8,7 @@ import java.util.concurrent.TimeUnit;
 import org.sef4j.callstack.event.StackEvent;
 import org.sef4j.callstack.event.StackEvent.CompoundPopPushStackEvent;
 import org.sef4j.callstack.event.StackEventListener;
-import org.sef4j.core.helpers.AsyncUtils;
+import org.sef4j.core.util.AsyncUtils;
 
 /**
  * listener of StackEvent, that bufferize events 

@@ -1,16 +1,16 @@
-package org.sef4j.core.helpers.senders;
+package org.sef4j.core.helpers.senders.multiplexer;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
 
 import org.sef4j.core.api.EventSender;
 
 /**
- * De-Multiplexer for unwrapping event, extract key and dispatch unwrapped event to corresponding EventSender
+ * De-Multiplexer EventSender:
+ * unwrap event, extract key and dispatch unwrapped event to corresponding EventSender
  * 
  * see also MultiplexerDefaults
  * 
@@ -31,7 +31,7 @@ import org.sef4j.core.api.EventSender;
  * </PRE>
  * 
  */
-public class DemultiplexerEventSender<K,T,TDestEvent> implements EventSender<T> {
+public abstract class AbstractDemultiplexerEventSender<K,T,TDestEvent> implements EventSender<T> {
 
 	public static class UnwrapInfoPair<K,TDestEvent> {
 		K key;
@@ -44,17 +44,10 @@ public class DemultiplexerEventSender<K,T,TDestEvent> implements EventSender<T> 
 		
 	}
 	
-	protected Function<T,UnwrapInfoPair<K,TDestEvent>> eventUnwrapperFunc;
-
-	protected Function<K,EventSender<TDestEvent>> eventDispatcherFunc;
 
 	// ------------------------------------------------------------------------
 	
-	public DemultiplexerEventSender(
-			Function<T, UnwrapInfoPair<K, TDestEvent>> eventUnwrapperFunc,
-			Function<K, EventSender<TDestEvent>> eventDispatcherFunc) {
-		this.eventUnwrapperFunc = eventUnwrapperFunc;
-		this.eventDispatcherFunc = eventDispatcherFunc;
+	protected AbstractDemultiplexerEventSender() {
 	}
 
 	// implements EventSender<T>
@@ -81,7 +74,8 @@ public class DemultiplexerEventSender<K,T,TDestEvent> implements EventSender<T> 
 			ls.add(unwrapInfo.unwrappedEvent);
 		}
 		for(Map.Entry<K, List<TDestEvent>> e : key2events.entrySet()) {
-			EventSender<TDestEvent> dispatchedSender = eventDispatcherFunc.apply(e.getKey());
+			K key = e.getKey();
+			EventSender<TDestEvent> dispatchedSender = eventSenderDispatcherFor(key);
 			if (dispatchedSender != null) {
 				List<TDestEvent> unwrappedEvents = e.getValue();
 				dispatchedSender.sendEvents(unwrappedEvents);
@@ -89,66 +83,25 @@ public class DemultiplexerEventSender<K,T,TDestEvent> implements EventSender<T> 
 		}
 	}
 
-	// internal helper
 	// ------------------------------------------------------------------------
 	
-	protected UnwrapInfoPair<K, TDestEvent> unwrapEventInfo(T event) {
-		UnwrapInfoPair<K, TDestEvent> unwrapInfo = eventUnwrapperFunc.apply(event);
-		return unwrapInfo;
-	}
+	protected abstract UnwrapInfoPair<K, TDestEvent> unwrapEventInfo(T event);
+
+	protected abstract EventSender<TDestEvent> eventSenderDispatcherFor(K key);
+	
 
 	protected void dispatchEvent(K key, TDestEvent unwrapEvent) {
-		EventSender<TDestEvent> dispatchedSender = eventDispatcherFunc.apply(key);
+		EventSender<TDestEvent> dispatchedSender = eventSenderDispatcherFor(key);
 		if (dispatchedSender != null) {
 			dispatchedSender.sendEvent(unwrapEvent);
 		}
 	}
-
+	
 	protected void dispatchEvents(K key, List<TDestEvent> unwrappedEvents) {
-		EventSender<TDestEvent> dispatchedSender = eventDispatcherFunc.apply(key);
+		EventSender<TDestEvent> dispatchedSender = eventSenderDispatcherFor(key);
 		if (dispatchedSender != null) {
 			dispatchedSender.sendEvents(unwrappedEvents);
 		}
-	}
-
-	// override java.lang.Object
-	// ------------------------------------------------------------------------
-	
-	@Override
-	public String toString() {
-		return "DemultiplexerEventSender [eventUnwrapperFunc=" + eventUnwrapperFunc + ", eventDispatcherFunc=" + eventDispatcherFunc + "]";
-	}
-	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + ((eventDispatcherFunc == null) ? 0 : eventDispatcherFunc.hashCode());
-		result = prime * result + ((eventUnwrapperFunc == null) ? 0 : eventUnwrapperFunc.hashCode());
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj)
-			return true;
-		if (obj == null)
-			return false;
-		if (getClass() != obj.getClass())
-			return false;
-		@SuppressWarnings("unchecked")
-		DemultiplexerEventSender<K,T,TDestEvent> other = (DemultiplexerEventSender<K,T,TDestEvent>) obj;
-		if (eventDispatcherFunc == null) {
-			if (other.eventDispatcherFunc != null)
-				return false;
-		} else if (!eventDispatcherFunc.equals(other.eventDispatcherFunc))
-			return false;
-		if (eventUnwrapperFunc == null) {
-			if (other.eventUnwrapperFunc != null)
-				return false;
-		} else if (!eventUnwrapperFunc.equals(other.eventUnwrapperFunc))
-			return false;
-		return true;
 	}
 
 }

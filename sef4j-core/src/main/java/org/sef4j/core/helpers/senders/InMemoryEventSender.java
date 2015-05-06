@@ -32,7 +32,7 @@ public class InMemoryEventSender<T> implements EventSender<T> {
 
 	public void sendEvents(Collection<T> events) {
 		synchronized(lock) {
-			events.addAll(events);
+			this.events.addAll(events);
 		}
 	}
 

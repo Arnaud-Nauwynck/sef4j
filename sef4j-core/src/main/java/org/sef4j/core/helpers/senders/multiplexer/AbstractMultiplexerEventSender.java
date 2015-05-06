@@ -1,9 +1,8 @@
-package org.sef4j.core.helpers.senders;
+package org.sef4j.core.helpers.senders.multiplexer;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.function.BiFunction;
 
 import org.sef4j.core.api.EventSender;
 
@@ -30,23 +29,20 @@ import org.sef4j.core.api.EventSender;
  * 
  * @param <T>
  */
-public class MultiplexerEventSender<K,TSrcEvent,TDestEvent> {
-
-	protected BiFunction<K,TSrcEvent,TDestEvent> eventWrapperFunc;
+public abstract class AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent> {
 
 	protected EventSender<TDestEvent> target;
 	
 	// ------------------------------------------------------------------------
 
-	public MultiplexerEventSender(BiFunction<K,TSrcEvent,TDestEvent> eventWrapperFunc, EventSender<TDestEvent> target) {
-		this.eventWrapperFunc = eventWrapperFunc;
+	public AbstractMultiplexerEventSender(EventSender<TDestEvent> target) {
 		this.target = target;
 	}
 
 	// ------------------------------------------------------------------------
 
-	public MultiplexedEventSender<K,TSrcEvent,TDestEvent> eventSenderFor(K key) {
-		return new MultiplexedEventSender<K,TSrcEvent,TDestEvent>(this, key);
+	public MultiplexedPerKeyEventSender<K,TSrcEvent,TDestEvent> eventSenderFor(K key) {
+		return new MultiplexedPerKeyEventSender<K,TSrcEvent,TDestEvent>(this, key);
 	}
 	
 	public void multiplexSendEvent(K key, TSrcEvent event) {
@@ -62,9 +58,7 @@ public class MultiplexerEventSender<K,TSrcEvent,TDestEvent> {
 
 	// ------------------------------------------------------------------------
 	
-	protected TDestEvent wrapEvent(K key, TSrcEvent event) {
-		return eventWrapperFunc.apply(key, event);
-	}
+	protected abstract TDestEvent wrapEvent(K key, TSrcEvent event);
 
 	protected List<TDestEvent> wrapEvents(K key, Collection<TSrcEvent> events) {
 		List<TDestEvent> res = new ArrayList<TDestEvent>(events.size());
@@ -79,14 +73,13 @@ public class MultiplexerEventSender<K,TSrcEvent,TDestEvent> {
 	
 	@Override
 	public String toString() {
-		return "MultiplexerEventSender[wrapperFunc=" + eventWrapperFunc + ", target=" + target + "]";
+		return "MultiplexerEventSender[target=" + target + "]";
 	}
 
 	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + ((eventWrapperFunc == null) ? 0 : eventWrapperFunc.hashCode());
 		result = prime * result + ((target == null) ? 0 : target.hashCode());
 		return result;
 	}
@@ -100,12 +93,7 @@ public class MultiplexerEventSender<K,TSrcEvent,TDestEvent> {
 		if (getClass() != obj.getClass())
 			return false;
 		@SuppressWarnings("unchecked")
-		MultiplexerEventSender<K,TSrcEvent,TDestEvent> other = (MultiplexerEventSender<K,TSrcEvent,TDestEvent>) obj;
-		if (eventWrapperFunc == null) {
-			if (other.eventWrapperFunc != null)
-				return false;
-		} else if (!eventWrapperFunc.equals(other.eventWrapperFunc))
-			return false;
+		AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent> other = (AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent>) obj;
 		if (target == null) {
 			if (other.target != null)
 				return false;
@@ -123,12 +111,12 @@ public class MultiplexerEventSender<K,TSrcEvent,TDestEvent> {
 	 * @param <TSrcEvent>
 	 * @param <TDestEvent>
 	 */
-	public static class MultiplexedEventSender<K,TSrcEvent,TDestEvent> implements EventSender<TSrcEvent> {
+	public static class MultiplexedPerKeyEventSender<K,TSrcEvent,TDestEvent> implements EventSender<TSrcEvent> {
 		
-		protected final MultiplexerEventSender<K,TSrcEvent,TDestEvent> to;
+		protected final AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent> to;
 		protected final K key;
 		
-		public MultiplexedEventSender(MultiplexerEventSender<K,TSrcEvent,TDestEvent> to, K key) {
+		public MultiplexedPerKeyEventSender(AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent> to, K key) {
 			this.to = to;
 			this.key = key;
 		}
@@ -164,7 +152,7 @@ public class MultiplexerEventSender<K,TSrcEvent,TDestEvent> {
 			if (getClass() != obj.getClass())
 				return false;
 			@SuppressWarnings("unchecked")
-			MultiplexedEventSender<K,TSrcEvent,TDestEvent> other = (MultiplexedEventSender<K,TSrcEvent,TDestEvent>) obj;
+			MultiplexedPerKeyEventSender<K,TSrcEvent,TDestEvent> other = (MultiplexedPerKeyEventSender<K,TSrcEvent,TDestEvent>) obj;
 			if (key == null) {
 				if (other.key != null)
 					return false;

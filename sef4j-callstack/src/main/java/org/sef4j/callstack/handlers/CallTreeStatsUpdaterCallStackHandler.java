@@ -3,7 +3,7 @@ package org.sef4j.callstack.handlers;
 import org.sef4j.callstack.CallStackElt;
 import org.sef4j.callstack.CallStackPushPopHandler;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 /**
  * a CallStackPushPopHandler to update statistic on a call tree

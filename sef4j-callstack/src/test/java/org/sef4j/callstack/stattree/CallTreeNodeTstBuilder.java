@@ -12,7 +12,7 @@ import org.sef4j.callstack.stats.PerfStats;
 import org.sef4j.callstack.stattree.printers.value.BasicTimeStatsLogHistogramFieldValuePrinter;
 import org.sef4j.callstack.stattree.printers.value.PendingPerfCountFieldValuePrinter;
 import org.sef4j.callstack.stattree.printers.value.PerfStatsFieldValuePrinter;
-import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 import org.sef4j.core.helpers.proptree.printers.PropTreeValuePrinter;
 import org.sef4j.core.helpers.proptree.printers.PropTreeValueWrapperPrinter;
 

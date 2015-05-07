@@ -5,6 +5,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.sef4j.core.util.AsyncUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,9 @@ public class PeriodicTask implements Closeable {
 		this.delegateRunnableTask = runnableTask;
 		this.period = period;
 		this.periodTimeUnit = periodTimeUnit;
+		if (scheduledExecutor == null) {
+			scheduledExecutor = AsyncUtils.defaultScheduledThreadPool();
+		}
 		this.scheduledExecutor = scheduledExecutor;
 	}
 	
@@ -143,6 +147,42 @@ public class PeriodicTask implements Closeable {
 			}
 		}
 		return "PeriodicTask [displayName=" + displayName + " " + info + "]";
+	}
+
+	// ------------------------------------------------------------------------
+	
+	public static class Builder {
+		public static final int DEFAULT_PERIOD_SECONDS = 3*60;
+
+		private String displayName = "PeriodicTask";
+		private ScheduledExecutorService scheduledExecutor;
+		private int period = DEFAULT_PERIOD_SECONDS;
+		private TimeUnit periodTimeUnit = TimeUnit.SECONDS;
+		
+		private Runnable task;
+
+		public PeriodicTask build() {
+			if (task == null) {
+				throw new IllegalStateException();
+			}
+			return new PeriodicTask(displayName, task, period, periodTimeUnit, scheduledExecutor);
+		}
+
+		public Builder withScheduledExecutor(ScheduledExecutorService scheduledExecutor) {
+			this.scheduledExecutor = scheduledExecutor;
+			return this;
+		}
+
+		public Builder withPeriod(int period) {
+			this.period = period;
+			return this;
+		}
+
+		public Builder withTask(Runnable task) {
+			this.task = task;
+			return this;
+		}
+
 	}
 
 }

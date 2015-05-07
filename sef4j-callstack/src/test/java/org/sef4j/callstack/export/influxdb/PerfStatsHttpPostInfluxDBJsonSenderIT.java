@@ -11,8 +11,8 @@ import org.sef4j.callstack.export.influxdb.jsonprinters.PerfStatsInfluxDBPrinter
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.core.helpers.exporters.HttpPostBytesSenderFactory;
-import org.sef4j.core.helpers.exporters.influxdb.InfluxDBJsonSender;
+import org.sef4j.core.helpers.ext.influxdb.InfluxDBJsonSender;
+import org.sef4j.core.helpers.senders.http.HttpPostBytesSenderFactory;
 
 @Ignore
 public class PerfStatsHttpPostInfluxDBJsonSenderIT extends AbstractInfluxDBSerieSenderIT {

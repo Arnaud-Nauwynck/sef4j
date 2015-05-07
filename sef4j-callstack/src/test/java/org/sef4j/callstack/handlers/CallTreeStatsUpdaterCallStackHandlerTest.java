@@ -5,7 +5,7 @@ import org.junit.Test;
 import org.sef4j.callstack.LocalCallStack;
 import org.sef4j.callstack.dummy.InstrumentedRecurseCallStackFoo;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 
 public class CallTreeStatsUpdaterCallStackHandlerTest {

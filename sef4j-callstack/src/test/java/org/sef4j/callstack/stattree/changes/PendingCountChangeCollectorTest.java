@@ -7,7 +7,7 @@ import org.junit.Test;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
 import org.sef4j.callstack.stattree.changes.PendingCountChangeCollector;
-import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 
 public class PendingCountChangeCollectorTest {
@@ -29,7 +29,7 @@ public class PendingCountChangeCollectorTest {
 		long startTime1 = 123L;
 		fooPendings.addPending(startTime1);
 		// Perform
-		Map<String, PendingPerfCount> changes = sut.markAndCollectChanges();
+		Map<?,PendingPerfCount> changes = sut.markAndCollectChanges();
 		// Post-check
 		Assert.assertEquals(1, changes.size());
 		PendingPerfCount fooChange = changes.get("foo");
@@ -89,7 +89,7 @@ public class PendingCountChangeCollectorTest {
 		long startTime2 = 234L;
 		fooPendings.addPending(startTime2);
 		// Perform
-		Map<String, PendingPerfCount> changes = sut.markAndCollectChanges();
+		Map<?,PendingPerfCount> changes = sut.markAndCollectChanges();
 		// Post-check
 		Assert.assertEquals(1, changes.size());
 		PendingPerfCount fooChange = changes.get("foo");
@@ -135,7 +135,7 @@ public class PendingCountChangeCollectorTest {
 		fooPendings.addPending(startTime2);
 		// src status= 1->foo/bar, 2->foo
 		// Perform
-		Map<String, PendingPerfCount> changes = sut.markAndCollectChanges();
+		Map<?,PendingPerfCount> changes = sut.markAndCollectChanges();
 		// Post-check
 		Assert.assertEquals(2, changes.size());
 		PendingPerfCount fooChange = changes.get("foo");
@@ -192,7 +192,7 @@ public class PendingCountChangeCollectorTest {
 		fooPendings.addPending(startTime2);
 		// src status= 1->foo/bar, 2->foo
 		// Perform
-		Map<String, PendingPerfCount> changes = sut.markAndCollectChanges();
+		Map<?, PendingPerfCount> changes = sut.markAndCollectChanges();
 		// Post-check
 		Assert.assertEquals(2, changes.size());
 		PendingPerfCount fooChange = changes.get("foo");
@@ -241,7 +241,7 @@ public class PendingCountChangeCollectorTest {
 		long startTime1 = 123L;
 		fooPendings.addPending(startTime1);
 		// Perform
-		Map<String, PendingPerfCount> changes = sut.markAndCollectChanges();
+		Map<?, PendingPerfCount> changes = sut.markAndCollectChanges();
 		// Post-check
 		Assert.assertEquals(1, changes.size());
 		PendingPerfCount fooChange = changes.get("foo");

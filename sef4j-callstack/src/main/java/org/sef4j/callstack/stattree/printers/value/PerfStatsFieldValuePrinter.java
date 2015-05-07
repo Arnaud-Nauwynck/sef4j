@@ -6,7 +6,7 @@ import java.util.List;
 import org.sef4j.callstack.stats.BasicTimeStatsSlotInfo;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.core.helpers.exporters.ValuePrinter;
+import org.sef4j.core.helpers.proptree.printers.ValuePrinter;
 
 /**
  * ValuePrinter for PerfStats

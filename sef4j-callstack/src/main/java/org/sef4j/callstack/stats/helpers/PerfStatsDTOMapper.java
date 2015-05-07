@@ -4,7 +4,7 @@ import org.sef4j.callstack.stats.PerfStats;
 import org.sef4j.callstack.stats.dto.CumulatedBasicTimeStatsLogHistogramDTO;
 import org.sef4j.callstack.stats.dto.PendingPerfCountDTO;
 import org.sef4j.callstack.stats.dto.PerfStatsDTO;
-import org.sef4j.core.api.proptree.PropTreeValueMapper.AbstractTypedPropTreeValueMapper;
+import org.sef4j.core.helpers.proptree.model.PropTreeValueMapper.AbstractTypedPropTreeValueMapper;
 
 public class PerfStatsDTOMapper extends AbstractTypedPropTreeValueMapper<PerfStats,PerfStatsDTO> {
 

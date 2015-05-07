@@ -4,7 +4,7 @@ import java.io.PrintWriter;
 import java.util.Collection;
 import java.util.Map;
 
-import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 /**
  * 

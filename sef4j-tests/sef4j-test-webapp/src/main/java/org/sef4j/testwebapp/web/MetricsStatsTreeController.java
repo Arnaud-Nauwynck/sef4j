@@ -2,7 +2,7 @@ package org.sef4j.testwebapp.web;
 
 import java.util.List;
 
-import org.sef4j.core.api.proptree.PropTreeNodeDTO;
+import org.sef4j.core.helpers.proptree.dto.PropTreeNodeDTO;
 import org.sef4j.testwebapp.dto.SubscriptionCommandDTO;
 import org.sef4j.testwebapp.service.MetricsStatsPublisher;
 import org.sef4j.testwebapp.service.MetricsStatsTreeRegistry;

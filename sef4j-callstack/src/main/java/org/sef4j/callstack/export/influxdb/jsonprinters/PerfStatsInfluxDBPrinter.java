@@ -6,7 +6,7 @@ import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 import org.sef4j.callstack.stats.BasicTimeStatsSlotInfo;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.core.helpers.exporters.influxdb.AbstractInfluxDBValuePrinter;
+import org.sef4j.core.helpers.ext.influxdb.AbstractInfluxDBValuePrinter;
 
 /**
  * InfluxDB serie json formater for PerfStats

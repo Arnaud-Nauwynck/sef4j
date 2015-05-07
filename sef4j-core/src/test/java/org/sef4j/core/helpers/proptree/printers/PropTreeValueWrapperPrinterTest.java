@@ -5,8 +5,8 @@ import java.io.StringWriter;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.sef4j.core.api.proptree.PropTreeNode;
 import org.sef4j.core.helpers.proptree.DummyCount;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 public class PropTreeValueWrapperPrinterTest {
 

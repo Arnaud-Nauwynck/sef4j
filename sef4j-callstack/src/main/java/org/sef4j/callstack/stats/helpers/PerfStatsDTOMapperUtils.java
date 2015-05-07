@@ -8,9 +8,9 @@ import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapper.CumulatedElapsedBasi
 import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapper.CumulatedThreadCpuBasicTimeStatsLogHistogramDTOMapper;
 import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapper.CumulatedThreadUserBasicTimeStatsLogHistogramDTOMapper;
 import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapper.PendingPerfCountDTOMapper;
-import org.sef4j.core.api.proptree.PropTreeNode;
-import org.sef4j.core.api.proptree.PropTreeNodeDTOMapper;
-import org.sef4j.core.api.proptree.PropTreeNodeDTOMapper.PropMapperEntry;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
+import org.sef4j.core.helpers.proptree.model.PropTreeNodeDTOMapper;
+import org.sef4j.core.helpers.proptree.model.PropTreeNodeDTOMapper.PropMapperEntry;
 
 public class PerfStatsDTOMapperUtils {
 

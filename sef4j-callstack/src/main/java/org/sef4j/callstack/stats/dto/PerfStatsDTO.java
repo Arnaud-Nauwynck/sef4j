@@ -1,7 +1,7 @@
 package org.sef4j.callstack.stats.dto;
 
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.core.api.proptree.ICopySupport;
+import org.sef4j.core.util.ICopySupport;
 
 /**
  * DTO class for PerfStats

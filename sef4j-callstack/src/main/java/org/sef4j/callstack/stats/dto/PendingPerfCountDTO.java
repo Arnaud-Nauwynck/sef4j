@@ -2,7 +2,7 @@ package org.sef4j.callstack.stats.dto;
 
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.ThreadTimeUtils;
-import org.sef4j.core.api.proptree.ICopySupport;
+import org.sef4j.core.util.ICopySupport;
 
 /**
  * DTO for PendingPerfCount

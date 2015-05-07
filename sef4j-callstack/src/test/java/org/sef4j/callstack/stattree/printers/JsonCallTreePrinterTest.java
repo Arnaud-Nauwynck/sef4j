@@ -11,7 +11,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sef4j.callstack.stattree.CallTreeNodeTstBuilder;
 import org.sef4j.callstack.stattree.printers.JsonCallTreePrinter;
-import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 public class JsonCallTreePrinterTest {
 

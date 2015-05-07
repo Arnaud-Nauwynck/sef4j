@@ -1,17 +1,17 @@
 package org.sef4j.callstack.stattree.changes;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.callstack.stattree.changes.BasicStatIgnorePendingChangeCollector;
-import org.sef4j.callstack.stattree.changes.PerfStatsChangesEvent;
-import org.sef4j.core.api.proptree.PropTreeNode;
-import org.sef4j.core.helpers.proptree.changes.AsyncChangeCollectorSender;
+import org.sef4j.core.helpers.PeriodicTask;
+import org.sef4j.core.helpers.export.senders.ChangeEventSenderTask;
+import org.sef4j.core.helpers.export.senders.EventSenderFragmentsExporter;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 import org.sef4j.core.helpers.senders.InMemoryEventSender;
-import org.sef4j.core.util.AsyncUtils;
 
 
 public class AsyncChangeCollectorSenderTest {
@@ -27,18 +27,21 @@ public class AsyncChangeCollectorSenderTest {
 			new BasicStatIgnorePendingChangeCollector(rootNode);
 	private InMemoryEventSender<PerfStatsChangesEvent> inMemoryEventSender = new InMemoryEventSender<PerfStatsChangesEvent>();
 	
-	private AsyncChangeCollectorSender<PerfStats,PerfStatsChangesEvent> sut = 
-			new AsyncChangeCollectorSender<PerfStats,PerfStatsChangesEvent>(
-					AsyncUtils.defaultScheduledThreadPool(), 1, // period=1 second 
-					changeCollector,
-					PerfStatsChangesEvent.FACTORY,
-					inMemoryEventSender);
+	private ChangeEventSenderTask<PerfStats,PerfStatsChangesEvent> sut = 
+			new ChangeEventSenderTask<PerfStats,PerfStatsChangesEvent>(
+					new PeriodicTask.Builder().withPeriod(1), // period=1 second 
+					new PeriodicTask.Builder().withPeriod(600),
+					new EventSenderFragmentsExporter<PerfStats,PerfStatsChangesEvent>(
+							"", 
+							Arrays.asList(changeCollector),
+							PerfStatsChangesEvent.FACTORY,
+							inMemoryEventSender));
 	
 	@Test
 	public void testStartStop() throws Exception {
 		// Prepare
 		// Perform
-		sut.start();
+		sut.getSendAllPeriodicTask().start();
 
 		long fooBarElapsedTime1 = 12L;
 		long fooElapsedTime1 = 13L;
@@ -61,13 +64,14 @@ public class AsyncChangeCollectorSenderTest {
 		}
 		
 		Thread.sleep(1500);
-		sut.stop();
+		sut.getSendAllPeriodicTask().stop();
+		
 		// sut.flush();
 		// Post-check
 		List<PerfStatsChangesEvent> events = inMemoryEventSender.clearAndGet();
 		Assert.assertTrue(events.size() >= 1);
 		PerfStatsChangesEvent event0 = events.get(0);
-		Map<String, PerfStats> changes = event0.getChanges();
+		Map<?, PerfStats> changes = event0.getChanges();
 		Assert.assertNotNull(changes);
 		PerfStats fooChange = changes.get("foo");
 		Assert.assertNotNull(fooChange);

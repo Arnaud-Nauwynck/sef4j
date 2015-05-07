@@ -9,9 +9,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.sef4j.callstack.stats.helpers.PerfStatsDTOMapperUtils;
-import org.sef4j.core.api.proptree.PropTreeNode;
-import org.sef4j.core.api.proptree.PropTreeNodeDTO;
-import org.sef4j.core.api.proptree.PropTreeNodeDTOMapper;
+import org.sef4j.core.helpers.proptree.dto.PropTreeNodeDTO;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
+import org.sef4j.core.helpers.proptree.model.PropTreeNodeDTOMapper;
 import org.sef4j.testwebapp.dto.SubscriptionCommandDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

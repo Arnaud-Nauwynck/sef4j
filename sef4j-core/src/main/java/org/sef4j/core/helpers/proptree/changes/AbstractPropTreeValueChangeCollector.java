@@ -1,16 +1,23 @@
 package org.sef4j.core.helpers.proptree.changes;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.export.ExportFragmentList;
+import org.sef4j.core.helpers.export.ExportFragmentsAdder;
+import org.sef4j.core.helpers.export.ExportFragmentsProvider;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 /**
- * collector for changes in statistics (pendingCount or histogram time counts) 
- * since previous marked copy
+ * collector for changed values detection since previous marked copy
+ * 
+ * <PRE>
+ * 
+ * </PRE>
+ * 
  */
-public abstract class AbstractPropTreeValueChangeCollector<TValue> implements IPropTreeValueChangeCollector<TValue> {
+public abstract class AbstractPropTreeValueChangeCollector<TValue> 
+		implements ExportFragmentsProvider<TValue> {
 	
 	protected PropTreeNode srcRoot;
 
@@ -34,15 +41,74 @@ public abstract class AbstractPropTreeValueChangeCollector<TValue> implements IP
 	
 	// ------------------------------------------------------------------------
 
-	public Map<String,TValue> markAndCollectChanges() {
-		Map<String,TValue> res = new HashMap<String,TValue>();
-		recursiveMarkAndCollectChanges_root(res);
-		return res;
+	@Override
+	public void provideFragments(ExportFragmentsAdder<TValue> out) {
+		for(Map.Entry<String, PropTreeNode> srcEntry : srcRoot.getChildMap().entrySet()) {
+			String childName = srcEntry.getKey();
+			PropTreeNode srcChild = srcEntry.getValue();
+			String childPath = childName;
+			
+			// *** recurse ***
+			recursiveProvideFragments(srcChild, childPath, out);
+		}
 	}
 
-	protected abstract void recursiveMarkAndCollectChanges_root(Map<String,TValue> res);
+	public void markAndCollectChanges(ExportFragmentsAdder<TValue> out) {
+		for(Map.Entry<String, PropTreeNode> srcEntry : srcRoot.getChildMap().entrySet()) {
+			String childName = srcEntry.getKey();
+			PropTreeNode srcChild = srcEntry.getValue();
+			PropTreeNode prevChild = prevRoot.getOrCreateChild(childName);
+			String childPath = childName;
+			
+			// *** recurse ***
+			recursiveMarkAndCollectChanges(srcChild, prevChild, childPath, out);
+		}
+	}
 
-	protected abstract void recursiveMarkAndCollectChanges(PropTreeNode src, PropTreeNode prev, 
-			String currPath, Map<String,TValue> res);
+	/** helper for markAndCollectChanges() + convert result to Map<> */
+	public Map<Object,TValue> markAndCollectChanges() {
+		ExportFragmentList<TValue> changes = new ExportFragmentList<TValue>();
+		markAndCollectChanges(changes);
+		return changes.identifiableFragmentsToValuesMap();
+	}
+
+	
+	protected void recursiveProvideFragments(PropTreeNode src, String currPath, ExportFragmentsAdder<TValue> out) {
+		provideFragments(src, currPath, out);
+
+		// recurse
+		for(Map.Entry<String, PropTreeNode> srcEntry : src.getChildMap().entrySet()) {
+			String childName = srcEntry.getKey();
+			PropTreeNode srcChild = srcEntry.getValue();
+			String childPath = currPath + "/" + childName;
+			
+			// *** recurse ***
+			recursiveProvideFragments(srcChild, childPath, out);
+		}
+	}
+
+	protected void recursiveMarkAndCollectChanges(PropTreeNode src, PropTreeNode prev, 
+			String currPath, ExportFragmentsAdder<TValue> out) {
+		
+		markAndCollectChanges(src, prev, currPath, out);
+
+		// recurse
+		for(Map.Entry<String, PropTreeNode> srcEntry : src.getChildMap().entrySet()) {
+			String childName = srcEntry.getKey();
+			PropTreeNode srcChild = srcEntry.getValue();
+			PropTreeNode prevChild = prev.getOrCreateChild(childName);
+			String childPath = currPath + "/" + childName;
+			
+			// *** recurse ***
+			recursiveMarkAndCollectChanges(srcChild, prevChild, childPath, out);
+		}
+	}
+
+
+	protected abstract void provideFragments(PropTreeNode src, String currPath, 
+			ExportFragmentsAdder<TValue> out);
+
+	protected abstract void markAndCollectChanges(PropTreeNode src, PropTreeNode prev, String currPath, 
+			ExportFragmentsAdder<TValue> res);
 	
 }

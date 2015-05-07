@@ -4,7 +4,7 @@ import java.lang.reflect.Field;
 import java.util.concurrent.Callable;
 
 import org.sef4j.callstack.CallStackElt;
-import org.sef4j.core.api.proptree.ICopySupport;
+import org.sef4j.core.util.ICopySupport;
 
 /**
  * perf counter for pending thread in a section

@@ -2,7 +2,7 @@ package org.sef4j.callstack.stats.helpers;
 
 import java.util.Map;
 
-import org.sef4j.core.api.proptree.PropTreeNodeDTO;
+import org.sef4j.core.helpers.proptree.dto.PropTreeNodeDTO;
 
 public abstract class PropTreeNodeDTOVisitor {
 

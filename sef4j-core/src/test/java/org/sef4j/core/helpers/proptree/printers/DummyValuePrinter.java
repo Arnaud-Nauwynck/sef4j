@@ -3,7 +3,6 @@ package org.sef4j.core.helpers.proptree.printers;
 import java.io.PrintWriter;
 import java.util.List;
 
-import org.sef4j.core.helpers.exporters.ValuePrinter;
 import org.sef4j.core.helpers.proptree.DummyCount;
 
 /**

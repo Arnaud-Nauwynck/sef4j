@@ -2,8 +2,8 @@ package org.sef4j.callstack.stats.dto;
 
 import org.sef4j.callstack.stats.BasicTimeStatsLogHistogram;
 import org.sef4j.callstack.stats.ThreadTimeUtils;
-import org.sef4j.core.api.proptree.ICopySupport;
-import org.sef4j.core.api.proptree.PropTreeValueMapper.AbstractTypedPropTreeValueMapper;
+import org.sef4j.core.helpers.proptree.model.PropTreeValueMapper.AbstractTypedPropTreeValueMapper;
+import org.sef4j.core.util.ICopySupport;
 
 
 /**

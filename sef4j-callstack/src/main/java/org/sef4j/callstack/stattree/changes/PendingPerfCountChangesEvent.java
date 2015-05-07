@@ -1,10 +1,13 @@
 package org.sef4j.callstack.stattree.changes;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import org.sef4j.callstack.stats.PendingPerfCount;
+import org.sef4j.core.helpers.export.ExportFragmentList;
 
 /**
  * event class for holding PendingPerfCount changes 
@@ -14,26 +17,26 @@ public class PendingPerfCountChangesEvent implements Serializable {
 	/** internal for java.io.Serializable */
 	private static final long serialVersionUID = 1L;
 
-	public static final Function<Map<String,PendingPerfCount>,PendingPerfCountChangesEvent> FACTORY =
-			new Function<Map<String,PendingPerfCount>,PendingPerfCountChangesEvent>() {
+	public static final Function<ExportFragmentList<PendingPerfCount>,List<PendingPerfCountChangesEvent>> FACTORY =
+			new Function<ExportFragmentList<PendingPerfCount>,List<PendingPerfCountChangesEvent>>() {
 		@Override
-		public PendingPerfCountChangesEvent apply(Map<String, PendingPerfCount> t) {
-			return new PendingPerfCountChangesEvent(t);
+		public List<PendingPerfCountChangesEvent> apply(ExportFragmentList<PendingPerfCount> changes) {
+			return Collections.singletonList(new PendingPerfCountChangesEvent(changes.identifiableFragmentsToValuesMap()));
 		}
 	};
 	
-	private final Map<String,PendingPerfCount> changes;
+	private final Map<?,PendingPerfCount> changes;
 
 	// ------------------------------------------------------------------------
 	
-	public PendingPerfCountChangesEvent(Map<String, PendingPerfCount> changes) {
+	public PendingPerfCountChangesEvent(Map<?, PendingPerfCount> changes) {
 		if (changes == null) throw new IllegalArgumentException();
 		this.changes = changes;
 	}
 
 	// ------------------------------------------------------------------------
 	
-	public Map<String,PendingPerfCount> getChanges() {
+	public Map<?,PendingPerfCount> getChanges() {
 		return changes;
 	}
 

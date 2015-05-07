@@ -6,7 +6,7 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.callstack.stats.PerfStats;
 import org.sef4j.callstack.stattree.changes.BasicStatIgnorePendingChangeCollector;
-import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 
 public class BasicStatIgnorePendingChangeCollectorTest {
@@ -28,7 +28,7 @@ public class BasicStatIgnorePendingChangeCollectorTest {
 		long startTime1 = 123L;
 		fooStats.addPending(startTime1);
 		// Perform
-		Map<String, PerfStats> changes = sut.markAndCollectChanges();
+		Map<Object, PerfStats> changes = sut.markAndCollectChanges();
 		// Post-check
 		Assert.assertEquals(0, changes.size());
 
@@ -82,7 +82,7 @@ public class BasicStatIgnorePendingChangeCollectorTest {
 		long startTime2 = 234L;
 		fooStats.addPending(startTime2);
 		// Perform
-		Map<String, PerfStats> changes = sut.markAndCollectChanges();
+		Map<Object, PerfStats> changes = sut.markAndCollectChanges();
 		// Post-check
 		Assert.assertEquals(0, changes.size());
 		
@@ -125,7 +125,7 @@ public class BasicStatIgnorePendingChangeCollectorTest {
 		fooStats.addPending(startTime2);
 		// src status= 1->foo/bar, 2->foo
 		// Perform
-		Map<String, PerfStats> changes = sut.markAndCollectChanges();
+		Map<Object, PerfStats> changes = sut.markAndCollectChanges();
 		// Post-check
 		Assert.assertEquals(0, changes.size());
 		
@@ -179,7 +179,7 @@ public class BasicStatIgnorePendingChangeCollectorTest {
 		fooStats.addPending(startTime2);
 		// src status= 1->foo/bar, 2->foo
 		// Perform
-		Map<String, PerfStats> changes = sut.markAndCollectChanges();
+		Map<Object, PerfStats> changes = sut.markAndCollectChanges();
 		// Post-check
 		Assert.assertEquals(0, changes.size());
 		

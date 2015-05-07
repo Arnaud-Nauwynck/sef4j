@@ -1,11 +1,12 @@
 package org.sef4j.callstack.stattree.changes;
 
-import java.util.Map;
 import java.util.function.Function;
 
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.export.ExportFragment;
+import org.sef4j.core.helpers.export.ExportFragmentsAdder;
 import org.sef4j.core.helpers.proptree.changes.AbstractPropTreeValueChangeCollector;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 /**
  * collector of changed PerfStats since previous copy, ignoring Pending counts
@@ -45,39 +46,23 @@ public class BasicStatIgnorePendingChangeCollector extends AbstractPropTreeValue
 	}
 
 	// ------------------------------------------------------------------------
-	
-	protected void recursiveMarkAndCollectChanges_root(Map<String,PerfStats> res) {
-		for(Map.Entry<String, PropTreeNode> srcEntry : srcRoot.getChildMap().entrySet()) {
-			String childName = srcEntry.getKey();
-			PropTreeNode srcChild = srcEntry.getValue();
-			PropTreeNode prevChild = prevRoot.getOrCreateChild(childName);
-			String childPath = childName;
-			
-			// *** recurse ***
-			recursiveMarkAndCollectChanges(srcChild, prevChild, childPath, res);
-		}
-	}
 
-	protected void recursiveMarkAndCollectChanges(PropTreeNode src, PropTreeNode prev, 
-			String currPath, Map<String,PerfStats> res) {
+	@Override
+	protected void provideFragments(PropTreeNode src, String currPath, 
+			ExportFragmentsAdder<PerfStats> out) {
+		PerfStats srcPerfStats = srcValueCopyExtractor.apply(src); // copy new value
+		out.addEntry(new ExportFragment<PerfStats>(this, currPath, srcPerfStats));
+	}
+	
+	@Override
+	protected void markAndCollectChanges(PropTreeNode src, PropTreeNode prev, String currPath, 
+			ExportFragmentsAdder<PerfStats> out) {
 		PerfStats srcPerfStats = srcValueCopyExtractor.apply(src); // copy new value
 		PerfStats prevPerfStats = prevValueExtractor.apply(prev); // by ref
 		if (compareHasChangeCount(srcPerfStats, prevPerfStats)) {
 			prevPerfStats.set(srcPerfStats);
-			res.put(currPath, srcPerfStats);
+			out.addEntry(new ExportFragment<PerfStats>(this, currPath, srcPerfStats));
 		}
-		
-		// recurse
-		for(Map.Entry<String, PropTreeNode> srcEntry : src.getChildMap().entrySet()) {
-			String childName = srcEntry.getKey();
-			PropTreeNode srcChild = srcEntry.getValue();
-			PropTreeNode prevChild = prev.getOrCreateChild(childName);
-			String childPath = currPath + "/" + childName;
-			
-			// *** recurse ***
-			recursiveMarkAndCollectChanges(srcChild, prevChild, childPath, res);
-		}
-		// compare child removal... not used!
 	}
 	
 	protected boolean compareHasChangeCount(PerfStats src, PerfStats prev) {

@@ -2,7 +2,7 @@ package org.sef4j.core.helpers.proptree.printers;
 
 import java.io.PrintWriter;
 
-import org.sef4j.core.api.proptree.PropTreeNode;
+import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 /**
  * 

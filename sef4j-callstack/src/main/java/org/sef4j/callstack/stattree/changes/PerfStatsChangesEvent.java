@@ -1,10 +1,13 @@
 package org.sef4j.callstack.stattree.changes;
 
 import java.io.Serializable;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
 import org.sef4j.callstack.stats.PerfStats;
+import org.sef4j.core.helpers.export.ExportFragmentList;
 
 /**
  * event class for holding PerfStats changes 
@@ -14,26 +17,26 @@ public class PerfStatsChangesEvent implements Serializable {
 	/** internal for java.io.Serializable */
 	private static final long serialVersionUID = 1L;
 
-	public static final Function<Map<String,PerfStats>,PerfStatsChangesEvent> FACTORY =
-			new Function<Map<String,PerfStats>,PerfStatsChangesEvent>() {
+	public static final Function<ExportFragmentList<PerfStats>,List<PerfStatsChangesEvent>> FACTORY =
+			new Function<ExportFragmentList<PerfStats>,List<PerfStatsChangesEvent>>() {
 		@Override
-		public PerfStatsChangesEvent apply(Map<String, PerfStats> t) {
-			return new PerfStatsChangesEvent(t);
+		public List<PerfStatsChangesEvent> apply(ExportFragmentList<PerfStats> changes) {
+			return Collections.singletonList(new PerfStatsChangesEvent(changes.identifiableFragmentsToValuesMap()));
 		}
 	};
 	
-	private final Map<String,PerfStats> changes;
+	private final Map<?,PerfStats> changes;
 
 	// ------------------------------------------------------------------------
 	
-	public PerfStatsChangesEvent(Map<String, PerfStats> changes) {
+	public PerfStatsChangesEvent(Map<?, PerfStats> changes) {
 		if (changes == null) throw new IllegalArgumentException();
 		this.changes = changes;
 	}
 
 	// ------------------------------------------------------------------------
 	
-	public Map<String, PerfStats> getChanges() {
+	public Map<?,PerfStats> getChanges() {
 		return changes;
 	}
 

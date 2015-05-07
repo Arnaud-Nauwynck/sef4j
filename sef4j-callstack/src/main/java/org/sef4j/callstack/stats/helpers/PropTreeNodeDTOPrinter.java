@@ -6,7 +6,7 @@ import java.util.function.Function;
 
 import org.sef4j.callstack.stats.ThreadTimeUtils;
 import org.sef4j.callstack.stats.dto.PendingPerfCountDTO;
-import org.sef4j.core.api.proptree.PropTreeNodeDTO;
+import org.sef4j.core.helpers.proptree.dto.PropTreeNodeDTO;
 
 public abstract class PropTreeNodeDTOPrinter extends PropTreeNodeDTOVisitor {
 

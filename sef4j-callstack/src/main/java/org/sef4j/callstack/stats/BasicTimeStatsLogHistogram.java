@@ -3,7 +3,7 @@ package org.sef4j.callstack.stats;
 import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 
-import org.sef4j.core.api.proptree.ICopySupport;
+import org.sef4j.core.util.ICopySupport;
 
 
 /**

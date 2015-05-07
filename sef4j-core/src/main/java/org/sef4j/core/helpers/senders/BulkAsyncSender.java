@@ -323,8 +323,8 @@ public class BulkAsyncSender<T> implements EventSender<T> {
 	}
 
 	protected void doFlush(boolean forceSendAll, boolean sendPartiallyFilledBulk) {
+		if (DEBUG) LOG.info(System.currentTimeMillis() + " doFlush " + flushParamToString(forceSendAll, sendPartiallyFilledBulk) + " " + infoToString());
 		synchronized(asyncSenderLock) { // lock sender, to respect events orders
-			if (DEBUG) LOG.info(System.currentTimeMillis() + " doFlush " + flushParamToString(forceSendAll, sendPartiallyFilledBulk) + " " + infoToString());
 			List<List<T>> bulksToSend = null;
 			// clear and get queue 
 			synchronized(lock) {
@@ -432,7 +432,7 @@ public class BulkAsyncSender<T> implements EventSender<T> {
 
 	public String infoToString() {
 		String currentInfo = "";
-		synchronized(lock) {			
+		synchronized(lock) {		
 			if (! asyncEventsBulksQueue.isEmpty()) {
 				currentInfo += ", current queued bulk count:" + asyncEventsBulksQueue.size();
 			}

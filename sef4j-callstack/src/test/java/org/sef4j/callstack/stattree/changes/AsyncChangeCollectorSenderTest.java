@@ -7,11 +7,11 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.core.helpers.PeriodicTask;
 import org.sef4j.core.helpers.export.senders.ChangeEventSenderTask;
 import org.sef4j.core.helpers.export.senders.EventSenderFragmentsExporter;
 import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 import org.sef4j.core.helpers.senders.InMemoryEventSender;
+import org.sef4j.core.helpers.tasks.PeriodicTask;
 
 
 public class AsyncChangeCollectorSenderTest {

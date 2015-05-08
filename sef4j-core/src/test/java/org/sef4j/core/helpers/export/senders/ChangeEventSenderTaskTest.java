@@ -6,12 +6,12 @@ import java.util.Map;
 
 import org.junit.Assert;
 import org.junit.Test;
-import org.sef4j.core.helpers.PeriodicTask;
 import org.sef4j.core.helpers.proptree.DummyCount;
 import org.sef4j.core.helpers.proptree.changes.DummyCountChangeCollector;
 import org.sef4j.core.helpers.proptree.changes.DummyCountChangesEvent;
 import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 import org.sef4j.core.helpers.senders.InMemoryEventSender;
+import org.sef4j.core.helpers.tasks.PeriodicTask;
 
 
 public class ChangeEventSenderTaskTest {

@@ -10,7 +10,7 @@ import org.elasticsearch.client.transport.TransportClient;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.TransportAddress;
-import org.sef4j.core.helpers.IPropertyChangeListenerSupport;
+import org.sef4j.core.util.IPropertyChangeListenerSupport;
 
 /**
  * a provider for ElasticSearch Client using a list of TransportClient URLs

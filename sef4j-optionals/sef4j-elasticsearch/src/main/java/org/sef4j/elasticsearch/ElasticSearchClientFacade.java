@@ -15,8 +15,8 @@ import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.client.Client;
 import org.sef4j.core.api.EventSender;
-import org.sef4j.core.helpers.IPropertyChangeListenerSupport;
 import org.sef4j.core.helpers.senders.BulkAsyncSender;
+import org.sef4j.core.util.IPropertyChangeListenerSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

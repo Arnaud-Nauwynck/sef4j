@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.junit.Assert;
+import org.sef4j.core.MockEvent;
 import org.sef4j.core.api.EventSender;
 
 /**
@@ -43,6 +45,14 @@ public class InMemoryEventSender<T> implements EventSender<T> {
 			this.events = new ArrayList<T>();
 		}
 		return res;
+	}
+
+	public void assertSameClearAndGet(MockEvent... expected) {
+		List<T> actual = clearAndGet();
+		Assert.assertEquals(expected.length, actual.size());
+		for(int i = 0; i < expected.length; i++) {
+			Assert.assertSame(expected[i], actual.get(i));
+		}
 	}
 	
 }

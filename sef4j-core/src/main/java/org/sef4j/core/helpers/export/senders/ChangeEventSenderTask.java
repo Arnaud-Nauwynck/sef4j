@@ -1,6 +1,6 @@
 package org.sef4j.core.helpers.export.senders;
 
-import org.sef4j.core.helpers.PeriodicTask;
+import org.sef4j.core.helpers.tasks.PeriodicTask;
 
 /**
  * 

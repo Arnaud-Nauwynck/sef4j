@@ -1,7 +1,6 @@
 package org.sef4j.core.util.factorydef;
 
 import java.io.Closeable;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -39,7 +38,7 @@ public class ObjectByDefRepository<TDef, TFactory extends ObjectByDefFactory<TDe
 		}
 
 		@Override
-		public void close() throws IOException {
+		public void close() {
 			if (handle != null) {
 				repository.unregister(handle);
 				handle = null;

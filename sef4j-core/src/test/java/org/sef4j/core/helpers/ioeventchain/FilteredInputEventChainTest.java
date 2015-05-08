@@ -11,14 +11,12 @@ import org.sef4j.core.util.factorydef.ObjectByDefRepository.ObjectWithHandle;
 public class FilteredInputEventChainTest {
 
 	InMemoryEventSender<MockEvent> mockResult = new InMemoryEventSender<MockEvent>();
-
 	ObjectWithHandle<MockInputEventChain> mockUnderlyingWithHandle = 
 			MockInputEventChain.newMockObjectWithHandle();
 	MockInputEventChain mockUnderlying = (MockInputEventChain) mockUnderlyingWithHandle.getObject();
 	FilteredInputEventChain<MockEvent> sut = new FilteredInputEventChain<MockEvent>(null, "test", 
 			mockUnderlyingWithHandle,
 			MockEventValueContainsPredicate.CONTAINS_1);
-
 
 	@Test
 	public void testRegisterEventListener_underlyingSendEvent_unregisterEventListener() {	

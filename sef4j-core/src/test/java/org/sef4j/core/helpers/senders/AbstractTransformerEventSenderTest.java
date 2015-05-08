@@ -6,32 +6,26 @@ import java.util.function.Function;
 
 import org.junit.Assert;
 import org.junit.Test;
+import org.sef4j.core.MockEvent;
 import org.sef4j.core.helpers.senders.AbstractTransformerEventSender.FuncTransformEventSender;
 
 
 public class AbstractTransformerEventSenderTest {
 
-	private static class E {
-		public final String value;
-
-		public E(String value) {
-			this.value = value;
-		}
-	}
 	private static class F {
-		public final E wrapped;
+		public final MockEvent wrapped;
 
-		public F(E wrapped) {
+		public F(MockEvent wrapped) {
 			this.wrapped = wrapped;
 		}
 	}
 	
-	protected Function<E,F> transform = (x) -> new F(x);
+	protected Function<MockEvent,F> transform = (x) -> new F(x);
 	protected InMemoryEventSender<F> targetEventSender = new InMemoryEventSender<F>();
-	protected FuncTransformEventSender<E,F> sut = new FuncTransformEventSender<E,F>(targetEventSender, transform);
+	protected FuncTransformEventSender<MockEvent,F> sut = new FuncTransformEventSender<MockEvent,F>(targetEventSender, transform);
 	
-	E e1 = new E("event1");
-	E e2 = new E("event2");
+	MockEvent e1 = new MockEvent("event1");
+	MockEvent e2 = new MockEvent("event2");
 	
 	@Test
 	public void testSendEvent() {

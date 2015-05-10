@@ -43,8 +43,8 @@ public abstract class InputEventChain<T> extends AbstractStartableDefObject<Inpu
 	// ------------------------------------------------------------------------
 	
 	public ListenerHandle<T> registerEventListener(EventSender<T> listener) {
-		Handle handle = registerStart();
 		innerEventProvider.addEventListener(listener);
+		Handle handle = registerStart();
 		return new ListenerHandle<T>(this, handle, listener);
 	}
 

@@ -11,11 +11,25 @@ import org.sef4j.core.util.factorydef.ObjectByDefRepository;
 import org.sef4j.core.util.factorydef.ObjectByDefRepository.ObjectWithHandle;
 
 /**
- * InputEventChain for filtering events by predicate
+ * InputEventChain for filtering events by predicate received from an underlying InputEventChain 
+ * 
+ * <PRE>
+ *                         registerEventListener
+ *                         <-----
+ *   underlyingInput                                    FilteredInputEventChain
+ *  +-----------------+    sendEvent                  +-------------------+     sendEvent
+ *  | InputEventChain |    ------>                    |                   |     ----> 
+ *  +-----------------+                               | filter(event)  |
+ *                         sendEvent                  +-------------------+
+ *                         ------>
+ *                         
+ *                         unregisterEventListener
+ *                         <----
+ * </PRE>
  * 
  * @param <T>
  */
-public class FilteredInputEventChain<T> extends InputEventChain<T> {
+public class FilterInputEventChain<T> extends InputEventChain<T> {
 
 	private ObjectWithHandle<? extends InputEventChain<T>> underlying;
 
@@ -25,7 +39,7 @@ public class FilteredInputEventChain<T> extends InputEventChain<T> {
 	
 	// ------------------------------------------------------------------------
 
-	public FilteredInputEventChain(FilteredInputEventChainDef def, String displayName,
+	public FilterInputEventChain(FilteredInputEventChainDef def, String displayName,
 			ObjectWithHandle<? extends InputEventChain<T>> underlying, Predicate<T> predicate) {
 		super(def, displayName);
 		this.underlying = underlying;
@@ -78,13 +92,15 @@ public class FilteredInputEventChain<T> extends InputEventChain<T> {
 		}
 
 		@Override
-		public InputEventChain<T> create(InputEventChainDef defObj, ObjectByDefRepository<InputEventChainDef, ?, InputEventChain<T>> repository) {
+		@SuppressWarnings("unchecked")
+		public InputEventChain<T> create(InputEventChainDef defObj, ObjectByDefRepository<InputEventChainDef,?> repository) {
 			FilteredInputEventChainDef def = (FilteredInputEventChainDef) defObj;
-			ObjectWithHandle<InputEventChain<T>> underlying = repository.register(def.getUnderlying());
-			@SuppressWarnings("unchecked")
+			
+			ObjectWithHandle<InputEventChain<T>> underlying = (ObjectWithHandle<InputEventChain<T>>) 
+					repository.register(def.getUnderlying());
 			Predicate<T> predicate = (Predicate<T>) def.getFilterDef().getPredicate();
 			
-			return new FilteredInputEventChain<T>(def, "Filter", underlying, predicate);
+			return new FilterInputEventChain<T>(def, "Filter", underlying, predicate);
 		}
 		
 	}

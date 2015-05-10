@@ -2,12 +2,15 @@ package org.sef4j.core.helpers.files;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 import org.sef4j.core.api.ioeventchain.DefaultInputEventChainDefs.ChangedFileWatchInputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChain;
 import org.sef4j.core.api.ioeventchain.InputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChainFactory;
 import org.sef4j.core.helpers.tasks.PeriodicTask;
+import org.sef4j.core.helpers.tasks.PeriodicityDef;
 import org.sef4j.core.util.AsyncUtils;
 import org.sef4j.core.util.factorydef.ObjectByDefRepository;
 import org.slf4j.Logger;
@@ -18,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * 
  * @seealso ChangedFileWatchToEventProvider
  */
-public class ChangedFileWatchInputEventChain extends InputEventChain<FileWatchChangeEvent> {
+public class ChangedFileWatchInputEventChain extends InputEventChain<FileChangeEvent> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ChangedFileWatchInputEventChain.class);
 	
@@ -32,11 +35,22 @@ public class ChangedFileWatchInputEventChain extends InputEventChain<FileWatchCh
 		super(def, displayName);
 		Path watchPath = Paths.get(getDef().getFilePath());
 		PeriodicTask.Builder pollingPeriodBuilder = new PeriodicTask.Builder()
-			.withPeriod(2).withScheduledExecutor(AsyncUtils.defaultScheduledThreadPool());
+			.withOptionalPeriodicityDef(def.getOptionalPollingPeriod())
+			.withDefaults(2, TimeUnit.SECONDS, AsyncUtils.defaultScheduledThreadPool());
 		this.fileWatchEventProvider = new ChangedFileWatchToEventProvider(watchPath, pollingPeriodBuilder);
+		this.fileWatchEventProvider.addEventListener(innerEventProvider);
 	}
-
+	
+	@Override
+	public void close() {
+		super.close();
+		assert ! isStarted();
+		this.fileWatchEventProvider.removeEventListener(innerEventProvider);
+		this.fileWatchEventProvider = null;		
+	}
+	
 	// ------------------------------------------------------------------------
+
 
 	public ChangedFileWatchInputEventChainDef getDef() {
 		return (ChangedFileWatchInputEventChainDef) super.getDef(); 
@@ -59,6 +73,11 @@ public class ChangedFileWatchInputEventChain extends InputEventChain<FileWatchCh
 		fileWatchEventProvider.stop();
 	}
 
+	public void poll() {
+		LOG.debug("poll " + displayName);
+		fileWatchEventProvider.poll();
+	}
+
 	// ------------------------------------------------------------------------
 	
 	@Override
@@ -68,7 +87,7 @@ public class ChangedFileWatchInputEventChain extends InputEventChain<FileWatchCh
 
 	// ------------------------------------------------------------------------
 	
-	public static class Factory extends InputEventChainFactory<FileWatchChangeEvent> {
+	public static class Factory extends InputEventChainFactory<FileChangeEvent> {
 		
 		public Factory() {
 			super("ChangedFileWatchInputEventChain");
@@ -80,7 +99,7 @@ public class ChangedFileWatchInputEventChain extends InputEventChain<FileWatchCh
 		}
 
 		@Override
-		public InputEventChain<FileWatchChangeEvent> create(InputEventChainDef defObj, ObjectByDefRepository<InputEventChainDef, ?, InputEventChain<FileWatchChangeEvent>> repository) {
+		public InputEventChain<FileChangeEvent> create(InputEventChainDef defObj, ObjectByDefRepository<InputEventChainDef,?> repository) {
 			ChangedFileWatchInputEventChainDef def = (ChangedFileWatchInputEventChainDef) defObj;
 			ChangedFileWatchInputEventChain res = new ChangedFileWatchInputEventChain(def, "ChangedFileWatch");
 			return res;

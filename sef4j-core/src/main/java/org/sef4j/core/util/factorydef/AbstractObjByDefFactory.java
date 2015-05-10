@@ -1,7 +1,5 @@
 package org.sef4j.core.util.factorydef;
 
-import org.sef4j.core.util.factorydef.ObjectByDefRepository;
-import org.sef4j.core.util.factorydef.ObjectByDefFactory;
 
 /**
  * abstract helper base-class for ObjectByDefFactory<TDef,T>
@@ -25,7 +23,7 @@ public abstract class AbstractObjByDefFactory<TDef,T> implements ObjectByDefFact
 	public abstract boolean accepts(TDef def);
 
 	@Override
-	public abstract T create(TDef def, ObjectByDefRepository<TDef,?,T> repository);
+	public abstract T create(TDef def, ObjectByDefRepository<TDef,?> repository);
 
 	// ------------------------------------------------------------------------
 	

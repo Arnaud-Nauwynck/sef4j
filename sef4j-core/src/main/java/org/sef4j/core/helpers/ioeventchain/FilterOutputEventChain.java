@@ -13,7 +13,7 @@ import org.sef4j.core.helpers.senders.DelegateEventSender;
  * 
  * @param <T>
  */
-public class FilteredOutputEventChain<T> extends OutputEventChain<T> {
+public class FilterOutputEventChain<T> extends OutputEventChain<T> {
 
 	private OutputEventChain<T> underlying;
 
@@ -41,7 +41,7 @@ public class FilteredOutputEventChain<T> extends OutputEventChain<T> {
 	
 	// ------------------------------------------------------------------------
 
-	public FilteredOutputEventChain(FilteredOutputEventChainDef def, String displayName,
+	public FilterOutputEventChain(FilteredOutputEventChainDef def, String displayName,
 			OutputEventChain<T> underlying, Predicate<T> predicate) {
 		super(def, displayName);
 		this.underlying = underlying;

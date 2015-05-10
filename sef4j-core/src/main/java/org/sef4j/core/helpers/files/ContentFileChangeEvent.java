@@ -3,39 +3,32 @@ package org.sef4j.core.helpers.files;
 import java.io.Serializable;
 import java.nio.file.WatchEvent;
 
-public class FileWatchChangeEvent implements Serializable {
+public class ContentFileChangeEvent extends FileChangeEvent implements Serializable {
 	
 	/** */
 	private static final long serialVersionUID = 1L;
 	
-	private final String filePath;
-	private final WatchEvent.Kind<?> eventKind;
+	private byte[] content;
 	
 	// ------------------------------------------------------------------------
 	
-	public FileWatchChangeEvent(String filePath, WatchEvent.Kind<?> eventKind) {
-		this.filePath = filePath;
-		this.eventKind = eventKind;
+	public ContentFileChangeEvent(String filePath, WatchEvent.Kind<?> eventKind, byte[] content) {
+		super(filePath, eventKind);
+		this.content = content;
 	}
 
 	// ------------------------------------------------------------------------
 	
-	public String getFilePath() {
-		return filePath;
+	public byte[] getContent() {
+		return content;
 	}
-	
-	public WatchEvent.Kind<?> getEventKind() {
-		return eventKind;
-	}
-
 	// ------------------------------------------------------------------------
 	
 	@Override
 	public String toString() {
-		return "ContentFileWatchChangeEvent [filePath=" + filePath 
+		return "ContentFileChangeEvent[filePath=" + filePath 
 				+ ", eventKind=" + eventKind + ", fileContent="
 				+ "]";
 	}
 
-	
 }

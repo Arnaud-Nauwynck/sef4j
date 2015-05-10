@@ -23,16 +23,16 @@ import org.slf4j.LoggerFactory;
  * It manages reference counter per object, returning handles to safely register/unregister objects
  * </p>
  */
-public class ObjectByDefRepository<TDef, TFactory extends ObjectByDefFactory<TDef,T>, T> {
+public class ObjectByDefRepository<TDef,T> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ObjectByDefRepository.class);
 	
 	public static class ObjectWithHandle<T> implements Closeable {
-		private ObjectByDefRepository<?,?,T> repository;
+		private ObjectByDefRepository<?,?> repository;
 		private Handle handle;
 		private T object;
 		
-		public ObjectWithHandle(ObjectByDefRepository<?,?,T> repository, Handle handle, T object) {
+		public ObjectWithHandle(ObjectByDefRepository<?,?> repository, Handle handle, T object) {
 			this.handle = handle;
 			this.object = object;
 		}
@@ -70,7 +70,7 @@ public class ObjectByDefRepository<TDef, TFactory extends ObjectByDefFactory<TDe
 	private Object entriesLock = new Object();
 	
 	// use copy-on-write?
-	private List<TFactory> registeredFactories = new ArrayList<TFactory>();
+	private List<ObjectByDefFactory<TDef,T>> registeredFactories = new ArrayList<ObjectByDefFactory<TDef,T>>();
 	
 	// ------------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ public class ObjectByDefRepository<TDef, TFactory extends ObjectByDefFactory<TDe
 	 * @param def
 	 * @return
 	 */
-	public ObjectWithHandle<T> register(TDef def) {
+	public ObjectWithHandle<?> register(TDef def) {
 		Entry<T> res;
 		Handle handle;
 		synchronized(entriesLock) {
@@ -111,11 +111,8 @@ public class ObjectByDefRepository<TDef, TFactory extends ObjectByDefFactory<TDe
 		if (factory == null) {
 			throw new UnsupportedOperationException("Factory not found for def: " + def);
 		}
-		@SuppressWarnings("unchecked")
-		ObjectByDefRepository<TDef,ObjectByDefFactory<TDef,T>,T> thisRepo = (ObjectByDefRepository<TDef,ObjectByDefFactory<TDef,T>,T>) this;
-		
 		// *** the biggy ***
-		T obj = factory.create(def, thisRepo);
+		T obj = factory.create(def, this);
 		
 		return obj;
 	}
@@ -165,9 +162,9 @@ public class ObjectByDefRepository<TDef, TFactory extends ObjectByDefFactory<TDe
 	}
 	
 	
-	public TFactory findMatchingFactoryFor(TDef def) {
-		TFactory res = null;
-		for(TFactory f : registeredFactories) {
+	public ObjectByDefFactory<TDef,T> findMatchingFactoryFor(TDef def) {
+		ObjectByDefFactory<TDef,T> res = null;
+		for(ObjectByDefFactory<TDef,T> f : registeredFactories) {
 			if (f.accepts(def)) {
 				res = f;
 				break;

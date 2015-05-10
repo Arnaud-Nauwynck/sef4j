@@ -100,21 +100,21 @@ public final class DefaultInputEventChainDefs {
 	
 	// ------------------------------------------------------------------------
 	
-	public static class TransformedInputEventChainDef extends InputEventChainDef {
+	public static class TransformerInputEventChainDef<TSrc,T> extends InputEventChainDef {
 		
 		/** */
 		private static final long serialVersionUID = 1L;
 
-		private final EventTransformerDef eventTransformerDef;
+		private final EventTransformerDef<TSrc,T> eventTransformerDef;
 
 		private final InputEventChainDef underlying;
 
-		public TransformedInputEventChainDef(EventTransformerDef eventTransformerDef, InputEventChainDef underlying) {
+		public TransformerInputEventChainDef(EventTransformerDef<TSrc,T> eventTransformerDef, InputEventChainDef underlying) {
 			this.eventTransformerDef = eventTransformerDef;
 			this.underlying = underlying;
 		}
 
-		public EventTransformerDef getEventTransformerDef() {
+		public EventTransformerDef<TSrc,T> getEventTransformerDef() {
 			return eventTransformerDef;
 		}
 
@@ -144,7 +144,8 @@ public final class DefaultInputEventChainDefs {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			TransformedInputEventChainDef other = (TransformedInputEventChainDef) obj;
+			@SuppressWarnings("unchecked")
+			TransformerInputEventChainDef<TSrc,T> other = (TransformerInputEventChainDef<TSrc,T>) obj;
 			if (eventTransformerDef == null) {
 				if (other.eventTransformerDef != null)
 					return false;
@@ -157,10 +158,8 @@ public final class DefaultInputEventChainDefs {
 				return false;
 			return true;
 		}
-
 		
 	}
-
 	
 	// ------------------------------------------------------------------------
 	
@@ -569,20 +568,27 @@ public final class DefaultInputEventChainDefs {
 		private static final long serialVersionUID = 1L;
 	
 		private final String filePath;
-
-		public ChangedFileWatchInputEventChainDef(String filePath) {
+		private PeriodicityDef optionalPollingPeriod;
+		
+		public ChangedFileWatchInputEventChainDef(String filePath, PeriodicityDef optionalPollingPeriod) {
 			this.filePath = filePath;
+			this.optionalPollingPeriod = optionalPollingPeriod;
 		}
 
 		public String getFilePath() {
 			return filePath;
 		}
-
+		
+		public PeriodicityDef getOptionalPollingPeriod() {
+			return optionalPollingPeriod;
+		}
+		
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
 			result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
+			result = prime * result + ((optionalPollingPeriod == null) ? 0 : optionalPollingPeriod.hashCode());
 			return result;
 		}
 
@@ -599,6 +605,11 @@ public final class DefaultInputEventChainDefs {
 				if (other.filePath != null)
 					return false;
 			} else if (!filePath.equals(other.filePath))
+				return false;
+			if (optionalPollingPeriod == null) {
+				if (other.optionalPollingPeriod != null)
+					return false;
+			} else if (!optionalPollingPeriod.equals(other.optionalPollingPeriod))
 				return false;
 			return true;
 		}

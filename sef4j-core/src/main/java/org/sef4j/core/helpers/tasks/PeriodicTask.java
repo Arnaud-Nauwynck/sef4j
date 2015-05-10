@@ -191,6 +191,27 @@ public class PeriodicTask implements Closeable, IStartableSupport {
 			return this;
 		}
 
+		public Builder withOptionalPeriodicityDef(PeriodicityDef def) {
+			if (def != null) {
+				this.period = def.getPeriod();
+				this.periodTimeUnit = def.getPeriodUnit();
+				this.scheduledExecutor = (def.getSchedulerExecutorName() != null && def.getSchedulerExecutorName().equals("default"))?
+					AsyncUtils.defaultScheduledThreadPool() : null;
+			}
+			return this;
+		}
+
+		public Builder withDefaults(int period, TimeUnit periodTimeUnit, ScheduledExecutorService scheduledExecutor) {
+			if (period != 0) {
+				this.period = period;
+				this.periodTimeUnit = periodTimeUnit;
+			}
+			if (this.scheduledExecutor == null) {
+				this.scheduledExecutor = scheduledExecutor;
+			}
+			return this;
+		}
+		
 	}
 
 }

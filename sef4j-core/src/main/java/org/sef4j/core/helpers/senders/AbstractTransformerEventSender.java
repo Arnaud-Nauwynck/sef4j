@@ -39,11 +39,11 @@ public abstract class AbstractTransformerEventSender<T,TDest> implements EventSe
 	
 	// ------------------------------------------------------------------------
 
-	public static class FuncTransformEventSender<T,TDest> extends AbstractTransformerEventSender<T,TDest> {
+	public static class FuncTransformerEventSender<T,TDest> extends AbstractTransformerEventSender<T,TDest> {
 		
 		private Function<T,TDest> transformFunction;
 
-		public FuncTransformEventSender(EventSender<TDest> target, Function<T,TDest> transformFunction) {
+		public FuncTransformerEventSender(EventSender<TDest> target, Function<T,TDest> transformFunction) {
 			super(target);
 			this.transformFunction = transformFunction;
 		}

@@ -7,7 +7,7 @@ import java.util.function.Function;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.core.MockEvent;
-import org.sef4j.core.helpers.senders.AbstractTransformerEventSender.FuncTransformEventSender;
+import org.sef4j.core.helpers.senders.AbstractTransformerEventSender.FuncTransformerEventSender;
 
 
 public class AbstractTransformerEventSenderTest {
@@ -22,7 +22,7 @@ public class AbstractTransformerEventSenderTest {
 	
 	protected Function<MockEvent,F> transform = (x) -> new F(x);
 	protected InMemoryEventSender<F> targetEventSender = new InMemoryEventSender<F>();
-	protected FuncTransformEventSender<MockEvent,F> sut = new FuncTransformEventSender<MockEvent,F>(targetEventSender, transform);
+	protected FuncTransformerEventSender<MockEvent,F> sut = new FuncTransformerEventSender<MockEvent,F>(targetEventSender, transform);
 	
 	MockEvent e1 = new MockEvent("event1");
 	MockEvent e2 = new MockEvent("event2");

@@ -16,10 +16,10 @@ import org.sef4j.core.helpers.senders.InMemoryEventSender;
 public class ChangedFileWatchToEventProviderTest {
 
 	protected Path watchDirPath = Paths.get("target", "tests", "watchdir1");
-	protected Path file1Path = // parentPath.resolve("file1");
-		Paths.get("target", "tests", "watchdir1", "file1");
+	protected Path file1Path = watchDirPath.resolve("file1");
+		// Paths.get("target", "tests", "watchdir1", "file1");
 	protected ChangedFileWatchToEventProvider sut = new ChangedFileWatchToEventProvider(watchDirPath, null);
-	protected InMemoryEventSender<FileWatchChangeEvent> resultEvents = new InMemoryEventSender<FileWatchChangeEvent>();
+	protected InMemoryEventSender<FileChangeEvent> resultEvents = new InMemoryEventSender<FileChangeEvent>();
 	
 	
 	@Before
@@ -43,9 +43,9 @@ public class ChangedFileWatchToEventProviderTest {
 		sut.poll();
 		// Post-check
 		sut.unregisterWatch();
-		List<FileWatchChangeEvent> ls = resultEvents.clearAndGet();
+		List<FileChangeEvent> ls = resultEvents.clearAndGet();
 		Assert.assertTrue(1 <= ls.size()); // may got 2 events ??!
-		FileWatchChangeEvent e = (FileWatchChangeEvent) ls.get(0);
+		FileChangeEvent e = (FileChangeEvent) ls.get(0);
 		Assert.assertEquals(StandardWatchEventKinds.ENTRY_CREATE, e.getEventKind());
 		Assert.assertEquals(file1Path.toString(), e.getFilePath());
 	}
@@ -62,9 +62,9 @@ public class ChangedFileWatchToEventProviderTest {
 		Thread.sleep(10);
 		sut.poll();
 		// Post-check
-		List<FileWatchChangeEvent> ls = resultEvents.clearAndGet();
+		List<FileChangeEvent> ls = resultEvents.clearAndGet();
 		Assert.assertEquals(1, ls.size());
-		FileWatchChangeEvent e = (FileWatchChangeEvent) ls.get(0);
+		FileChangeEvent e = (FileChangeEvent) ls.get(0);
 		Assert.assertEquals(StandardWatchEventKinds.ENTRY_MODIFY, e.getEventKind());
 		Assert.assertEquals(file1Path.toString(), e.getFilePath());
 
@@ -100,9 +100,9 @@ public class ChangedFileWatchToEventProviderTest {
 		sut.poll();
 		// Post-check
 		sut.unregisterWatch();
-		List<FileWatchChangeEvent> ls = resultEvents.clearAndGet();
+		List<FileChangeEvent> ls = resultEvents.clearAndGet();
 		Assert.assertEquals(1, ls.size());
-		FileWatchChangeEvent e = (FileWatchChangeEvent) ls.get(0);
+		FileChangeEvent e = (FileChangeEvent) ls.get(0);
 		Assert.assertEquals(StandardWatchEventKinds.ENTRY_DELETE, e.getEventKind());
 		Assert.assertEquals(file1Path.toString(), e.getFilePath());
 	}

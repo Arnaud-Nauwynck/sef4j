@@ -9,10 +9,10 @@ import org.sef4j.core.MockEvent.MockEventValueContainsPredicate;
 import org.sef4j.core.api.ioeventchain.OutputEventChain.SenderHandle;
 
 
-public class FilteredOutputEventChainTest {
+public class FilterOutputEventChainTest {
 
 	MockOutputEventChain mockUnderlying = new MockOutputEventChain();
-	FilteredOutputEventChain<MockEvent> sut = new FilteredOutputEventChain<MockEvent>(null, "test", 
+	FilterOutputEventChain<MockEvent> sut = new FilterOutputEventChain<MockEvent>(null, "test", 
 			mockUnderlying, MockEventValueContainsPredicate.CONTAINS_1);
 
 	@Test

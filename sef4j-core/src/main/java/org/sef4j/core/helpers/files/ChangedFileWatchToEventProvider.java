@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory;
  * </PRE>
  * 
  */
-public class ChangedFileWatchToEventProvider extends DefaultEventProvider<FileWatchChangeEvent> {
+public class ChangedFileWatchToEventProvider extends DefaultEventProvider<FileChangeEvent> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ChangedFileWatchToEventProvider.class);
 	
@@ -139,7 +139,7 @@ public class ChangedFileWatchToEventProvider extends DefaultEventProvider<FileWa
 	        } else if (kind == StandardWatchEventKinds.ENTRY_MODIFY
 	        		|| kind == StandardWatchEventKinds.ENTRY_CREATE
 	        		|| kind == StandardWatchEventKinds.ENTRY_DELETE) {
-	        	FileWatchChangeEvent fileChangeEvent = new FileWatchChangeEvent(
+	        	FileChangeEvent fileChangeEvent = new FileChangeEvent(
 	        			changedPath.toString(), kind);
 	        	// *** sendEvent ***
 	        	super.sendEvent(fileChangeEvent);

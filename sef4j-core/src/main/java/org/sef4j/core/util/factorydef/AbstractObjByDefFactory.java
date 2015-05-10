@@ -23,7 +23,7 @@ public abstract class AbstractObjByDefFactory<TDef,T> implements ObjectByDefFact
 	public abstract boolean accepts(TDef def);
 
 	@Override
-	public abstract T create(TDef def, ObjectByDefRepository<TDef,?> repository);
+	public abstract T create(TDef def, ObjectByDefRepositories repositories);
 
 	// ------------------------------------------------------------------------
 	

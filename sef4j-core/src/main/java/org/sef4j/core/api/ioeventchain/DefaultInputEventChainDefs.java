@@ -388,6 +388,10 @@ public final class DefaultInputEventChainDefs {
 		public PeriodicityDef getPeriodicity() {
 			return periodicity;
 		}
+		
+		public TaskDef getTaskDef() {
+			return taskDef;
+		}
 
 		@Override
 		public int hashCode() {
@@ -559,68 +563,7 @@ public final class DefaultInputEventChainDefs {
 		}
 		
 	}
-	
-	// ------------------------------------------------------------------------
 
-	public static class ChangedFileWatchInputEventChainDef extends InputEventChainDef {
-		
-		/** */
-		private static final long serialVersionUID = 1L;
-	
-		private final String filePath;
-		private PeriodicityDef optionalPollingPeriod;
-		
-		public ChangedFileWatchInputEventChainDef(String filePath, PeriodicityDef optionalPollingPeriod) {
-			this.filePath = filePath;
-			this.optionalPollingPeriod = optionalPollingPeriod;
-		}
-
-		public String getFilePath() {
-			return filePath;
-		}
-		
-		public PeriodicityDef getOptionalPollingPeriod() {
-			return optionalPollingPeriod;
-		}
-		
-		@Override
-		public int hashCode() {
-			final int prime = 31;
-			int result = 1;
-			result = prime * result + ((filePath == null) ? 0 : filePath.hashCode());
-			result = prime * result + ((optionalPollingPeriod == null) ? 0 : optionalPollingPeriod.hashCode());
-			return result;
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			ChangedFileWatchInputEventChainDef other = (ChangedFileWatchInputEventChainDef) obj;
-			if (filePath == null) {
-				if (other.filePath != null)
-					return false;
-			} else if (!filePath.equals(other.filePath))
-				return false;
-			if (optionalPollingPeriod == null) {
-				if (other.optionalPollingPeriod != null)
-					return false;
-			} else if (!optionalPollingPeriod.equals(other.optionalPollingPeriod))
-				return false;
-			return true;
-		}
-
-		@Override
-		public String toString() {
-			return "ContentFileWatchInputEventChainDef [filePath=" + filePath + "]";
-		}
-		
-	}
-	
 	// ------------------------------------------------------------------------
 	
 }

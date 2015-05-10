@@ -7,8 +7,8 @@ import org.sef4j.core.api.ioeventchain.InputEventChain;
 import org.sef4j.core.api.ioeventchain.InputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChainFactory;
 import org.sef4j.core.helpers.senders.AbstractFilterEventSender.PredicateFilterEventSender;
-import org.sef4j.core.util.factorydef.ObjectByDefRepository;
-import org.sef4j.core.util.factorydef.ObjectByDefRepository.ObjectWithHandle;
+import org.sef4j.core.util.factorydef.ObjectByDefRepositories;
+import org.sef4j.core.util.factorydef.ObjectWithHandle;
 
 /**
  * InputEventChain for filtering events by predicate received from an underlying InputEventChain 
@@ -93,14 +93,16 @@ public class FilterInputEventChain<T> extends InputEventChain<T> {
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public InputEventChain<T> create(InputEventChainDef defObj, ObjectByDefRepository<InputEventChainDef,?> repository) {
+		public InputEventChain<T> create(InputEventChainDef defObj, ObjectByDefRepositories repositories) {
 			FilteredInputEventChainDef def = (FilteredInputEventChainDef) defObj;
 			
-			ObjectWithHandle<InputEventChain<T>> underlying = (ObjectWithHandle<InputEventChain<T>>) 
-					repository.register(def.getUnderlying());
+			ObjectWithHandle<?> underlyingHandle = repositories.getOrCreateByDef(def.getUnderlying());
+			ObjectWithHandle<InputEventChain<T>> underlyingHandle2 = 
+					(ObjectWithHandle<InputEventChain<T>>) underlyingHandle;
+
 			Predicate<T> predicate = (Predicate<T>) def.getFilterDef().getPredicate();
 			
-			return new FilterInputEventChain<T>(def, "Filter", underlying, predicate);
+			return new FilterInputEventChain<T>(def, "Filter", underlyingHandle2, predicate);
 		}
 		
 	}

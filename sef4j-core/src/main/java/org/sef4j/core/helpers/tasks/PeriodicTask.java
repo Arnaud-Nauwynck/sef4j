@@ -176,6 +176,11 @@ public class PeriodicTask implements Closeable, IStartableSupport {
 			return new PeriodicTask(displayName, task, period, periodTimeUnit, scheduledExecutor);
 		}
 
+		public PeriodicTask build(Runnable task) {
+			withTask(task);
+			return build();
+		}
+
 		public Builder withScheduledExecutor(ScheduledExecutorService scheduledExecutor) {
 			this.scheduledExecutor = scheduledExecutor;
 			return this;
@@ -202,7 +207,7 @@ public class PeriodicTask implements Closeable, IStartableSupport {
 		}
 
 		public Builder withDefaults(int period, TimeUnit periodTimeUnit, ScheduledExecutorService scheduledExecutor) {
-			if (period != 0) {
+			if (period <= 0) {
 				this.period = period;
 				this.periodTimeUnit = periodTimeUnit;
 			}

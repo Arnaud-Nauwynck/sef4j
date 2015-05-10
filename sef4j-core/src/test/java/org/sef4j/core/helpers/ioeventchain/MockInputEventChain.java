@@ -4,7 +4,7 @@ import java.util.Collection;
 
 import org.sef4j.core.MockEvent;
 import org.sef4j.core.api.ioeventchain.InputEventChain;
-import org.sef4j.core.util.factorydef.ObjectByDefRepository.ObjectWithHandle;
+import org.sef4j.core.util.factorydef.ObjectWithHandle;
 
 public class MockInputEventChain extends InputEventChain<MockEvent> {
 

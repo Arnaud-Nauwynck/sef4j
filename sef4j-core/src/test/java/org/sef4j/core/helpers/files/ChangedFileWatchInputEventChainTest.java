@@ -12,9 +12,12 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.sef4j.core.MockEventSender;
-import org.sef4j.core.api.ioeventchain.DefaultInputEventChainDefs.ChangedFileWatchInputEventChainDef;
+import org.sef4j.core.api.ioeventchain.DefaultInputEventChainDefs.PeriodicTaskInputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChain.ListenerHandle;
+import org.sef4j.core.helpers.ioeventchain.PeriodicTaskInputEventChain;
 import org.sef4j.core.helpers.tasks.PeriodicityDef;
+import org.sef4j.core.util.factorydef.ObjectByDefRepositories;
+import org.sef4j.core.util.factorydef.ObjectWithHandle;
 
 
 public class ChangedFileWatchInputEventChainTest {
@@ -23,15 +26,29 @@ public class ChangedFileWatchInputEventChainTest {
 	
 	protected Path watchDirPath = Paths.get("target", "tests", "watchdir1");
 	protected Path file1Path = watchDirPath.resolve("file1");
-	protected ChangedFileWatchInputEventChainDef def = new ChangedFileWatchInputEventChainDef(watchDirPath.toString(),
-			new PeriodicityDef(50, TimeUnit.MILLISECONDS, "default"));
-	protected ChangedFileWatchInputEventChain sut = new ChangedFileWatchInputEventChain(def, "test");
 
+	protected PeriodicTaskInputEventChain<FileChangeEvent> sut;
+
+	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Before
 	public void setup() throws IOException {
 		if (!Files.exists(watchDirPath)) {
 			Files.createDirectories(watchDirPath);
 		}
+
+		PeriodicTaskInputEventChainDef def = new PeriodicTaskInputEventChainDef(
+				new PeriodicityDef(50, TimeUnit.MILLISECONDS, "default"),
+				new ChangedFileWatchPollingEventProviderDef(watchDirPath.toString()));
+
+		ObjectByDefRepositories repositories = new ObjectByDefRepositories();
+		repositories.registerFactoryFor(PeriodicTaskInputEventChainDef.class, 
+				new PeriodicTaskInputEventChain.Factory());
+		repositories.registerFactoryFor(ChangedFileWatchPollingEventProviderDef.class, 
+				new ChangedFileWatchPollingEventProvider.Factory());
+		
+		ObjectWithHandle<PeriodicTaskInputEventChain<FileChangeEvent>> sutHandle = 
+				repositories.getOrCreateByDef(def);
+		sut = sutHandle.getObject();
 	}
 
 	@Test
@@ -42,7 +59,7 @@ public class ChangedFileWatchInputEventChainTest {
 		Assert.assertTrue(sut.isStarted());
 		// Perform
 		Files.write(file1Path, "Hello".getBytes());
-		Thread.sleep(100); // wait for polling timer in separate thread!!
+		Thread.sleep(50); // wait for polling timer in separate thread!!
 		
 		// Post-check
 		List<FileChangeEvent> res;

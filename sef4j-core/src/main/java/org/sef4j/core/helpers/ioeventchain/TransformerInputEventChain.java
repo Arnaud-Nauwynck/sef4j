@@ -7,8 +7,8 @@ import org.sef4j.core.api.ioeventchain.InputEventChain;
 import org.sef4j.core.api.ioeventchain.InputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChainFactory;
 import org.sef4j.core.helpers.senders.AbstractTransformerEventSender.FuncTransformerEventSender;
-import org.sef4j.core.util.factorydef.ObjectByDefRepository;
-import org.sef4j.core.util.factorydef.ObjectByDefRepository.ObjectWithHandle;
+import org.sef4j.core.util.factorydef.ObjectByDefRepositories;
+import org.sef4j.core.util.factorydef.ObjectWithHandle;
 
 /**
  * InputEventChain for transforming events received from an underlying InputEventChain 
@@ -94,11 +94,11 @@ public class TransformerInputEventChain<TSrc,T> extends InputEventChain<T> {
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public InputEventChain<T> create(InputEventChainDef defObj, ObjectByDefRepository<InputEventChainDef,?> repository) {
+		public InputEventChain<T> create(InputEventChainDef defObj, ObjectByDefRepositories repositories) {
 			TransformerInputEventChainDef<TSrc,T> def = (TransformerInputEventChainDef<TSrc,T>) defObj;
 			
-			ObjectWithHandle<InputEventChain<TSrc>> underlying = (ObjectWithHandle<InputEventChain<TSrc>>)
-					repository.register(def.getUnderlying());
+			ObjectWithHandle<InputEventChain<TSrc>> underlying = (ObjectWithHandle<InputEventChain<TSrc>>) (ObjectWithHandle<?>)
+					repositories.getOrCreateByDef(def.getUnderlying());
 			
 			Function<TSrc,T> transformer = (Function<TSrc,T>) def.getEventTransformerDef();
 			

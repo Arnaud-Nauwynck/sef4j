@@ -3,13 +3,16 @@ package org.sef4j.core.helpers.files;
 import java.io.IOException;
 import java.nio.file.FileSystems;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchEvent;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 
-import org.sef4j.core.helpers.senders.DefaultEventProvider;
-import org.sef4j.core.helpers.tasks.PeriodicTask;
+import org.sef4j.core.helpers.tasks.PollingEventProvider.AbstractPollingEventProvider;
+import org.sef4j.core.util.IStartableSupport;
+import org.sef4j.core.util.factorydef.AbstractObjByDefFactory;
+import org.sef4j.core.util.factorydef.ObjectByDefRepositories;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * 
  * <PRE>
  * 
- *   registerWatch()
+ *   start() = register watch
  *    ----->
  *                                                   <---addEventListener
  *   poll
@@ -30,61 +33,37 @@ import org.slf4j.LoggerFactory;
  *   poll
  *    ----->
  *                                                   <---removeEventListener
- *   unregisterWatch()
+ *   stop = unregister watch
  *    ----->
  * 
  * </PRE>
  * 
  */
-public class ChangedFileWatchToEventProvider extends DefaultEventProvider<FileChangeEvent> {
+public class ChangedFileWatchPollingEventProvider extends AbstractPollingEventProvider<FileChangeEvent> implements IStartableSupport {
 
-	private static final Logger LOG = LoggerFactory.getLogger(ChangedFileWatchToEventProvider.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ChangedFileWatchPollingEventProvider.class);
 	
 	private Path watchPath;
 	
 	private WatchService watchService;	
 	private WatchKey watchKey;
-
-	/**
-	 * optional ... when unset, calls to start() and stop() are not allowed
-	 */
-	private PeriodicTask pollingPeriodicTask;
 	
 	// ------------------------------------------------------------------------
 	
-	public ChangedFileWatchToEventProvider(Path watchPath, PeriodicTask.Builder pollingPeriodicTaskBuilder) {
+	public ChangedFileWatchPollingEventProvider(Path watchPath) {
+		super("FileWatch");
 		this.watchPath = watchPath;
-		if (pollingPeriodicTaskBuilder != null) {
-			pollingPeriodicTaskBuilder.withTask(() -> poll());
-			this.pollingPeriodicTask = pollingPeriodicTaskBuilder.build();
-		}
 	}
 
 	// ------------------------------------------------------------------------
 
+	@Override
 	public boolean isStarted() {
-		return isWatchRegistered() && pollingPeriodicTask != null && pollingPeriodicTask.isStarted();
-	}
-
-	public void start() {
-		if (! isWatchRegistered()) {
-			registerWatch();
-		}
-		this.pollingPeriodicTask.start();
-	}
-
-	public void stop() {
-		this.pollingPeriodicTask.stop();
-		if (isWatchRegistered()) {
-			unregisterWatch();
-		}
-	}
-
-	public boolean isWatchRegistered() {
 		return watchKey != null;
 	}
 	
-	public void registerWatch() {
+	@Override
+	public void start() {
 		try {
 			watchService = FileSystems.getDefault().newWatchService();
 		} catch (IOException ex) {
@@ -99,8 +78,9 @@ public class ChangedFileWatchToEventProvider extends DefaultEventProvider<FileCh
 			return;
 		}
 	}
-	
-	public void unregisterWatch() {
+
+	@Override
+	public void stop() {
 		if (watchKey != null) {
 			try {
 				watchKey.cancel();
@@ -112,6 +92,7 @@ public class ChangedFileWatchToEventProvider extends DefaultEventProvider<FileCh
 		}
 	}
 	
+	@Override
 	public void poll() {
 		if (watchKey == null) {
 			return;
@@ -147,6 +128,25 @@ public class ChangedFileWatchToEventProvider extends DefaultEventProvider<FileCh
 	        
 	        watchKey.reset();
 	    }
+	}
+	
+	// ------------------------------------------------------------------------
+	
+	public static class Factory extends AbstractObjByDefFactory<ChangedFileWatchPollingEventProviderDef,ChangedFileWatchPollingEventProvider> {
+		
+		public Factory() {
+			super("ChangedFileWatchPollingEventProvider");
+		}
+
+		@Override
+		public boolean accepts(ChangedFileWatchPollingEventProviderDef def) {
+			return def instanceof ChangedFileWatchPollingEventProviderDef;
+		}
+
+		@Override
+		public ChangedFileWatchPollingEventProvider create(ChangedFileWatchPollingEventProviderDef def, ObjectByDefRepositories repositories) {
+			return new ChangedFileWatchPollingEventProvider(Paths.get(def.getFilePath()));
+		}			
 	}
 	
 }

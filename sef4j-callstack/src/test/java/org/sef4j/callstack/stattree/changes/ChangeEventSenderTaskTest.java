@@ -7,14 +7,14 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.core.helpers.export.senders.ChangeEventSenderTask;
+import org.sef4j.core.helpers.export.senders.EventSenderFragmentsExporterTask;
 import org.sef4j.core.helpers.export.senders.EventSenderFragmentsExporter;
 import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 import org.sef4j.core.helpers.senders.InMemoryEventSender;
 import org.sef4j.core.helpers.tasks.PeriodicTask;
 
 
-public class AsyncChangeCollectorSenderTest {
+public class ChangeEventSenderTaskTest {
 
 	private PropTreeNode rootNode = PropTreeNode.newRoot();
 	private PropTreeNode fooNode = rootNode.getOrCreateChild("foo");
@@ -27,8 +27,8 @@ public class AsyncChangeCollectorSenderTest {
 			new BasicStatIgnorePendingChangeCollector(rootNode);
 	private InMemoryEventSender<PerfStatsChangesEvent> inMemoryEventSender = new InMemoryEventSender<PerfStatsChangesEvent>();
 	
-	private ChangeEventSenderTask<PerfStats,PerfStatsChangesEvent> sut = 
-			new ChangeEventSenderTask<PerfStats,PerfStatsChangesEvent>(
+	private EventSenderFragmentsExporterTask<PerfStats,PerfStatsChangesEvent> sut = 
+			new EventSenderFragmentsExporterTask<PerfStats,PerfStatsChangesEvent>(
 					new PeriodicTask.Builder().withPeriod(1), // period=1 second 
 					new PeriodicTask.Builder().withPeriod(600),
 					new EventSenderFragmentsExporter<PerfStats,PerfStatsChangesEvent>(

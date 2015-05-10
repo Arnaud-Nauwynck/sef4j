@@ -10,7 +10,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * sub-class of FragmentsProvidersExporter for retryable support
+ * sub-class of EventSenderFragmentsExporter for retryable support
  * 
  * <PRE>
  * 

@@ -13,12 +13,12 @@ import org.junit.Test;
 import org.sef4j.core.helpers.senders.InMemoryEventSender;
 
 
-public class ChangedFileWatchToEventProviderTest {
+public class ChangedFileWatchPollingEventProviderTest {
 
 	protected Path watchDirPath = Paths.get("target", "tests", "watchdir1");
 	protected Path file1Path = watchDirPath.resolve("file1");
 		// Paths.get("target", "tests", "watchdir1", "file1");
-	protected ChangedFileWatchToEventProvider sut = new ChangedFileWatchToEventProvider(watchDirPath, null);
+	protected ChangedFileWatchPollingEventProvider sut = new ChangedFileWatchPollingEventProvider(watchDirPath);
 	protected InMemoryEventSender<FileChangeEvent> resultEvents = new InMemoryEventSender<FileChangeEvent>();
 	
 	
@@ -36,13 +36,13 @@ public class ChangedFileWatchToEventProviderTest {
 		if (Files.exists(file1Path)) {
 			Files.delete(file1Path);
 		}
-		sut.registerWatch();
+		sut.start();
 		// Perform
 		Files.write(file1Path, "Hello".getBytes());
 		Thread.sleep(10);
 		sut.poll();
 		// Post-check
-		sut.unregisterWatch();
+		sut.stop();
 		List<FileChangeEvent> ls = resultEvents.clearAndGet();
 		Assert.assertTrue(1 <= ls.size()); // may got 2 events ??!
 		FileChangeEvent e = (FileChangeEvent) ls.get(0);
@@ -56,7 +56,7 @@ public class ChangedFileWatchToEventProviderTest {
 		if (! Files.exists(file1Path)) {
 			Files.createFile(file1Path);
 		}
-		sut.registerWatch();
+		sut.start();
 		// Perform
 		Files.write(file1Path, "Hello2".getBytes());
 		Thread.sleep(10);
@@ -84,7 +84,7 @@ public class ChangedFileWatchToEventProviderTest {
 		Assert.assertEquals(1, ls.size());
 		
 		// finish
-		sut.unregisterWatch();
+		sut.stop();
 	}
 
 	@Test
@@ -93,13 +93,13 @@ public class ChangedFileWatchToEventProviderTest {
 		if (! Files.exists(file1Path)) {
 			Files.createFile(file1Path);
 		}
-		sut.registerWatch();
+		sut.start();
 		// Perform
 		Files.delete(file1Path);
 		Thread.sleep(10);
 		sut.poll();
 		// Post-check
-		sut.unregisterWatch();
+		sut.stop();
 		List<FileChangeEvent> ls = resultEvents.clearAndGet();
 		Assert.assertEquals(1, ls.size());
 		FileChangeEvent e = (FileChangeEvent) ls.get(0);

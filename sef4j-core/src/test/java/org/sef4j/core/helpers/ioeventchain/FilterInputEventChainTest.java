@@ -5,7 +5,7 @@ import org.sef4j.core.MockEvent;
 import org.sef4j.core.MockEvent.MockEventValueContainsPredicate;
 import org.sef4j.core.MockEventSender;
 import org.sef4j.core.api.ioeventchain.InputEventChain.ListenerHandle;
-import org.sef4j.core.util.factorydef.ObjectByDefRepository.ObjectWithHandle;
+import org.sef4j.core.util.factorydef.ObjectWithHandle;
 
 
 public class FilterInputEventChainTest {

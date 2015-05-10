@@ -3,8 +3,8 @@ package org.sef4j.testwebapp.service;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import org.sef4j.core.helpers.PeriodicTask;
 import org.sef4j.core.helpers.proptree.dto.PropTreeNodeDTO;
+import org.sef4j.core.helpers.tasks.PeriodicTask;
 import org.sef4j.core.util.AsyncUtils;
 import org.sef4j.testwebapp.dto.SubscriptionCommandDTO;
 import org.slf4j.Logger;

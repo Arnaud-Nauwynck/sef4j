@@ -14,7 +14,7 @@ import org.sef4j.core.helpers.senders.InMemoryEventSender;
 import org.sef4j.core.helpers.tasks.PeriodicTask;
 
 
-public class ChangeEventSenderTaskTest {
+public class EventSenderFragmentsExporterTaskTest {
 
 	private PropTreeNode rootNode = PropTreeNode.newRoot();
 	private PropTreeNode fooNode = rootNode.getOrCreateChild("foo");
@@ -26,8 +26,8 @@ public class ChangeEventSenderTaskTest {
 	private DummyCountChangeCollector changeCollector = new DummyCountChangeCollector(rootNode);
 	private InMemoryEventSender<DummyCountChangesEvent> inMemoryEventSender = new InMemoryEventSender<DummyCountChangesEvent>();
 	
-	private ChangeEventSenderTask<DummyCount,DummyCountChangesEvent> sut = 
-			new ChangeEventSenderTask<DummyCount,DummyCountChangesEvent>(
+	private EventSenderFragmentsExporterTask<DummyCount,DummyCountChangesEvent> sut = 
+			new EventSenderFragmentsExporterTask<DummyCount,DummyCountChangesEvent>(
 					new PeriodicTask.Builder().withPeriod(1), // period=1 second 
 					new PeriodicTask.Builder().withPeriod(600),
 					new EventSenderFragmentsExporter<DummyCount,DummyCountChangesEvent>("", 

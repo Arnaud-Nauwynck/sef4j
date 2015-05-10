@@ -10,10 +10,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * helper class for exporters
- * collect from a list of FragmentProvider(s), and delegate to eventSender to send
+ * class for collecting data or incremental changes to export to delegated eventSender
  * 
- *  * <PRE>
+ * <PRE>
  *             exporter.sendEventsForCollectedFragments(): 
  *                  { ls=collectFragments(); sendEvents(ls) }
  *                                   /                     \
@@ -35,8 +34,9 @@ import org.slf4j.LoggerFactory;
  *     
  *       Provider3 (..)
  * </PRE>
-
-
+ * 
+ * @see EventSenderFragmentsExporterTask for using with a PeriodicTask
+ * 
  * @param <T> type of fragments to export (example: String for JSon fragments)
  */
 public class EventSenderFragmentsExporter<T,E> {
@@ -101,7 +101,7 @@ public class EventSenderFragmentsExporter<T,E> {
 		exportSender.sendEvents(events);
     }
     
-	public void sendEventsForMarkedAndCollectedChangedFragments() {
+	public void sendEventsForMarkAndCollectChanges() {
 		ExportFragmentList<T> changedFragments = markAndCollectFragmentChanges();
 		if (! changedFragments.isEmpty()) {
 			List<E> events = fragmentsToEventsConverter.apply(changedFragments);

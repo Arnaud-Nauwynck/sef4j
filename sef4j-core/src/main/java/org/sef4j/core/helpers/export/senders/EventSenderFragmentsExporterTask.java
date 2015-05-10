@@ -7,7 +7,7 @@ import org.sef4j.core.helpers.tasks.PeriodicTask;
  * @param <T>
  * @param <E>
  */
-public class ChangeEventSenderTask<T,E> {
+public class EventSenderFragmentsExporterTask<T,E> {
 
 	private PeriodicTask sendAllPeriodicTask;
 	private PeriodicTask sendChangesPeriodicTask;
@@ -16,7 +16,7 @@ public class ChangeEventSenderTask<T,E> {
 	
 	// ------------------------------------------------------------------------
 
-	public ChangeEventSenderTask(
+	public EventSenderFragmentsExporterTask(
 			PeriodicTask.Builder sendAllPeriodicTask,
 			PeriodicTask.Builder sendChangesPeriodicTask,
 			EventSenderFragmentsExporter<T,E> exporter
@@ -24,7 +24,7 @@ public class ChangeEventSenderTask<T,E> {
 		this.exporter = exporter;
 		// if (sendAllPeriodicTask == null) sendAllPeriodicTask = new PeriodicTask.Builder();
 		sendAllPeriodicTask.withTask(() -> exporter.sendEventsForCollectedFragments());
-		sendChangesPeriodicTask.withTask(() -> exporter.sendEventsForMarkedAndCollectedChangedFragments());
+		sendChangesPeriodicTask.withTask(() -> exporter.sendEventsForMarkAndCollectChanges());
 		this.sendAllPeriodicTask = sendAllPeriodicTask.build();
 		this.sendChangesPeriodicTask = sendChangesPeriodicTask.build();
 	}
@@ -51,9 +51,9 @@ public class ChangeEventSenderTask<T,E> {
 		public PeriodicTask.Builder sendChangesPeriodicTask = new PeriodicTask.Builder();
 		public EventSenderFragmentsExporter.Builder<T,E> exporter = new EventSenderFragmentsExporter.Builder<T,E>();
 		
-		public ChangeEventSenderTask<T,E> build() {
+		public EventSenderFragmentsExporterTask<T,E> build() {
 			EventSenderFragmentsExporter<T,E> export = exporter.build();
-			return new ChangeEventSenderTask<T,E>(sendAllPeriodicTask, sendChangesPeriodicTask, export);
+			return new EventSenderFragmentsExporterTask<T,E>(sendAllPeriodicTask, sendChangesPeriodicTask, export);
 		}
 		
 	}

@@ -27,32 +27,6 @@ public class ObjectByDefRepository<TDef,T> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ObjectByDefRepository.class);
 	
-	public static class ObjectWithHandle<T> implements Closeable {
-		private ObjectByDefRepository<?,?> repository;
-		private Handle handle;
-		private T object;
-		
-		public ObjectWithHandle(ObjectByDefRepository<?,?> repository, Handle handle, T object) {
-			this.handle = handle;
-			this.object = object;
-		}
-
-		@Override
-		public void close() {
-			if (handle != null) {
-				repository.unregister(handle);
-				handle = null;
-				repository = null;
-				object = null;
-			}
-		}
-
-		public T getObject() {
-			return object;
-		}
-		
-	}
-
 	private static class Entry<T> {
 		T object;
 		Set<Handle> handles = new HashSet<Handle>();
@@ -65,6 +39,8 @@ public class ObjectByDefRepository<TDef,T> {
 	
 	private HandleGenerator handleGenerator = new HandleGenerator();
 	
+	private ObjectByDefRepositories owner;
+	
 	private Map<TDef,Entry<T>> entries = new HashMap<TDef,Entry<T>>();
 
 	private Object entriesLock = new Object();
@@ -74,20 +50,22 @@ public class ObjectByDefRepository<TDef,T> {
 	
 	// ------------------------------------------------------------------------
 
-	public ObjectByDefRepository(String displayObjectName) {
+	public ObjectByDefRepository(ObjectByDefRepositories owner, String displayObjectName) {
+		this.owner = owner;
 		this.displayObjectName = displayObjectName;
 	}
 
 	// ------------------------------------------------------------------------
 
 	/**
-	 * register an T by its key definition
-	 * internally create on first use only and increment reference counter
+	 * register an object by its key definition
+	 * internally create on first use and increment reference counter
 	 * 
 	 * @param def
 	 * @return
 	 */
-	public ObjectWithHandle<?> register(TDef def) {
+	@SuppressWarnings("unchecked")
+	public <X extends T> ObjectWithHandle<X> getOrCreateByDef(TDef def) {
 		Entry<T> res;
 		Handle handle;
 		synchronized(entriesLock) {
@@ -103,7 +81,7 @@ public class ObjectByDefRepository<TDef,T> {
 			handle = handleGenerator.generate();
 			res.handles.add(handle);
 		}
-		return new ObjectWithHandle<T>(this, handle, res.object);
+		return new ObjectWithHandle<X>(this, handle, (X) res.object);
 	}
 
 	protected T doCreateObjByDef(TDef def) {
@@ -112,13 +90,13 @@ public class ObjectByDefRepository<TDef,T> {
 			throw new UnsupportedOperationException("Factory not found for def: " + def);
 		}
 		// *** the biggy ***
-		T obj = factory.create(def, this);
+		T obj = factory.create(def, owner);
 		
 		return obj;
 	}
 
 	/**
-	 * unregister an T by its created handle
+	 * unregister an object by its created handle
 	 * @param handle
 	 */
 	public void unregister(Handle handle) { 
@@ -173,6 +151,10 @@ public class ObjectByDefRepository<TDef,T> {
 		return res;
 	}
 
+	public void registerFactory(ObjectByDefFactory<TDef,T> factory) {
+		registeredFactories.add(factory);
+	}
+	
 	// ------------------------------------------------------------------------
 
 	@Override

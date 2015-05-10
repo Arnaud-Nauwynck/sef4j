@@ -5,6 +5,6 @@ public interface ObjectByDefFactory<TDef,T> {
 
 	public boolean accepts(TDef def);
 	
-	public abstract T create(TDef def, ObjectByDefRepository<TDef,?> repository);
+	public abstract T create(TDef def, ObjectByDefRepositories repositories);
 
 }

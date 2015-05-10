@@ -103,16 +103,16 @@ public final class DefaultOutputEventChainDefs {
 		/** */
 		private static final long serialVersionUID = 1L;
 
-		private final EventTransformerDef eventTransformerDef;
+		private final EventTransformerDef<?,?> eventTransformerDef;
 
 		private final OutputEventChainDef underlying;
 
-		public TransformedOutputEventChainDef(EventTransformerDef eventTransformerDef, OutputEventChainDef underlying) {
+		public TransformedOutputEventChainDef(EventTransformerDef<?,?> eventTransformerDef, OutputEventChainDef underlying) {
 			this.eventTransformerDef = eventTransformerDef;
 			this.underlying = underlying;
 		}
 
-		public EventTransformerDef getEventTransformerDef() {
+		public EventTransformerDef<?,?> getEventTransformerDef() {
 			return eventTransformerDef;
 		}
 

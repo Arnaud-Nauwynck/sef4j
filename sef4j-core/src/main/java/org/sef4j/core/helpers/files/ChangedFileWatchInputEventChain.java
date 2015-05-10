@@ -2,7 +2,6 @@ package org.sef4j.core.helpers.files;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 import org.sef4j.core.api.ioeventchain.DefaultInputEventChainDefs.ChangedFileWatchInputEventChainDef;
@@ -10,7 +9,6 @@ import org.sef4j.core.api.ioeventchain.InputEventChain;
 import org.sef4j.core.api.ioeventchain.InputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChainFactory;
 import org.sef4j.core.helpers.tasks.PeriodicTask;
-import org.sef4j.core.helpers.tasks.PeriodicityDef;
 import org.sef4j.core.util.AsyncUtils;
 import org.sef4j.core.util.factorydef.ObjectByDefRepository;
 import org.slf4j.Logger;

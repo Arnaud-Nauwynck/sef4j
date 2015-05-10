@@ -14,6 +14,9 @@ public abstract class EventTransformerDef<TSrc,T> extends AbstractObjectDef {
 	
 	public static class FuncEventTransformerDef<TSrc,T> extends EventTransformerDef<TSrc,T> {
 	
+		/** */
+		private static final long serialVersionUID = 1L;
+		
 		private Function<TSrc,T> fransformer;
 	
 		public FuncEventTransformerDef(Function<TSrc, T> fransformer) {
@@ -40,7 +43,8 @@ public abstract class EventTransformerDef<TSrc,T> extends AbstractObjectDef {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			FuncEventTransformerDef other = (FuncEventTransformerDef) obj;
+			@SuppressWarnings("unchecked")
+			FuncEventTransformerDef<TSrc,T> other = (FuncEventTransformerDef<TSrc,T>) obj;
 			if (fransformer == null) {
 				if (other.fransformer != null)
 					return false;

@@ -14,9 +14,9 @@ import org.sef4j.core.util.IStartableSupport;
  */
 public abstract class AbstractStartableDefObject<TDef> implements Closeable, ISharedStartableSupport, IStartableSupport {
 	
-	private final TDef def;
+	protected final TDef def;
 
-	private final String displayName;
+	protected final String displayName;
 	
 	private HandleSet autoStartableHandleSet = new HandleSet(this);
 	

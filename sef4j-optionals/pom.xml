@@ -19,6 +19,8 @@
 		<module>sef4j-influxdb</module>
 		<module>sef4j-elasticsearch</module>
 		<module>sef4j-logstash</module>
+		<module>sef4j-redis</module>
+		<module>sef4j-spring-messaging</module>
 	</modules>
 
 </project>

@@ -81,7 +81,6 @@ public class FilteredInputEventChain<T> extends InputEventChain<T> {
 		public InputEventChain<T> create(InputEventChainDef defObj, ObjectByDefRepository<InputEventChainDef, ?, InputEventChain<T>> repository) {
 			FilteredInputEventChainDef def = (FilteredInputEventChainDef) defObj;
 			ObjectWithHandle<InputEventChain<T>> underlying = repository.register(def.getUnderlying());
-			// TODO underlying handle to release!!... 
 			@SuppressWarnings("unchecked")
 			Predicate<T> predicate = (Predicate<T>) def.getFilterDef().getPredicate();
 			

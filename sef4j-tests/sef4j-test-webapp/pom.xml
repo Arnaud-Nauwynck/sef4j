@@ -33,45 +33,6 @@
         <orika.version>1.4.5</orika.version>
     </properties>
 
-
-	<dependencyManagement>
-		<dependencies>
-	        <dependency>
-	            <groupId>org.atmosphere</groupId>
-	            <artifactId>atmosphere-spring</artifactId>
-	            <version>${atmosphere-spring.version}</version>
-	        </dependency>
-	        <dependency>
-	            <groupId>org.atmosphere</groupId>
-	            <artifactId>atmosphere-runtime</artifactId>
-	            <version>${atmosphere-version}</version>
-	        </dependency>
-	        <dependency>
-	            <groupId>org.atmosphere</groupId>
-	            <artifactId>atmosphere-runtime-native</artifactId>
-	            <version>${atmosphere-version}</version>
-	        </dependency>
-	        <dependency>
-	        	<groupId>org.atmosphere</groupId>
-			    <artifactId>atmosphere-compat-tomcat</artifactId>
-			    <type>bundle</type>
-	            <version>${atmosphere-version}</version>
-	        </dependency>
-	        <dependency>
-	        	<groupId>org.atmosphere</groupId>
-			    <artifactId>atmosphere-compat-tomcat7</artifactId>
-			    <type>bundle</type>
-	            <version>${atmosphere-version}</version>
-	        </dependency>
-	        <dependency>
-	        	<groupId>org.atmosphere</groupId>
-			    <artifactId>atmosphere-compat-jbossweb</artifactId>
-			    <type>bundle</type>
-	            <version>${atmosphere-version}</version>
-	        </dependency>
-		</dependencies>
-	</dependencyManagement>
-
 	<dependencies>
 
 		<dependency>

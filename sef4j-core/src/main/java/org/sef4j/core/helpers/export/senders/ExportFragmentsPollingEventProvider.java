@@ -1,16 +1,16 @@
 package org.sef4j.core.helpers.export.senders;
 
 import java.util.List;
-import java.util.function.Function;
 
 import org.sef4j.core.api.EventSender;
 import org.sef4j.core.helpers.export.ExportFragmentList;
 import org.sef4j.core.helpers.export.ExportFragmentsProvider;
+import org.sef4j.core.helpers.tasks.PollingEventProvider.AbstractPollingEventProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * class for collecting data or incremental changes to export to delegated eventSender
+ * class for collecting data or incremental changes to export as event "ExportFragmentList<T>"
  * 
  * <PRE>
  *             exporter.sendEventsForCollectedFragments(): 
@@ -39,34 +39,27 @@ import org.slf4j.LoggerFactory;
  * 
  * @param <T> type of fragments to export (example: String for JSon fragments)
  */
-public class EventSenderFragmentsExporter<T,E> {
+public class ExportFragmentsPollingEventProvider<T> extends AbstractPollingEventProvider<ExportFragmentList<T>> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(EventSenderFragmentsExporter.class);
+	private static final Logger LOG = LoggerFactory.getLogger(ExportFragmentsPollingEventProvider.class);
 	
-    /**
-     * displayName for display/debug message... 
-     */
-    protected String displayName;
-
     private List<ExportFragmentsProvider<T>> fragmentProviders;
-    
-	protected Function<ExportFragmentList<T>,List<E>> fragmentsToEventsConverter;
-
-    protected EventSender<E> exportSender;
     
     // ------------------------------------------------------------------------
 
-    public EventSenderFragmentsExporter(String displayName, 
-    		List<ExportFragmentsProvider<T>> fragmentProviders, 
-    		Function<ExportFragmentList<T>,List<E>> fragmentsToEventsConverter,
-    		EventSender<E> exportSender) {
-        this.displayName = displayName;
+    public ExportFragmentsPollingEventProvider(String displayName, 
+    		List<ExportFragmentsProvider<T>> fragmentProviders) {
+        super(displayName);
         this.fragmentProviders = fragmentProviders;
-        this.fragmentsToEventsConverter = fragmentsToEventsConverter;
-        this.exportSender = exportSender;
     }
 
     // ------------------------------------------------------------------------
+
+    @Override
+    public void poll() {
+    	sendEventsForMarkAndCollectChanges();
+    }
+    
 
     public ExportFragmentList<T> collectFragmentsToExport() {
     	ExportFragmentList<T> res = new ExportFragmentList<T>();
@@ -94,18 +87,19 @@ public class EventSenderFragmentsExporter<T,E> {
 		return changedFragments;
 	}
 
-    
     public void sendEventsForCollectedFragments() {
+    	sendEventsForCollectedFragments(this);
+    }
+    
+    public void sendEventsForCollectedFragments(EventSender<ExportFragmentList<T>> to) {
     	ExportFragmentList<T> fragments = collectFragmentsToExport();
-    	List<E> events = fragmentsToEventsConverter.apply(fragments);
-		exportSender.sendEvents(events);
+		to.sendEvent(fragments);
     }
     
 	public void sendEventsForMarkAndCollectChanges() {
 		ExportFragmentList<T> changedFragments = markAndCollectFragmentChanges();
 		if (! changedFragments.isEmpty()) {
-			List<E> events = fragmentsToEventsConverter.apply(changedFragments);
-    		exportSender.sendEvents(events);
+			super.sendEvent(changedFragments);
 		}
 	}
     
@@ -113,35 +107,25 @@ public class EventSenderFragmentsExporter<T,E> {
     
     @Override
     public String toString() {
-        return "FragmentsProvidersExporter [" + displayName + "]";
+        return "ExportFragmentsEventProvider[" + displayName + "]";
     }
 
     // ------------------------------------------------------------------------
     
-    public static class Builder<T,E> {
+    public static class Builder<T> {
         protected String displayName;
         private List<ExportFragmentsProvider<T>> fragmentProviders;
-    	protected Function<ExportFragmentList<T>,List<E>> fragmentsToEventsConverter;
-        protected EventSender<E> exportSender;
 
-        public EventSenderFragmentsExporter<T,E> build() {
-        	return new EventSenderFragmentsExporter<T, E>(displayName, fragmentProviders, fragmentsToEventsConverter, exportSender);
+        public ExportFragmentsPollingEventProvider<T> build() {
+        	return new ExportFragmentsPollingEventProvider<T>(displayName, fragmentProviders);
         }
         
-		public Builder<T,E> withDisplayName(String displayName) {
+		public Builder<T> withDisplayName(String displayName) {
 			this.displayName = displayName;
 			return this;
 		}
-		public Builder<T,E> withFragmentProviders(List<ExportFragmentsProvider<T>> fragmentProviders) {
+		public Builder<T> withFragmentProviders(List<ExportFragmentsProvider<T>> fragmentProviders) {
 			this.fragmentProviders = fragmentProviders;
-			return this;
-		}
-		public Builder<T,E> withFragmentsToEventsConverter(Function<ExportFragmentList<T>, List<E>> fragmentsToEventsConverter) {
-			this.fragmentsToEventsConverter = fragmentsToEventsConverter;
-			return this;
-		}
-		public Builder<T,E> withExportSender(EventSender<E> exportSender) {
-			this.exportSender = exportSender;
 			return this;
 		}
     }

@@ -5,13 +5,14 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.core.helpers.export.senders.EventSenderFragmentsExporterTask;
-import org.sef4j.core.helpers.export.senders.EventSenderFragmentsExporter;
+import org.sef4j.core.helpers.export.ExportFragment;
+import org.sef4j.core.helpers.export.ExportFragmentList;
+import org.sef4j.core.helpers.export.senders.ExportFragmentsPollingEventProvider;
 import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 import org.sef4j.core.helpers.senders.InMemoryEventSender;
-import org.sef4j.core.helpers.tasks.PeriodicTask;
 
 
 public class ChangeEventSenderTaskTest {
@@ -23,26 +24,23 @@ public class ChangeEventSenderTaskTest {
 	private PerfStats fooStats = fooNode.getOrCreateProp("stats", PerfStats.FACTORY);
 	private PerfStats fooBarStats = fooBarNode.getOrCreateProp("stats", PerfStats.FACTORY);
 
-	private BasicStatIgnorePendingChangeCollector changeCollector = 
+	private BasicStatIgnorePendingChangeCollector perfStatsChangeCollector = 
 			new BasicStatIgnorePendingChangeCollector(rootNode);
-	private InMemoryEventSender<PerfStatsChangesEvent> inMemoryEventSender = new InMemoryEventSender<PerfStatsChangesEvent>();
+	private InMemoryEventSender<ExportFragmentList<PerfStats>> inMemoryEventSender = new InMemoryEventSender<ExportFragmentList<PerfStats>>();
+
+	private ExportFragmentsPollingEventProvider<PerfStats> sut = 
+			new ExportFragmentsPollingEventProvider<PerfStats>("test",
+							Arrays.asList(perfStatsChangeCollector));
 	
-	private EventSenderFragmentsExporterTask<PerfStats,PerfStatsChangesEvent> sut = 
-			new EventSenderFragmentsExporterTask<PerfStats,PerfStatsChangesEvent>(
-					new PeriodicTask.Builder().withPeriod(1), // period=1 second 
-					new PeriodicTask.Builder().withPeriod(600),
-					new EventSenderFragmentsExporter<PerfStats,PerfStatsChangesEvent>(
-							"", 
-							Arrays.asList(changeCollector),
-							PerfStatsChangesEvent.FACTORY,
-							inMemoryEventSender));
+	@Before
+	public void setup() {
+		sut.addEventListener(inMemoryEventSender);
+	}
 	
 	@Test
 	public void testStartStop() throws Exception {
 		// Prepare
 		// Perform
-		sut.getSendAllPeriodicTask().start();
-
 		long fooBarElapsedTime1 = 12L;
 		long fooElapsedTime1 = 13L;
 		{
@@ -63,20 +61,16 @@ public class ChangeEventSenderTaskTest {
 					endTime1, endTime1, endTime1);
 		}
 		
-		Thread.sleep(1500);
-		sut.getSendAllPeriodicTask().stop();
-		
-		// sut.flush();
+		sut.poll();
 		// Post-check
-		List<PerfStatsChangesEvent> events = inMemoryEventSender.clearAndGet();
+		List<ExportFragmentList<PerfStats>> events = inMemoryEventSender.clearAndGet();
 		Assert.assertTrue(events.size() >= 1);
-		PerfStatsChangesEvent event0 = events.get(0);
-		Map<?, PerfStats> changes = event0.getChanges();
+		Map<?, ExportFragment<PerfStats>> changes = events.get(0).getIdentifiableFragments();
 		Assert.assertNotNull(changes);
-		PerfStats fooChange = changes.get("foo");
+		PerfStats fooChange = changes.get("foo").getValue();
 		Assert.assertNotNull(fooChange);
 		assertStats(1, fooElapsedTime1, fooChange);
-		PerfStats fooBarChange = changes.get("foo/bar");
+		PerfStats fooBarChange = changes.get("foo/bar").getValue();
 		Assert.assertNotNull(fooBarChange);
 		assertStats(1, fooBarElapsedTime1, fooBarChange);
 	}

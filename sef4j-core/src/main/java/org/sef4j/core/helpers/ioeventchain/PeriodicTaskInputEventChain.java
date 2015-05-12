@@ -23,7 +23,7 @@ public class PeriodicTaskInputEventChain<T> extends InputEventChain<T> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PeriodicTaskInputEventChain.class);
 	
-	protected ObjectWithHandle<PollingEventProvider<T>> pollingEventProviderHandle;
+	protected ObjectWithHandle<? extends PollingEventProvider<T>> pollingEventProviderHandle;
 	
 	protected PeriodicTask periodicTask;
 	
@@ -31,7 +31,7 @@ public class PeriodicTaskInputEventChain<T> extends InputEventChain<T> {
 	
 	public PeriodicTaskInputEventChain(
 			PeriodicTaskInputEventChainDef def, String displayName,
-			ObjectWithHandle<PollingEventProvider<T>> pollingEventProviderHandle,
+			ObjectWithHandle<? extends PollingEventProvider<T>> pollingEventProviderHandle,
 			PeriodicTask.Builder pollingPeriodBuilder) {
 		super(def, displayName);
 		this.pollingEventProviderHandle = pollingEventProviderHandle;

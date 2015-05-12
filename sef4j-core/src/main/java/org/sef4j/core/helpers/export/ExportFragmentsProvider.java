@@ -1,12 +1,12 @@
 package org.sef4j.core.helpers.export;
 
-import org.sef4j.core.helpers.export.senders.EventSenderFragmentsExporter;
+import org.sef4j.core.helpers.export.senders.ExportFragmentsPollingEventProvider;
 
 
 /**
  * interface for providing fragments to FragmentsProvidersExporter
  * 
- * @see EventSenderFragmentsExporter
+ * @see ExportFragmentsPollingEventProvider
  */
 public interface ExportFragmentsProvider<T> {
 

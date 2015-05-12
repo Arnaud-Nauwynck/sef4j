@@ -5,16 +5,17 @@ import java.util.List;
 import java.util.Map;
 
 import org.junit.Assert;
+import org.junit.Before;
 import org.junit.Test;
+import org.sef4j.core.helpers.export.ExportFragment;
+import org.sef4j.core.helpers.export.ExportFragmentList;
 import org.sef4j.core.helpers.proptree.DummyCount;
 import org.sef4j.core.helpers.proptree.changes.DummyCountChangeCollector;
-import org.sef4j.core.helpers.proptree.changes.DummyCountChangesEvent;
 import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 import org.sef4j.core.helpers.senders.InMemoryEventSender;
-import org.sef4j.core.helpers.tasks.PeriodicTask;
 
 
-public class EventSenderFragmentsExporterTaskTest {
+public class ExportFragmentsPollingEventProviderTest {
 
 	private PropTreeNode rootNode = PropTreeNode.newRoot();
 	private PropTreeNode fooNode = rootNode.getOrCreateChild("foo");
@@ -23,40 +24,35 @@ public class EventSenderFragmentsExporterTaskTest {
 	private DummyCount fooCount = fooNode.getOrCreateProp("dummyCount", DummyCount.FACTORY);
 	private DummyCount fooBarCount = fooBarNode.getOrCreateProp("dummyCount", DummyCount.FACTORY);
 
-	private DummyCountChangeCollector changeCollector = new DummyCountChangeCollector(rootNode);
-	private InMemoryEventSender<DummyCountChangesEvent> inMemoryEventSender = new InMemoryEventSender<DummyCountChangesEvent>();
+	private DummyCountChangeCollector dummyCountChangeCollector = new DummyCountChangeCollector(rootNode);
+	private InMemoryEventSender<ExportFragmentList<DummyCount>> inMemoryEventSender = new InMemoryEventSender<ExportFragmentList<DummyCount>>();
 	
-	private EventSenderFragmentsExporterTask<DummyCount,DummyCountChangesEvent> sut = 
-			new EventSenderFragmentsExporterTask<DummyCount,DummyCountChangesEvent>(
-					new PeriodicTask.Builder().withPeriod(1), // period=1 second 
-					new PeriodicTask.Builder().withPeriod(600),
-					new EventSenderFragmentsExporter<DummyCount,DummyCountChangesEvent>("", 
-						Arrays.asList(changeCollector),
-						DummyCountChangesEvent.FACTORY,
-						inMemoryEventSender));
+	private ExportFragmentsPollingEventProvider<DummyCount> sut = 
+			new ExportFragmentsPollingEventProvider<DummyCount>("test",
+					Arrays.asList(dummyCountChangeCollector));
+	
+	@Before
+	public void setup() {
+		sut.addEventListener(inMemoryEventSender);
+	}
 	
 	@Test
-	public void testStartStop() throws Exception {
+	public void testPoll() throws Exception {
 		// Prepare
-		// Perform
-		sut.getSendAllPeriodicTask().start();
-
 		fooCount.incrCount1();
 		fooBarCount.incrCount2();
-		
-		Thread.sleep(1500);
-		sut.getSendAllPeriodicTask().stop();
-		// sut.flush();
+		// Perform
+		sut.poll();
 		// Post-check
-		List<DummyCountChangesEvent> events = inMemoryEventSender.clearAndGet();
+		List<ExportFragmentList<DummyCount>> events = inMemoryEventSender.clearAndGet();
 		Assert.assertTrue(events.size() >= 1);
-		DummyCountChangesEvent event0 = events.get(0);
-		Map<?,DummyCount> changes = event0.getChanges();
+		ExportFragmentList<DummyCount> event0 = events.get(0);
+		Map<?,ExportFragment<DummyCount>> changes = event0.getIdentifiableFragments();
 		Assert.assertNotNull(changes);
-		DummyCount fooChange = changes.get("foo");
+		DummyCount fooChange = changes.get("foo").getValue();
 		Assert.assertNotNull(fooChange);
 		assertCount(1, 0, fooChange);
-		DummyCount fooBarChange = changes.get("foo/bar");
+		DummyCount fooBarChange = changes.get("foo/bar").getValue();
 		Assert.assertNotNull(fooBarChange);
 		assertCount(0, 1, fooBarChange);
 	}

@@ -5,14 +5,13 @@ import org.sef4j.core.util.factorydef.AbstractSharedObjByDefFactory;
 /**
  * Factory for InputEventChain, using InputEventChainDef
  */
-public abstract class InputEventChainFactory<T> 
-	extends AbstractSharedObjByDefFactory<InputEventChainDef,InputEventChain<T>> {
+public abstract class InputEventChainFactory<TDef extends InputEventChainDef, T extends InputEventChain<?>> 
+	extends AbstractSharedObjByDefFactory<TDef,T> {
 
 	// ------------------------------------------------------------------------
 	
-	@SuppressWarnings("unchecked")
-	public InputEventChainFactory(String displayName, Class<? extends InputEventChainDef> clss) {
-		super(displayName, (Class<InputEventChainDef>) clss);
+	public InputEventChainFactory(String displayName, Class<TDef> clss) {
+		super(displayName, clss);
 	}
 
 	// ------------------------------------------------------------------------

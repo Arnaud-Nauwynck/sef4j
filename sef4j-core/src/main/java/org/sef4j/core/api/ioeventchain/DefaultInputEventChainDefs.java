@@ -37,7 +37,7 @@ public final class DefaultInputEventChainDefs {
 	/**
 	 * value-object for describing <code>FilteredEventSender(EventSender(..))<code>
 	 */
-	public static class FilteredInputEventChainDef extends InputEventChainDef {
+	public static class FilterInputEventChainDef extends InputEventChainDef {
 		
 		/** */
 		private static final long serialVersionUID = 1L;
@@ -46,7 +46,7 @@ public final class DefaultInputEventChainDefs {
 
 		private final InputEventChainDef underlying;
 
-		public FilteredInputEventChainDef(EventPredicateDef<?> filterDef, InputEventChainDef underlying) {
+		public FilterInputEventChainDef(EventPredicateDef<?> filterDef, InputEventChainDef underlying) {
 			this.eventPredicateDef = filterDef;
 			this.underlying = underlying;
 		}
@@ -77,7 +77,7 @@ public final class DefaultInputEventChainDefs {
 				return false;
 			if (getClass() != obj.getClass())
 				return false;
-			FilteredInputEventChainDef other = (FilteredInputEventChainDef) obj;
+			FilterInputEventChainDef other = (FilterInputEventChainDef) obj;
 			if (eventPredicateDef == null) {
 				if (other.eventPredicateDef != null)
 					return false;
@@ -209,14 +209,14 @@ public final class DefaultInputEventChainDefs {
 	
 	// ------------------------------------------------------------------------
 	
-	public static class MultiplexedInputEventChainDef<K> extends InputEventChainDef {
+	public static class DefaultMultiplexedInputEventChainDef<K> extends InputEventChainDef {
 		
 		/** */
 		private static final long serialVersionUID = 1L;
 	
 		private final Map<K,InputEventChainDef> inputs;
 
-		public MultiplexedInputEventChainDef(Map<K, InputEventChainDef> inputs) {
+		public DefaultMultiplexedInputEventChainDef(Map<K, InputEventChainDef> inputs) {
 			this.inputs = Collections.unmodifiableMap(new HashMap<K, InputEventChainDef>(inputs));
 		}
 
@@ -241,7 +241,7 @@ public final class DefaultInputEventChainDefs {
 			if (getClass() != obj.getClass())
 				return false;
 			@SuppressWarnings("unchecked")
-			MultiplexedInputEventChainDef<K> other = (MultiplexedInputEventChainDef<K>) obj;
+			DefaultMultiplexedInputEventChainDef<K> other = (DefaultMultiplexedInputEventChainDef<K>) obj;
 			if (inputs == null) {
 				if (other.inputs != null)
 					return false;

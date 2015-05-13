@@ -12,4 +12,7 @@ public abstract class InputEventChainDef extends AbstractObjectDef {
 	/** */
 	private static final long serialVersionUID = 1L;
 	
+	protected InputEventChainDef() {
+	}
+	
 }

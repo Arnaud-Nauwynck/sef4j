@@ -4,7 +4,6 @@ import java.util.concurrent.TimeUnit;
 
 import org.sef4j.core.api.ioeventchain.DefaultInputEventChainDefs.PeriodicTaskInputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChain;
-import org.sef4j.core.api.ioeventchain.InputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChainFactory;
 import org.sef4j.core.helpers.tasks.PeriodicTask;
 import org.sef4j.core.helpers.tasks.PollingEventProvider;
@@ -108,17 +107,17 @@ public class PeriodicTaskInputEventChain<T> extends InputEventChain<T> {
 
 	// ------------------------------------------------------------------------
 	
-	public static class Factory<T> extends InputEventChainFactory<T> {
+	public static class Factory<T> 
+		extends InputEventChainFactory<PeriodicTaskInputEventChainDef,PeriodicTaskInputEventChain<T>> {
 		
 		public Factory() {
 			super("PeriodicTaskInputEventChain", PeriodicTaskInputEventChainDef.class);
 		}
 
 		@Override
-		public InputEventChain<T> create(InputEventChainDef defObj, 
+		public PeriodicTaskInputEventChain<T> create(
+				PeriodicTaskInputEventChainDef def, 
 				DependencyObjectCreationContext ctx) {
-			PeriodicTaskInputEventChainDef def = (PeriodicTaskInputEventChainDef) defObj;
-
 			PeriodicTask.Builder pollingPeriodBuilder = new PeriodicTask.Builder()
 				.withOptionalPeriodicityDef(def.getPeriodicity())
 				.withDefaults(30, TimeUnit.SECONDS, AsyncUtils.defaultScheduledThreadPool());

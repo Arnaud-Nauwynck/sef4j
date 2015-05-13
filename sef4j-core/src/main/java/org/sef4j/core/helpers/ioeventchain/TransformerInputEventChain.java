@@ -4,7 +4,6 @@ import java.util.function.Function;
 
 import org.sef4j.core.api.ioeventchain.DefaultInputEventChainDefs.TransformerInputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChain;
-import org.sef4j.core.api.ioeventchain.InputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChainFactory;
 import org.sef4j.core.helpers.senders.AbstractTransformerEventSender.FuncTransformerEventSender;
 import org.sef4j.core.util.factorydef.DependencyObjectCreationContext;
@@ -80,18 +79,19 @@ public class TransformerInputEventChain<TSrc,T> extends InputEventChain<T> {
 
 	// ------------------------------------------------------------------------
 	
-	public static class Factory<TSrc,T> extends InputEventChainFactory<T> {
+	public static class Factory<TSrc,T> 
+		extends InputEventChainFactory<TransformerInputEventChainDef<TSrc,T>,TransformerInputEventChain<TSrc,T>> {
 		
+		@SuppressWarnings({ "unchecked", "rawtypes" })
 		public Factory() {
-			super("TransformedInputEventChain", TransformerInputEventChainDef.class);
+			super("TransformedInputEventChain", (Class)TransformerInputEventChainDef.class);
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public InputEventChain<T> create(InputEventChainDef defObj, 
+		public TransformerInputEventChain<TSrc,T> create(
+				TransformerInputEventChainDef<TSrc,T> def, 
 				DependencyObjectCreationContext ctx) {
-			TransformerInputEventChainDef<TSrc,T> def = (TransformerInputEventChainDef<TSrc,T>) defObj;
-			
 			InputEventChain<TSrc> underlying = ctx.getOrCreateDependencyByDef("underlying", def.getUnderlying());
 			
 			Function<TSrc,T> transformer = (Function<TSrc,T>) def.getEventTransformerDef();

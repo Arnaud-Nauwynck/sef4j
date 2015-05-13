@@ -29,13 +29,13 @@ import org.sef4j.core.api.EventSender;
  * 
  * @param <T>
  */
-public abstract class AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent> {
+public abstract class AbstractWrapperMultiplexerEventSender<K,TSrcEvent,TDestEvent> {
 
 	protected EventSender<TDestEvent> target;
 	
 	// ------------------------------------------------------------------------
 
-	public AbstractMultiplexerEventSender(EventSender<TDestEvent> target) {
+	public AbstractWrapperMultiplexerEventSender(EventSender<TDestEvent> target) {
 		this.target = target;
 	}
 
@@ -93,7 +93,7 @@ public abstract class AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent> {
 		if (getClass() != obj.getClass())
 			return false;
 		@SuppressWarnings("unchecked")
-		AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent> other = (AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent>) obj;
+		AbstractWrapperMultiplexerEventSender<K,TSrcEvent,TDestEvent> other = (AbstractWrapperMultiplexerEventSender<K,TSrcEvent,TDestEvent>) obj;
 		if (target == null) {
 			if (other.target != null)
 				return false;
@@ -113,10 +113,10 @@ public abstract class AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent> {
 	 */
 	public static class MultiplexedPerKeyEventSender<K,TSrcEvent,TDestEvent> implements EventSender<TSrcEvent> {
 		
-		protected final AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent> to;
+		protected final AbstractWrapperMultiplexerEventSender<K,TSrcEvent,TDestEvent> to;
 		protected final K key;
 		
-		public MultiplexedPerKeyEventSender(AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent> to, K key) {
+		public MultiplexedPerKeyEventSender(AbstractWrapperMultiplexerEventSender<K,TSrcEvent,TDestEvent> to, K key) {
 			this.to = to;
 			this.key = key;
 		}

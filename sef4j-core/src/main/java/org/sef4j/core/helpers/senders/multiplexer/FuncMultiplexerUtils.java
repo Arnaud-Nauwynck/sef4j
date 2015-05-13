@@ -120,7 +120,7 @@ public final class FuncMultiplexerUtils {
 	// ------------------------------------------------------------------------
 	
 	public static class FuncMultiplexerEventSender<K,TSrcEvent,TDestEvent> 
-		extends AbstractMultiplexerEventSender<K,TSrcEvent,TDestEvent> {
+		extends AbstractWrapperMultiplexerEventSender<K,TSrcEvent,TDestEvent> {
 
 		protected BiFunction<K,TSrcEvent,TDestEvent> eventWrapperFunc;
 

@@ -6,15 +6,17 @@ import org.sef4j.core.api.EventSender;
  * default implementation of AbstractMultiplexerEventSender
  * using class MultiplexedEvent<K,T> (=Pair<key,Event>) as wrapped event type
  *
+ *TODO deprecated??? see also DefaultMultiplexerPerKeyEventSender<K,T>
+ *
  * @param <K>
  * @param <T>
  */
-public class DefaultMultiplexerEventSender<K,T> 
-	extends AbstractMultiplexerEventSender<K,T,MultiplexedEvent<K,T>> {
+public class DefaultWrapperMultiplexerEventSender<K,T> 
+	extends AbstractWrapperMultiplexerEventSender<K,T,MultiplexedEvent<K,T>> {
 
 	// ------------------------------------------------------------------------
 	
-	public DefaultMultiplexerEventSender(EventSender<MultiplexedEvent<K,T>> target) {
+	public DefaultWrapperMultiplexerEventSender(EventSender<MultiplexedEvent<K,T>> target) {
 		super(target);
 	}
 

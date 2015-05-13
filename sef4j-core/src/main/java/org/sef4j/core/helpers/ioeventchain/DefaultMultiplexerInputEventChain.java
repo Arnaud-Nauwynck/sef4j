@@ -7,22 +7,57 @@ import org.sef4j.core.api.ioeventchain.DefaultInputEventChainDefs.DefaultMultipl
 import org.sef4j.core.api.ioeventchain.InputEventChain;
 import org.sef4j.core.api.ioeventchain.InputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChainFactory;
+import org.sef4j.core.helpers.senders.multiplexer.DefaultMultiplexerPerKeyEventSender;
+import org.sef4j.core.helpers.senders.multiplexer.MultiplexedEvent;
 import org.sef4j.core.util.factorydef.DependencyObjectCreationContext;
 
 import com.google.common.collect.ImmutableMap;
 
-public class DefaultMultiplexedInputEventChain<K,T> extends InputEventChain<T> {
+/**
+ * InputEventChain for wrapping input InputEventChain events with keys
+ * 
+ * <PRE>
+ * 
+ * inputChain1.addListener(key1Listener)                                   addEventListener() 
+ *                     <-----                                            <----
+ * inputChain2.addListener(key1Listener)
+ *                     <-----
+ *                                 +---------------------------+  
+ *  inputChain1.sendEvent(e1)      |key1Listener               |   sendEvent(MultiplexedEvent(key1,e1)
+ *    --->                         |   ----> wrapE1=(key1,e1)  |  --->
+ *                                 |                           |
+ *  inputChain2.sendEvent(e2)      |key2Listener               |   sendEvent(MultiplexedEvent(key1,e1)
+ *    --->                         |   ----> wrapE1=(key1,e1)  |  --->
+ *                                 +---------------------------+ 
+ *                                 
+ * inputChain1.removeListener(key1Listener)                               removeEventListener() 
+ *                     <-----                                           <----
+ * inputChain2.removeListener(key1Listener)
+ *                     <-----
+ *  
+ *  
+ *  </PRE>
+ *  
+ * @param <K>
+ * @param <T>
+ */
+public class DefaultMultiplexerInputEventChain<K,T> extends InputEventChain<MultiplexedEvent<K,T>> {
 
 	private final Map<K,InputEventChainDependency<T>> inputDeps;
 
 	// ------------------------------------------------------------------------
 
-	public DefaultMultiplexedInputEventChain(String displayName, Map<K,InputEventChain<T>> inputs) {
+	public DefaultMultiplexerInputEventChain(String displayName, Map<K,InputEventChain<T>> inputs) {
 		super(displayName);
 		ImmutableMap.Builder<K,InputEventChainDependency<T>> depsBuilder = new ImmutableMap.Builder<K,InputEventChainDependency<T>>();
 		for(Map.Entry<K,InputEventChain<T>> e : inputs.entrySet()) {
-			InputEventChainDependency<T> dep = new InputEventChainDependency<T>(e.getValue(), null); // TODO
-			depsBuilder.put(e.getKey(), dep);
+			K key = e.getKey();
+			InputEventChain<T> keyInput = e.getValue();
+			DefaultMultiplexerPerKeyEventSender<K,T> innerKeyWrapperSender = 
+					new DefaultMultiplexerPerKeyEventSender<K,T>(key, innerEventProvider);
+			InputEventChainDependency<T> inputDep = 
+					new InputEventChainDependency<T>(keyInput, innerKeyWrapperSender);
+			depsBuilder.put(e.getKey(), inputDep);
 		}
 		this.inputDeps = depsBuilder.build();
 	}
@@ -55,7 +90,7 @@ public class DefaultMultiplexedInputEventChain<K,T> extends InputEventChain<T> {
 	// ------------------------------------------------------------------------
 	
 	public static class Factory<K,T> 
-		extends InputEventChainFactory<DefaultMultiplexedInputEventChainDef<K>,DefaultMultiplexedInputEventChain<K,T>> {
+		extends InputEventChainFactory<DefaultMultiplexedInputEventChainDef<K>,DefaultMultiplexerInputEventChain<K,T>> {
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public Factory() {
@@ -63,7 +98,7 @@ public class DefaultMultiplexedInputEventChain<K,T> extends InputEventChain<T> {
 		}
 
 		@Override
-		public DefaultMultiplexedInputEventChain<K,T> create(
+		public DefaultMultiplexerInputEventChain<K,T> create(
 				DefaultMultiplexedInputEventChainDef<K> def, 
 				DependencyObjectCreationContext ctx) {
 			Map<K, InputEventChain<T>> inputs = new HashMap<K, InputEventChain<T>>();
@@ -73,7 +108,7 @@ public class DefaultMultiplexedInputEventChain<K,T> extends InputEventChain<T> {
 				inputs.put(key, inputDep);
 			}
 			String displayName = ctx.getCurrObjectDisplayName();
-			return new DefaultMultiplexedInputEventChain<K,T>(displayName, inputs);
+			return new DefaultMultiplexerInputEventChain<K,T>(displayName, inputs);
 		}
 		
 	}

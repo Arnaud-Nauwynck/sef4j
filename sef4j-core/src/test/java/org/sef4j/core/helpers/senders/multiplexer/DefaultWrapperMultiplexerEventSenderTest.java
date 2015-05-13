@@ -9,7 +9,7 @@ import org.sef4j.core.api.EventSender;
 import org.sef4j.core.helpers.senders.InMemoryEventSender;
 
 
-public class DefaultMultiplexerEventSenderTest {
+public class DefaultWrapperMultiplexerEventSenderTest {
 
 	protected static class E {}
 	private static final String KEY1 = "key1";
@@ -18,7 +18,7 @@ public class DefaultMultiplexerEventSenderTest {
 	protected E e2 = new E();
 	
 	protected InMemoryEventSender<MultiplexedEvent<String,E>> targetSender = new InMemoryEventSender<MultiplexedEvent<String,E>>();
-	protected DefaultMultiplexerEventSender<String,E> sut = new DefaultMultiplexerEventSender<String,E>(targetSender);
+	protected DefaultWrapperMultiplexerEventSender<String,E> sut = new DefaultWrapperMultiplexerEventSender<String,E>(targetSender);
 	
 	
 	@Test

@@ -1,16 +1,16 @@
 package org.sef4j.core.api.ioeventchain;
 
-import org.sef4j.core.util.factorydef.AbstractObjByDefFactory;
+import org.sef4j.core.util.factorydef.AbstractSharedObjByDefFactory;
 
 /**
  * Factory for OutputEventChain, using OutputEventChainDef
  */
-public abstract class OutputEventChainFactory<T> extends AbstractObjByDefFactory<OutputEventChainDef,OutputEventChain<T>> {
+public abstract class OutputEventChainFactory<T> extends AbstractSharedObjByDefFactory<OutputEventChainDef,OutputEventChain<T>> {
 
 	// ------------------------------------------------------------------------
 	
-	public OutputEventChainFactory(String displayName) {
-		super(displayName);
+	public OutputEventChainFactory(String displayName, Class<OutputEventChainDef> defClass) {
+		super(displayName, defClass);
 	}
 
 	// ------------------------------------------------------------------------

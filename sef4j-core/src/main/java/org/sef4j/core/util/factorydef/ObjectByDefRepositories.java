@@ -1,6 +1,9 @@
 package org.sef4j.core.util.factorydef;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -14,7 +17,7 @@ public class ObjectByDefRepositories {
 
 	private static final Logger LOG = LoggerFactory.getLogger(ObjectByDefRepositories.class);
 	
-	private Map<Class<?>,ObjectByDefRepository<?,?>> repositories = new HashMap<Class<?>,ObjectByDefRepository<?,?>>();
+	private Map<Class<?>,SharedObjectByDefRepository<?,?>> repositories = new HashMap<Class<?>,SharedObjectByDefRepository<?,?>>();
 	
 	// private Object lock = new Object();
 	
@@ -23,26 +26,33 @@ public class ObjectByDefRepositories {
 	public ObjectByDefRepositories() {
 	}
 
+	public void close() {
+		for(SharedObjectByDefRepository<?,?> repository : repositories.values()) {
+			repository.close();
+		}
+		repositories = null;
+	}
+	
 	// ------------------------------------------------------------------------
 
 	@SuppressWarnings("unchecked")
-	public <TDef,T> ObjectByDefRepository<TDef,T> getOrCreateRepositoryForClass(Class<TDef> clss) {
-		ObjectByDefRepository<?,?> res = repositories.get(clss);
+	public <TDef,T> SharedObjectByDefRepository<TDef,T> getOrCreateRepositoryForClass(Class<TDef> clss) {
+		SharedObjectByDefRepository<?,?> res = repositories.get(clss);
 		if (res == null) {
-			res = new ObjectByDefRepository<TDef,T>(this, clss.getCanonicalName());
+			res = new SharedObjectByDefRepository<TDef,T>(this, clss.getCanonicalName());
 			repositories.put(clss, res);
 		}
-		return (ObjectByDefRepository<TDef,T>) res;
+		return (SharedObjectByDefRepository<TDef,T>) res;
 	}
 	
-	public <TDef,T> void registerFactoryFor(Class<TDef> clss, ObjectByDefFactory<TDef,T> factory) {
-		ObjectByDefRepository<TDef,T> repo = getOrCreateRepositoryForClass(clss);
+	public <TDef,T> void registerFactoryFor(Class<TDef> clss, SharedObjectByDefFactory<TDef,T> factory) {
+		SharedObjectByDefRepository<TDef,T> repo = getOrCreateRepositoryForClass(clss);
 		repo.registerFactory(factory);
 	}
 
 	
-	public ObjectByDefRepository<?,?> repositoryForClass(Class<?> clss) {
-		ObjectByDefRepository<?, ?> res = repositories.get(clss);
+	public SharedObjectByDefRepository<?,?> repositoryForClass(Class<?> clss) {
+		SharedObjectByDefRepository<?, ?> res = repositories.get(clss);
 		for(Class<?> superClss = clss; ; superClss = superClss.getSuperclass()) {
 			res = repositories.get(clss);
 			if (res != null) {
@@ -63,22 +73,31 @@ public class ObjectByDefRepositories {
 	 * register an object by its key definition
 	 * utility method for <code>repositoryForClass(def.getClass()).register(def)</code>
 	 */
-	public <TDef,T> ObjectWithHandle<T> getOrCreateByDef(TDef def) {
+	public <TDef,T> SharedRef<T> getOrCreateByDef(TDef def, Object key) {
 		Class<?> clss = def.getClass();
-		ObjectByDefRepository<?, ?> repoObj = repositoryForClass(clss);
+		SharedObjectByDefRepository<?, ?> repoObj = repositoryForClass(clss);
 		@SuppressWarnings("unchecked")
-		ObjectByDefRepository<TDef,T> repo = (ObjectByDefRepository<TDef,T>) repoObj;
-		ObjectWithHandle<T> res = repo.getOrCreateByDef(def);
+		SharedObjectByDefRepository<TDef,T> repo = (SharedObjectByDefRepository<TDef,T>) repoObj;
+		SharedRef<T> res = repo.getOrCreateByDef(def, key);
 		return res;
 	}
 
 	/**
 	 * helper downcast for <code>getOrCreateByDef(def)</code>
 	 */
-	public <TDef,T> ObjectWithHandle<T> getOrCreateByDef(TDef def, Class<T> clss) {
-		ObjectWithHandle<T> res = getOrCreateByDef(def);
+	public <TDef,T> SharedRef<T> getOrCreateByDef(TDef def, Object key, Class<T> clss) {
+		SharedRef<T> res = getOrCreateByDef(def, key);
 		if (clss != null && !clss.isInstance(res.getObject())) {
 			throw new ClassCastException();
+		}
+		return res;
+	}
+
+	public <TDef,T> List<SharedRef<T>> getOrCreateByDefs(Collection<TDef> defs) {
+		List<SharedRef<T>> res = new ArrayList<SharedRef<T>>();
+		for(TDef def : defs) {
+			SharedRef<T> resElt = getOrCreateByDef(def, null);
+			res.add(resElt);
 		}
 		return res;
 	}
@@ -88,8 +107,8 @@ public class ObjectByDefRepositories {
 	@Override
 	public String toString() {
 		StringBuilder sb = new StringBuilder();
-		sb.append("ObjectByDefRepositories[");
-		for(ObjectByDefRepository<?,?> repo : repositories.values()) {
+		sb.append("ObjectByDefRepositories[\n");
+		for(SharedObjectByDefRepository<?,?> repo : repositories.values()) {
 			sb.append(repo.toString());
 			sb.append("\n");
 		}

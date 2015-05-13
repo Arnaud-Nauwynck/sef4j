@@ -7,23 +7,27 @@ package org.sef4j.core.util.factorydef;
  * @param <TDef>
  * @param <T>
  */
-public abstract class AbstractObjByDefFactory<TDef,T> implements ObjectByDefFactory<TDef,T> {
+public abstract class AbstractSharedObjByDefFactory<TDef,T> implements SharedObjectByDefFactory<TDef,T> {
 
 	private final String displayName;
+	private final Class<TDef> defClass;
 	
 	// ------------------------------------------------------------------------
 	
-	public AbstractObjByDefFactory(String displayName) {
+	public AbstractSharedObjByDefFactory(String displayName, Class<TDef> defClass) {
 		this.displayName = displayName;
+		this.defClass = defClass;
 	}
 
 	// ------------------------------------------------------------------------
 	
 	@Override
-	public abstract boolean accepts(TDef def);
+	public boolean accepts(TDef def) {
+		return defClass.isInstance(def);
+	}
 
 	@Override
-	public abstract T create(TDef def, ObjectByDefRepositories repositories);
+	public abstract T create(TDef def, DependencyObjectCreationContext ctx);
 
 	// ------------------------------------------------------------------------
 	

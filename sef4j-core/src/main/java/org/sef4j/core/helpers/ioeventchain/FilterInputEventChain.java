@@ -7,8 +7,7 @@ import org.sef4j.core.api.ioeventchain.InputEventChain;
 import org.sef4j.core.api.ioeventchain.InputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChainFactory;
 import org.sef4j.core.helpers.senders.AbstractFilterEventSender.PredicateFilterEventSender;
-import org.sef4j.core.util.factorydef.ObjectByDefRepositories;
-import org.sef4j.core.util.factorydef.ObjectWithHandle;
+import org.sef4j.core.util.factorydef.DependencyObjectCreationContext;
 
 /**
  * InputEventChain for filtering events by predicate received from an underlying InputEventChain 
@@ -31,7 +30,7 @@ import org.sef4j.core.util.factorydef.ObjectWithHandle;
  */
 public class FilterInputEventChain<T> extends InputEventChain<T> {
 
-	private ObjectWithHandle<? extends InputEventChain<T>> underlying;
+	private InputEventChain<T> underlying;
 
 	private PredicateFilterEventSender<T> predicateFilterEventProvider;
 	
@@ -39,9 +38,9 @@ public class FilterInputEventChain<T> extends InputEventChain<T> {
 	
 	// ------------------------------------------------------------------------
 
-	public FilterInputEventChain(FilteredInputEventChainDef def, String displayName,
-			ObjectWithHandle<? extends InputEventChain<T>> underlying, Predicate<T> predicate) {
-		super(def, displayName);
+	public FilterInputEventChain(String displayName,
+			InputEventChain<T> underlying, Predicate<T> predicate) {
+		super(displayName);
 		this.underlying = underlying;
 		this.predicateFilterEventProvider = new PredicateFilterEventSender<T>(innerEventProvider, predicate);
 	}
@@ -60,20 +59,20 @@ public class FilterInputEventChain<T> extends InputEventChain<T> {
 	
 	@Override
 	public boolean isStarted() {
-		return underlyingListenerHandle != null && underlying.getObject().isStarted();
+		return underlyingListenerHandle != null && underlying.isStarted();
 	}
 
 	@Override
 	public void start() {
 		if (underlyingListenerHandle == null) {
-			underlyingListenerHandle = underlying.getObject().registerEventListener(predicateFilterEventProvider);
+			underlyingListenerHandle = underlying.registerEventListener(predicateFilterEventProvider);
 		}
 	}
 
 	@Override
 	public void stop() {
 		if (underlyingListenerHandle != null) {
-			underlying.getObject().unregisterEventListener(underlyingListenerHandle);
+			underlying.unregisterEventListener(underlyingListenerHandle);
 			underlyingListenerHandle = null;
 		}		
 	}
@@ -83,26 +82,20 @@ public class FilterInputEventChain<T> extends InputEventChain<T> {
 	public static class Factory<T> extends InputEventChainFactory<T> {
 		
 		public Factory() {
-			super("FilteredInputEventChain");
-		}
-
-		@Override
-		public boolean accepts(InputEventChainDef def) {
-			return def instanceof FilteredInputEventChainDef;
+			super("FilteredInputEventChain", FilteredInputEventChainDef.class);
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public InputEventChain<T> create(InputEventChainDef defObj, ObjectByDefRepositories repositories) {
+		public InputEventChain<T> create(InputEventChainDef defObj, DependencyObjectCreationContext ctx) {
 			FilteredInputEventChainDef def = (FilteredInputEventChainDef) defObj;
 			
-			ObjectWithHandle<?> underlyingHandle = repositories.getOrCreateByDef(def.getUnderlying());
-			ObjectWithHandle<InputEventChain<T>> underlyingHandle2 = 
-					(ObjectWithHandle<InputEventChain<T>>) underlyingHandle;
+			InputEventChain<T> underlying = ctx.getOrCreateDependencyByDef("underlying", def.getUnderlying());
 
 			Predicate<T> predicate = (Predicate<T>) def.getFilterDef().getPredicate();
+			String displayName = ctx.getCurrObjectDisplayName();
 			
-			return new FilterInputEventChain<T>(def, "Filter", underlyingHandle2, predicate);
+			return new FilterInputEventChain<T>(displayName, underlying, predicate);
 		}
 		
 	}

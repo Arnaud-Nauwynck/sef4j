@@ -3,7 +3,6 @@ package org.sef4j.core.helpers.ioeventchain;
 import java.util.function.Predicate;
 
 import org.sef4j.core.api.EventSender;
-import org.sef4j.core.api.ioeventchain.DefaultOutputEventChainDefs.FilteredOutputEventChainDef;
 import org.sef4j.core.api.ioeventchain.OutputEventChain;
 import org.sef4j.core.helpers.senders.AbstractFilterEventSender.PredicateFilterEventSender;
 import org.sef4j.core.helpers.senders.DelegateEventSender;
@@ -41,9 +40,9 @@ public class FilterOutputEventChain<T> extends OutputEventChain<T> {
 	
 	// ------------------------------------------------------------------------
 
-	public FilterOutputEventChain(FilteredOutputEventChainDef def, String displayName,
+	public FilterOutputEventChain(String displayName,
 			OutputEventChain<T> underlying, Predicate<T> predicate) {
-		super(def, displayName);
+		super(displayName);
 		this.underlying = underlying;
 		this.proxyToUnderlyingEventSender = new DelegateEventSender<T>(null);
 		this.innerEventSender = new PredicateFilterEventSender<T>(proxyToUnderlyingEventSender, predicate);

@@ -5,9 +5,14 @@ import java.util.List;
 import org.sef4j.core.api.EventSender;
 import org.sef4j.core.helpers.export.ExportFragmentList;
 import org.sef4j.core.helpers.export.ExportFragmentsProvider;
+import org.sef4j.core.helpers.export.ExportFragmentsProviderDef;
 import org.sef4j.core.helpers.tasks.PollingEventProvider.AbstractPollingEventProvider;
+import org.sef4j.core.util.factorydef.AbstractSharedObjByDefFactory;
+import org.sef4j.core.util.factorydef.DependencyObjectCreationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableList;
 
 /**
  * class for collecting data or incremental changes to export as event "ExportFragmentList<T>"
@@ -128,6 +133,30 @@ public class ExportFragmentsPollingEventProvider<T> extends AbstractPollingEvent
 			this.fragmentProviders = fragmentProviders;
 			return this;
 		}
+    }
+ 
+    // ------------------------------------------------------------------------
+    
+    public static class ExportFragmentsPollingEventProviderFactory<T> 
+    	extends AbstractSharedObjByDefFactory<ExportFragmentsPollingEventProviderDef, ExportFragmentsPollingEventProvider<T>> {
+
+		public ExportFragmentsPollingEventProviderFactory() {
+			super("ExportFragmentsPollingEventProvider", ExportFragmentsPollingEventProviderDef.class);
+		}
+
+		@Override
+		public ExportFragmentsPollingEventProvider<T> create(
+				ExportFragmentsPollingEventProviderDef def,
+				DependencyObjectCreationContext ctx) {
+			ImmutableList<ExportFragmentsProviderDef> fragmentProviderDefs = def.getFragmentProviderDefs();
+			
+			List<ExportFragmentsProvider<T>> fragmentProviders = 
+					ctx.getOrCreateDependencyByDefs("fragmentProviders", fragmentProviderDefs);
+
+			String displayName = ctx.getCurrObjectDisplayName();
+			return new ExportFragmentsPollingEventProvider<T>(displayName, fragmentProviders);
+		}
+    	
     }
     
 }

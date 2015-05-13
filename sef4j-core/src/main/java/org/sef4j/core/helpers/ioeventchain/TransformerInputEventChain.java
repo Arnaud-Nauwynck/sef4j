@@ -7,8 +7,7 @@ import org.sef4j.core.api.ioeventchain.InputEventChain;
 import org.sef4j.core.api.ioeventchain.InputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChainFactory;
 import org.sef4j.core.helpers.senders.AbstractTransformerEventSender.FuncTransformerEventSender;
-import org.sef4j.core.util.factorydef.ObjectByDefRepositories;
-import org.sef4j.core.util.factorydef.ObjectWithHandle;
+import org.sef4j.core.util.factorydef.DependencyObjectCreationContext;
 
 /**
  * InputEventChain for transforming events received from an underlying InputEventChain 
@@ -31,7 +30,7 @@ import org.sef4j.core.util.factorydef.ObjectWithHandle;
  */
 public class TransformerInputEventChain<TSrc,T> extends InputEventChain<T> {
 
-	private ObjectWithHandle<? extends InputEventChain<TSrc>> underlying;
+	private InputEventChain<TSrc> underlying;
 
 	private FuncTransformerEventSender<TSrc,T> transformerEventProvider;
 	// private Function<TSrc,T> transformer ... = transformerEventProvider.getTransformer();
@@ -40,9 +39,9 @@ public class TransformerInputEventChain<TSrc,T> extends InputEventChain<T> {
 	
 	// ------------------------------------------------------------------------
 
-	public TransformerInputEventChain(TransformerInputEventChainDef<TSrc,T> def, String displayName,
-			ObjectWithHandle<? extends InputEventChain<TSrc>> underlying, Function<TSrc,T> transformer) {
-		super(def, displayName);
+	public TransformerInputEventChain(String displayName,
+			InputEventChain<TSrc> underlying, Function<TSrc,T> transformer) {
+		super(displayName);
 		this.underlying = underlying;
 		this.transformerEventProvider = new FuncTransformerEventSender<TSrc,T>(innerEventProvider, transformer);
 	}
@@ -61,20 +60,20 @@ public class TransformerInputEventChain<TSrc,T> extends InputEventChain<T> {
 	
 	@Override
 	public boolean isStarted() {
-		return underlyingListenerHandle != null && underlying.getObject().isStarted();
+		return underlyingListenerHandle != null && underlying.isStarted();
 	}
 
 	@Override
 	public void start() {
 		if (underlyingListenerHandle == null) {
-			underlyingListenerHandle = underlying.getObject().registerEventListener(transformerEventProvider);
+			underlyingListenerHandle = underlying.registerEventListener(transformerEventProvider);
 		}
 	}
 
 	@Override
 	public void stop() {
 		if (underlyingListenerHandle != null) {
-			underlying.getObject().unregisterEventListener(underlyingListenerHandle);
+			underlying.unregisterEventListener(underlyingListenerHandle);
 			underlyingListenerHandle = null;
 		}		
 	}
@@ -84,25 +83,21 @@ public class TransformerInputEventChain<TSrc,T> extends InputEventChain<T> {
 	public static class Factory<TSrc,T> extends InputEventChainFactory<T> {
 		
 		public Factory() {
-			super("TransformedInputEventChain");
-		}
-
-		@Override
-		public boolean accepts(InputEventChainDef def) {
-			return def instanceof TransformerInputEventChainDef;
+			super("TransformedInputEventChain", TransformerInputEventChainDef.class);
 		}
 
 		@Override
 		@SuppressWarnings("unchecked")
-		public InputEventChain<T> create(InputEventChainDef defObj, ObjectByDefRepositories repositories) {
+		public InputEventChain<T> create(InputEventChainDef defObj, 
+				DependencyObjectCreationContext ctx) {
 			TransformerInputEventChainDef<TSrc,T> def = (TransformerInputEventChainDef<TSrc,T>) defObj;
 			
-			ObjectWithHandle<InputEventChain<TSrc>> underlying = (ObjectWithHandle<InputEventChain<TSrc>>) (ObjectWithHandle<?>)
-					repositories.getOrCreateByDef(def.getUnderlying());
+			InputEventChain<TSrc> underlying = ctx.getOrCreateDependencyByDef("underlying", def.getUnderlying());
 			
 			Function<TSrc,T> transformer = (Function<TSrc,T>) def.getEventTransformerDef();
 			
-			return new TransformerInputEventChain<TSrc,T>(def, "Filter", underlying, transformer);
+			String displayName = ctx.getCurrObjectDisplayName();
+			return new TransformerInputEventChain<TSrc,T>(displayName, underlying, transformer);
 		}
 		
 	}

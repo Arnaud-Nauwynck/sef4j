@@ -1,26 +1,20 @@
 package org.sef4j.core.api.ioeventchain;
 
-import org.sef4j.core.util.factorydef.AbstractObjByDefFactory;
+import org.sef4j.core.util.factorydef.AbstractSharedObjByDefFactory;
 
 /**
  * Factory for InputEventChain, using InputEventChainDef
  */
-public abstract class InputEventChainFactory<T> extends AbstractObjByDefFactory<InputEventChainDef,InputEventChain<T>> {
+public abstract class InputEventChainFactory<T> 
+	extends AbstractSharedObjByDefFactory<InputEventChainDef,InputEventChain<T>> {
 
 	// ------------------------------------------------------------------------
 	
-	public InputEventChainFactory(String displayName) {
-		super(displayName);
+	@SuppressWarnings("unchecked")
+	public InputEventChainFactory(String displayName, Class<? extends InputEventChainDef> clss) {
+		super(displayName, (Class<InputEventChainDef>) clss);
 	}
 
 	// ------------------------------------------------------------------------
-	
-	@Override
-	public abstract boolean accepts(InputEventChainDef def);
-
-//	@Override
-//	public abstract InputEventChain<T> create(InputEventChainDef def,
-//			ObjectByDefRepository<InputEventChainDef,InputEventChain<T>> repository);
-
 	
 }

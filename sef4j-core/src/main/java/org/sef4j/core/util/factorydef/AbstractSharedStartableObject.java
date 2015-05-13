@@ -12,25 +12,16 @@ import org.sef4j.core.util.IStartableSupport;
  *
  * @param <TDef>
  */
-public abstract class AbstractStartableDefObject<TDef> implements Closeable, ISharedStartableSupport, IStartableSupport {
+public abstract class AbstractSharedStartableObject<TDef> implements Closeable, ISharedStartableSupport, IStartableSupport {
 	
-	protected final TDef def;
-
 	protected final String displayName;
 	
 	private HandleSet autoStartableHandleSet = new HandleSet(this);
 	
 	// ------------------------------------------------------------------------
 	
-	protected AbstractStartableDefObject(TDef def, String displayName) {
-		this.def = def;
+	protected AbstractSharedStartableObject(String displayName) {
 		this.displayName = displayName;
-	}
-
-	// ------------------------------------------------------------------------
-
-	public TDef getDef() {
-		return def;
 	}
 
 	// ------------------------------------------------------------------------
@@ -70,7 +61,7 @@ public abstract class AbstractStartableDefObject<TDef> implements Closeable, ISh
 	
 	@Override
 	public String toString() {
-		return "InputEventChain [" + displayName + "]";
+		return "AbstractSharedStartableObject[" + displayName + "]";
 	}
 	
 }

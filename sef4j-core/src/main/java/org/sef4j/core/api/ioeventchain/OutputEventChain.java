@@ -5,7 +5,7 @@ import java.util.Collection;
 
 import org.sef4j.core.api.EventSender;
 import org.sef4j.core.util.Handle;
-import org.sef4j.core.util.factorydef.AbstractStartableDefObject;
+import org.sef4j.core.util.factorydef.AbstractSharedStartableObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,14 +29,14 @@ import org.slf4j.LoggerFactory;
  * </code>
  * 
  */
-public abstract class OutputEventChain<T> extends AbstractStartableDefObject<OutputEventChainDef> {
+public abstract class OutputEventChain<T> extends AbstractSharedStartableObject<OutputEventChainDef> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(OutputEventChain.class);
 
 	// ------------------------------------------------------------------------
 
-	public OutputEventChain(OutputEventChainDef def, String displayName) {
-		super(def, displayName);
+	public OutputEventChain(String displayName) {
+		super(displayName);
 	}
 
 	// ------------------------------------------------------------------------

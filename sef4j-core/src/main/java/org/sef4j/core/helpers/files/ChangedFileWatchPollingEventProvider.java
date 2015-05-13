@@ -11,8 +11,8 @@ import java.nio.file.WatchService;
 
 import org.sef4j.core.helpers.tasks.PollingEventProvider.AbstractPollingEventProvider;
 import org.sef4j.core.util.IStartableSupport;
-import org.sef4j.core.util.factorydef.AbstractObjByDefFactory;
-import org.sef4j.core.util.factorydef.ObjectByDefRepositories;
+import org.sef4j.core.util.factorydef.AbstractSharedObjByDefFactory;
+import org.sef4j.core.util.factorydef.DependencyObjectCreationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -132,19 +132,14 @@ public class ChangedFileWatchPollingEventProvider extends AbstractPollingEventPr
 	
 	// ------------------------------------------------------------------------
 	
-	public static class Factory extends AbstractObjByDefFactory<ChangedFileWatchPollingEventProviderDef,ChangedFileWatchPollingEventProvider> {
+	public static class Factory extends AbstractSharedObjByDefFactory<ChangedFileWatchPollingEventProviderDef,ChangedFileWatchPollingEventProvider> {
 		
 		public Factory() {
-			super("ChangedFileWatchPollingEventProvider");
+			super("ChangedFileWatchPollingEventProvider", ChangedFileWatchPollingEventProviderDef.class);
 		}
 
 		@Override
-		public boolean accepts(ChangedFileWatchPollingEventProviderDef def) {
-			return def instanceof ChangedFileWatchPollingEventProviderDef;
-		}
-
-		@Override
-		public ChangedFileWatchPollingEventProvider create(ChangedFileWatchPollingEventProviderDef def, ObjectByDefRepositories repositories) {
+		public ChangedFileWatchPollingEventProvider create(ChangedFileWatchPollingEventProviderDef def, DependencyObjectCreationContext ctx) {
 			return new ChangedFileWatchPollingEventProvider(Paths.get(def.getFilePath()));
 		}			
 	}

@@ -12,7 +12,7 @@ import org.sef4j.core.api.ioeventchain.OutputEventChain.SenderHandle;
 public class FilterOutputEventChainTest {
 
 	MockOutputEventChain mockUnderlying = new MockOutputEventChain();
-	FilterOutputEventChain<MockEvent> sut = new FilterOutputEventChain<MockEvent>(null, "test", 
+	FilterOutputEventChain<MockEvent> sut = new FilterOutputEventChain<MockEvent>("test", 
 			mockUnderlying, MockEventValueContainsPredicate.CONTAINS_1);
 
 	@Test

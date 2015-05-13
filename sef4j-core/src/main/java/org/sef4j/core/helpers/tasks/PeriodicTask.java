@@ -169,6 +169,14 @@ public class PeriodicTask implements Closeable, IStartableSupport {
 		
 		private Runnable task;
 
+		public Builder() {
+		}
+		
+		public Builder(int period, TimeUnit periodTimeUnit) {
+			this.period = period;
+			this.periodTimeUnit = periodTimeUnit;
+		}
+		
 		public PeriodicTask build() {
 			if (task == null) {
 				throw new IllegalStateException();

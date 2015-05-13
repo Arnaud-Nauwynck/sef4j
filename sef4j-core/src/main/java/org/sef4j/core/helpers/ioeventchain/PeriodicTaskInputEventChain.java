@@ -10,8 +10,7 @@ import org.sef4j.core.helpers.tasks.PeriodicTask;
 import org.sef4j.core.helpers.tasks.PollingEventProvider;
 import org.sef4j.core.util.AsyncUtils;
 import org.sef4j.core.util.IStartableSupport;
-import org.sef4j.core.util.factorydef.ObjectByDefRepositories;
-import org.sef4j.core.util.factorydef.ObjectWithHandle;
+import org.sef4j.core.util.factorydef.DependencyObjectCreationContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -23,40 +22,36 @@ public class PeriodicTaskInputEventChain<T> extends InputEventChain<T> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(PeriodicTaskInputEventChain.class);
 	
-	protected ObjectWithHandle<? extends PollingEventProvider<T>> pollingEventProviderHandle;
+	protected PollingEventProvider<T> pollingEventProvider;
 	
 	protected PeriodicTask periodicTask;
 	
 	// ------------------------------------------------------------------------
 	
 	public PeriodicTaskInputEventChain(
-			PeriodicTaskInputEventChainDef def, String displayName,
-			ObjectWithHandle<? extends PollingEventProvider<T>> pollingEventProviderHandle,
+			String displayName,
+			PollingEventProvider<T> pollingEventProvider,
 			PeriodicTask.Builder pollingPeriodBuilder) {
-		super(def, displayName);
-		this.pollingEventProviderHandle = pollingEventProviderHandle;
+		super(displayName);
+		this.pollingEventProvider = pollingEventProvider;
 		this.periodicTask = pollingPeriodBuilder.build(() -> poll());
-		pollingEventProviderHandle.getObject().addEventListener(innerEventProvider);
+		pollingEventProvider.addEventListener(innerEventProvider);
 	}
 	
 	@Override
 	public void close() {
 		super.close();
 		assert ! isStarted();
-		this.pollingEventProviderHandle.getObject().removeEventListener(innerEventProvider);
-		this.pollingEventProviderHandle = null;
+		this.pollingEventProvider.removeEventListener(innerEventProvider);
+		this.pollingEventProvider = null;
 		this.periodicTask = null;
 	}
 	
 	// ------------------------------------------------------------------------
 	
-	public PeriodicTaskInputEventChainDef getDef() {
-		return (PeriodicTaskInputEventChainDef) super.getDef(); 
-	}
-	
 	protected IStartableSupport startablePollingEventProvider() {
-		if (pollingEventProviderHandle.getObject() instanceof IStartableSupport) {
-			return (IStartableSupport) pollingEventProviderHandle.getObject();
+		if (pollingEventProvider instanceof IStartableSupport) {
+			return (IStartableSupport) pollingEventProvider;
 		}
 		return null;
 	}
@@ -101,7 +96,7 @@ public class PeriodicTaskInputEventChain<T> extends InputEventChain<T> {
 		if (LOG.isDebugEnabled()) {
 			LOG.debug("poll " + displayName);
 		}
-		pollingEventProviderHandle.getObject().poll();
+		pollingEventProvider.poll();
 	}
 
 	// ------------------------------------------------------------------------
@@ -116,29 +111,23 @@ public class PeriodicTaskInputEventChain<T> extends InputEventChain<T> {
 	public static class Factory<T> extends InputEventChainFactory<T> {
 		
 		public Factory() {
-			super("PeriodicTaskInputEventChain");
+			super("PeriodicTaskInputEventChain", PeriodicTaskInputEventChainDef.class);
 		}
 
 		@Override
-		public boolean accepts(InputEventChainDef def) {
-			return def instanceof PeriodicTaskInputEventChainDef;
-		}
-
-		@Override
-		public InputEventChain<T> create(InputEventChainDef defObj, ObjectByDefRepositories repositories) {
+		public InputEventChain<T> create(InputEventChainDef defObj, 
+				DependencyObjectCreationContext ctx) {
 			PeriodicTaskInputEventChainDef def = (PeriodicTaskInputEventChainDef) defObj;
 
 			PeriodicTask.Builder pollingPeriodBuilder = new PeriodicTask.Builder()
 				.withOptionalPeriodicityDef(def.getPeriodicity())
 				.withDefaults(30, TimeUnit.SECONDS, AsyncUtils.defaultScheduledThreadPool());
 
-			ObjectWithHandle<?> taskObjHandle = repositories.getOrCreateByDef(def.getTaskDef());
-			
-			@SuppressWarnings("unchecked")
-			ObjectWithHandle<PollingEventProvider<T>> taskHandle = (ObjectWithHandle<PollingEventProvider<T>>) taskObjHandle;
-					
-			PeriodicTaskInputEventChain<T> res = new PeriodicTaskInputEventChain<T>(def, "PeriodicTaskInputEventChain",
-					taskHandle, pollingPeriodBuilder);
+			PollingEventProvider<T> task = ctx.getOrCreateDependencyByDef("task", def.getTaskDef());
+								
+			String displayName = ctx.getCurrObjectDisplayName();
+			PeriodicTaskInputEventChain<T> res = new PeriodicTaskInputEventChain<T>(displayName,
+					task, pollingPeriodBuilder);
 			return res;
 		}
 		

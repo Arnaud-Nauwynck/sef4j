@@ -5,7 +5,7 @@ import java.io.Closeable;
 import org.sef4j.core.api.EventSender;
 import org.sef4j.core.helpers.senders.DefaultEventProvider;
 import org.sef4j.core.util.Handle;
-import org.sef4j.core.util.factorydef.AbstractStartableDefObject;
+import org.sef4j.core.util.factorydef.AbstractSharedStartableObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * inputChain.unregisterEventListener(subscr);
  * </code>
  */
-public abstract class InputEventChain<T> extends AbstractStartableDefObject<InputEventChainDef> {
+public abstract class InputEventChain<T> extends AbstractSharedStartableObject<InputEventChainDef> {
 
 	private static final Logger LOG = LoggerFactory.getLogger(InputEventChain.class);
 	
@@ -36,8 +36,8 @@ public abstract class InputEventChain<T> extends AbstractStartableDefObject<Inpu
 
 	// ------------------------------------------------------------------------
 
-	public InputEventChain(InputEventChainDef def, String displayName) {
-		super(def, displayName);
+	public InputEventChain(String displayName) {
+		super(displayName);
 	}
 
 	// ------------------------------------------------------------------------

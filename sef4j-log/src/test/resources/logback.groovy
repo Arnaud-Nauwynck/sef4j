@@ -1,4 +1,4 @@
-import org.sef4j.core.api.EventLogger;
+import org.sef4j.core.api.logger.EventLogger;
 
 import ch.qos.logback.core.*;
 import ch.qos.logback.classic.*;

@@ -5,17 +5,15 @@ import org.sef4j.core.MockEvent;
 import org.sef4j.core.MockEvent.MockEventValueContainsPredicate;
 import org.sef4j.core.MockEventSender;
 import org.sef4j.core.api.ioeventchain.InputEventChain.ListenerHandle;
-import org.sef4j.core.util.factorydef.ObjectWithHandle;
 
 
 public class FilterInputEventChainTest {
 
 	MockEventSender<MockEvent> mockResult = new MockEventSender<MockEvent>();
-	ObjectWithHandle<MockInputEventChain> mockUnderlyingWithHandle = 
-			MockInputEventChain.newMockObjectWithHandle();
-	MockInputEventChain mockUnderlying = (MockInputEventChain) mockUnderlyingWithHandle.getObject();
-	FilterInputEventChain<MockEvent> sut = new FilterInputEventChain<MockEvent>(null, "test", 
-			mockUnderlyingWithHandle,
+
+	MockInputEventChain mockUnderlying = new MockInputEventChain();
+	FilterInputEventChain<MockEvent> sut = new FilterInputEventChain<MockEvent>("test", 
+			mockUnderlying,
 			MockEventValueContainsPredicate.CONTAINS_1);
 
 	@Test

@@ -13,7 +13,7 @@ public class MockOutputEventChain extends OutputEventChain<MockEvent> {
 	protected boolean started = true;
 	
 	public MockOutputEventChain() {
-		super(null, "mock");
+		super("mock");
 	}
 
 	public List<MockEvent> clearAndGet() {

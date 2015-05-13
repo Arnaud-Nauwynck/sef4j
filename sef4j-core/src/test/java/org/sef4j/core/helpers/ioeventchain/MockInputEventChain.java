@@ -4,19 +4,19 @@ import java.util.Collection;
 
 import org.sef4j.core.MockEvent;
 import org.sef4j.core.api.ioeventchain.InputEventChain;
-import org.sef4j.core.util.factorydef.ObjectWithHandle;
+import org.sef4j.core.util.factorydef.SharedRef;
 
 public class MockInputEventChain extends InputEventChain<MockEvent> {
 
 	protected boolean started = true;
 	
 	public MockInputEventChain() {
-		super(null, "mock");
+		super("mock");
 	}
 
-	public static ObjectWithHandle<MockInputEventChain> newMockObjectWithHandle() {
+	public static SharedRef<MockInputEventChain> newMockObjectWithHandle() {
 		MockInputEventChain mock = new MockInputEventChain();
-		return new ObjectWithHandle<MockInputEventChain>(null, null, mock);
+		return new SharedRef<MockInputEventChain>(null, null, mock);
 	}
 	
 	public void sendEvent(MockEvent event) {

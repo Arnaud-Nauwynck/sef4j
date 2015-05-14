@@ -1,5 +1,6 @@
 package org.sef4j.core.api.ioeventchain;
 
+import org.sef4j.core.api.def.ioevenchain.OutputEventChainDef;
 import org.sef4j.core.util.factorydef.AbstractSharedObjByDefFactory;
 
 /**

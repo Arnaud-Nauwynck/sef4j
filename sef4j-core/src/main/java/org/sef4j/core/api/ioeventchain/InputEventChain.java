@@ -3,6 +3,7 @@ package org.sef4j.core.api.ioeventchain;
 import java.io.Closeable;
 
 import org.sef4j.core.api.EventSender;
+import org.sef4j.core.api.def.ioevenchain.InputEventChainDef;
 import org.sef4j.core.helpers.senders.DefaultEventProvider;
 import org.sef4j.core.util.Handle;
 import org.sef4j.core.util.factorydef.AbstractSharedStartableObject;

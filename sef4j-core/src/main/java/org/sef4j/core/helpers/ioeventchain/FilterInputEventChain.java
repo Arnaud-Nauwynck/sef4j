@@ -2,7 +2,7 @@ package org.sef4j.core.helpers.ioeventchain;
 
 import java.util.function.Predicate;
 
-import org.sef4j.core.api.ioeventchain.DefaultInputEventChainDefs.FilterInputEventChainDef;
+import org.sef4j.core.api.def.ioevenchain.FilterInputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChain;
 import org.sef4j.core.api.ioeventchain.InputEventChainFactory;
 import org.sef4j.core.helpers.senders.AbstractFilterEventSender.PredicateFilterEventSender;

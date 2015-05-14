@@ -2,10 +2,10 @@ package org.sef4j.core.helpers.ioeventchain;
 
 import java.util.concurrent.TimeUnit;
 
-import org.sef4j.core.api.ioeventchain.DefaultInputEventChainDefs.PeriodicTaskInputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChain;
 import org.sef4j.core.api.ioeventchain.InputEventChainFactory;
 import org.sef4j.core.helpers.tasks.PeriodicTask;
+import org.sef4j.core.helpers.tasks.PeriodicTaskInputEventChainDef;
 import org.sef4j.core.helpers.tasks.PollingEventProvider;
 import org.sef4j.core.util.AsyncUtils;
 import org.sef4j.core.util.IStartableSupport;

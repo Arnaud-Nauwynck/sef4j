@@ -4,6 +4,7 @@ import java.io.Closeable;
 import java.util.Collection;
 
 import org.sef4j.core.api.EventSender;
+import org.sef4j.core.api.def.ioevenchain.OutputEventChainDef;
 import org.sef4j.core.util.Handle;
 import org.sef4j.core.util.factorydef.AbstractSharedStartableObject;
 import org.slf4j.Logger;

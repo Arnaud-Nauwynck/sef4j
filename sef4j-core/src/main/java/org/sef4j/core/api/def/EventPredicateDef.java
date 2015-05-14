@@ -1,4 +1,4 @@
-package org.sef4j.core.api.ioeventchain;
+package org.sef4j.core.api.def;
 
 import java.util.function.Predicate;
 

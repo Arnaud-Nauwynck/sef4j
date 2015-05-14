@@ -4,9 +4,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.sef4j.core.api.EventSender;
-import org.sef4j.core.api.ioeventchain.DefaultOutputEventChainDefs.DemultiplexerOutputEventChainDef;
+import org.sef4j.core.api.def.ioevenchain.DefaultMapDemultiplexerOutputEventChainDef;
+import org.sef4j.core.api.def.ioevenchain.OutputEventChainDef;
 import org.sef4j.core.api.ioeventchain.OutputEventChain;
-import org.sef4j.core.api.ioeventchain.OutputEventChainDef;
 import org.sef4j.core.api.ioeventchain.OutputEventChainFactory;
 import org.sef4j.core.helpers.senders.multiplexer.DefaultMapDemultiplexerEventSender;
 import org.sef4j.core.helpers.senders.multiplexer.MultiplexedEvent;
@@ -76,22 +76,22 @@ public class DefaultMapDemultiplexerOutputEventChain<K,T> extends OutputEventCha
 	
 	@Override
 	public String toString() {
-		return "DefaultDemultiplexerOutputEventChain[" + outputDeps.keySet() + "]";
+		return "DefaultMapDemultiplexerOutputEventChain[" + outputDeps.keySet() + "]";
 	}
 
 	// ------------------------------------------------------------------------
 	
 	public static class Factory<K,T> 
-		extends OutputEventChainFactory<DemultiplexerOutputEventChainDef<K>,DefaultMapDemultiplexerOutputEventChain<K,T>> {
+		extends OutputEventChainFactory<DefaultMapDemultiplexerOutputEventChainDef<K>,DefaultMapDemultiplexerOutputEventChain<K,T>> {
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public Factory() {
-			super("DefaultMapDemultiplexerOutputEventChain", (Class) DemultiplexerOutputEventChainDef.class);
+			super("DefaultMapDemultiplexerOutputEventChain", (Class) DefaultMapDemultiplexerOutputEventChainDef.class);
 		}
 
 		@Override
 		public DefaultMapDemultiplexerOutputEventChain<K,T> create(
-				DemultiplexerOutputEventChainDef<K> def, 
+				DefaultMapDemultiplexerOutputEventChainDef<K> def, 
 				DependencyObjectCreationContext ctx) {
 			Map<K, OutputEventChain<T>> outputs = new HashMap<K, OutputEventChain<T>>();
 			for(Map.Entry<K,OutputEventChainDef> e : def.getOutputs().entrySet()) {

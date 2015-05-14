@@ -3,9 +3,9 @@ package org.sef4j.core.helpers.ioeventchain;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sef4j.core.api.ioeventchain.DefaultInputEventChainDefs.DefaultMultiplexedInputEventChainDef;
+import org.sef4j.core.api.def.ioevenchain.DefaultMapMultiplexerInputEventChainDef;
+import org.sef4j.core.api.def.ioevenchain.InputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChain;
-import org.sef4j.core.api.ioeventchain.InputEventChainDef;
 import org.sef4j.core.api.ioeventchain.InputEventChainFactory;
 import org.sef4j.core.helpers.senders.multiplexer.DefaultMultiplexerPerKeyEventSender;
 import org.sef4j.core.helpers.senders.multiplexer.MultiplexedEvent;
@@ -41,13 +41,13 @@ import com.google.common.collect.ImmutableMap;
  * @param <K>
  * @param <T>
  */
-public class DefaultMultiplexerInputEventChain<K,T> extends InputEventChain<MultiplexedEvent<K,T>> {
+public class DefaultMapMultiplexerInputEventChain<K,T> extends InputEventChain<MultiplexedEvent<K,T>> {
 
 	private final Map<K,InputEventChainDependency<T>> inputDeps;
 
 	// ------------------------------------------------------------------------
 
-	public DefaultMultiplexerInputEventChain(String displayName, Map<K,InputEventChain<T>> inputs) {
+	public DefaultMapMultiplexerInputEventChain(String displayName, Map<K,InputEventChain<T>> inputs) {
 		super(displayName);
 		ImmutableMap.Builder<K,InputEventChainDependency<T>> depsBuilder = new ImmutableMap.Builder<K,InputEventChainDependency<T>>();
 		for(Map.Entry<K,InputEventChain<T>> e : inputs.entrySet()) {
@@ -90,16 +90,16 @@ public class DefaultMultiplexerInputEventChain<K,T> extends InputEventChain<Mult
 	// ------------------------------------------------------------------------
 	
 	public static class Factory<K,T> 
-		extends InputEventChainFactory<DefaultMultiplexedInputEventChainDef<K>,DefaultMultiplexerInputEventChain<K,T>> {
+		extends InputEventChainFactory<DefaultMapMultiplexerInputEventChainDef<K>,DefaultMapMultiplexerInputEventChain<K,T>> {
 
 		@SuppressWarnings({ "rawtypes", "unchecked" })
 		public Factory() {
-			super("DefaultMultiplexedInputEventChain", (Class) DefaultMultiplexedInputEventChainDef.class);
+			super("DefaultMapMultiplexerInputEventChain", (Class) DefaultMapMultiplexerInputEventChainDef.class);
 		}
 
 		@Override
-		public DefaultMultiplexerInputEventChain<K,T> create(
-				DefaultMultiplexedInputEventChainDef<K> def, 
+		public DefaultMapMultiplexerInputEventChain<K,T> create(
+				DefaultMapMultiplexerInputEventChainDef<K> def, 
 				DependencyObjectCreationContext ctx) {
 			Map<K, InputEventChain<T>> inputs = new HashMap<K, InputEventChain<T>>();
 			for(Map.Entry<K,InputEventChainDef> e : def.getInputs().entrySet()) {
@@ -108,7 +108,7 @@ public class DefaultMultiplexerInputEventChain<K,T> extends InputEventChain<Mult
 				inputs.put(key, inputDep);
 			}
 			String displayName = ctx.getCurrObjectDisplayName();
-			return new DefaultMultiplexerInputEventChain<K,T>(displayName, inputs);
+			return new DefaultMapMultiplexerInputEventChain<K,T>(displayName, inputs);
 		}
 		
 	}

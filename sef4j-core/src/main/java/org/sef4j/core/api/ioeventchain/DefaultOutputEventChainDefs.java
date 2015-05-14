@@ -208,26 +208,26 @@ public final class DefaultOutputEventChainDefs {
 	
 	// ------------------------------------------------------------------------
 	
-	public static class MultiplexedOutputEventChainDef<K> extends OutputEventChainDef {
+	public static class DemultiplexerOutputEventChainDef<K> extends OutputEventChainDef {
 		
 		/** */
 		private static final long serialVersionUID = 1L;
 	
-		private final Map<K,OutputEventChainDef> Outputs;
+		private final Map<K,OutputEventChainDef> outputs;
 
-		public MultiplexedOutputEventChainDef(Map<K, OutputEventChainDef> Outputs) {
-			this.Outputs = Collections.unmodifiableMap(new HashMap<K, OutputEventChainDef>(Outputs));
+		public DemultiplexerOutputEventChainDef(Map<K, OutputEventChainDef> Outputs) {
+			this.outputs = Collections.unmodifiableMap(new HashMap<K, OutputEventChainDef>(Outputs));
 		}
 
 		public Map<K, OutputEventChainDef> getOutputs() {
-			return Outputs;
+			return outputs;
 		}
 
 		@Override
 		public int hashCode() {
 			final int prime = 31;
 			int result = 1;
-			result = prime * result + ((Outputs == null) ? 0 : Outputs.hashCode());
+			result = prime * result + ((outputs == null) ? 0 : outputs.hashCode());
 			return result;
 		}
 
@@ -240,18 +240,18 @@ public final class DefaultOutputEventChainDefs {
 			if (getClass() != obj.getClass())
 				return false;
 			@SuppressWarnings("unchecked")
-			MultiplexedOutputEventChainDef<K> other = (MultiplexedOutputEventChainDef<K>) obj;
-			if (Outputs == null) {
-				if (other.Outputs != null)
+			DemultiplexerOutputEventChainDef<K> other = (DemultiplexerOutputEventChainDef<K>) obj;
+			if (outputs == null) {
+				if (other.outputs != null)
 					return false;
-			} else if (!Outputs.equals(other.Outputs))
+			} else if (!outputs.equals(other.outputs))
 				return false;
 			return true;
 		}
 
 		@Override
 		public String toString() {
-			return "MultiplexedOutputEventChainDef [Outputs=" + Outputs + "]";
+			return "DemultiplexerOutputEventChainDef[" + outputs + "]";
 		}
 		
 		

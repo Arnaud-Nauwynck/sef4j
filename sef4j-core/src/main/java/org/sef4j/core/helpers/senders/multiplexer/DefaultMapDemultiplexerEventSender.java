@@ -1,6 +1,7 @@
 package org.sef4j.core.helpers.senders.multiplexer;
 
 import java.util.HashMap;
+import java.util.Map;
 
 import org.sef4j.core.api.EventSender;
 import org.sef4j.core.util.CopyOnWriteUtils;
@@ -16,7 +17,7 @@ public class DefaultMapDemultiplexerEventSender<K,T>
 	extends AbstractDemultiplexerEventSender<K,MultiplexedEvent<K,T>,T> {
 
 	/** copy-on-write field, using immutable Map */
-	protected HashMap<K,EventSender<T>> dispatcherMap = new HashMap<K,EventSender<T>>();
+	protected Map<K,EventSender<T>> dispatcherMap = new HashMap<K,EventSender<T>>();
 	protected Object lock = new Object();
 	
 	protected EventSender<T> defaultEventSender;
@@ -26,6 +27,11 @@ public class DefaultMapDemultiplexerEventSender<K,T>
 	public DefaultMapDemultiplexerEventSender() {
 	}
 
+	public DefaultMapDemultiplexerEventSender(Map<K,EventSender<T>> dispatcherMap) {
+		this.dispatcherMap = dispatcherMap;
+	}
+	
+	
 	// ------------------------------------------------------------------------ 
 
 	@Override

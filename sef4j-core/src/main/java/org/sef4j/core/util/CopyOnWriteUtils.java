@@ -2,20 +2,21 @@ package org.sef4j.core.util;
 
 import java.lang.reflect.Array;
 import java.util.HashMap;
+import java.util.Map;
 
 public class CopyOnWriteUtils {
 
 	// HashMap copy-on-write utilities
 	// ------------------------------------------------------------------------
 	
-    public static <K,V> HashMap<K,V> newWithPut(HashMap<K,V> src, K key, V value) {
+    public static <K,V> HashMap<K,V> newWithPut(Map<K,V> src, K key, V value) {
     	HashMap<K,V> res = new HashMap<K,V>(src.size() + 1);
     	res.putAll(src);
     	res.put(key, value);
     	return res;
     }
 
-    public static <K,V> HashMap<K,V> newWithRemove(HashMap<K,V> src, K key) {
+    public static <K,V> HashMap<K,V> newWithRemove(Map<K,V> src, K key) {
     	HashMap<K,V> res = new HashMap<K,V>(Math.max(0, src.size() - 1));
     	res.putAll(src);
     	res.remove(key);

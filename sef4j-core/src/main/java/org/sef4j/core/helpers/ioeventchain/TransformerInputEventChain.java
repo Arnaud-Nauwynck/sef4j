@@ -12,17 +12,17 @@ import org.sef4j.core.util.factorydef.DependencyObjectCreationContext;
  * InputEventChain for transforming events received from an underlying InputEventChain 
  * 
  * <PRE>
- *                         registerEventListener
- *                         <-----
- *   underlyingInput                                    TransformerInputEventChain
- *  +-----------------+    sendEvent                  +-------------------+     sendEvent
- *  | InputEventChain |    ------>                    |                   |     ----> 
- *  +-----------------+                               | fransform(event)  |
- *                         sendEvent                  +-------------------+
- *                         ------>
+ *                       registerEventListener                    registerEventListener
+ *                       <-----                                      <-----
+ *   underlyingInput                          TransformerInputEventChain
+ *  +-----------------+  sendEvent            +-------------------+     sendEvent
+ *  | InputEventChain |  ------>              |                   |    -----> 
+ *  +-----------------+                       | transform(event)  |
+ *                       sendEvent            +-------------------+     sendEvent
+ *                       ------>                                       ----->
  *                         
- *                         unregisterEventListener
- *                         <----
+ *                       unregisterEventListener                  unregisterEventListener
+ *                       <----                                       <----
  * </PRE>
  * 
  * @param <T>

@@ -45,6 +45,11 @@
 			<artifactId>sef4j-jdbc</artifactId>
 			<version>${sef4j.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>org.sef4j</groupId>
+			<artifactId>sef4j-spring-messaging</artifactId>
+			<version>${sef4j.version}</version>
+		</dependency>
 
 		<!-- Thirdparty dependencies -->
 

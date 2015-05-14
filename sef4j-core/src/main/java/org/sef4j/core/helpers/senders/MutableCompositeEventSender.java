@@ -26,15 +26,15 @@ import org.slf4j.LoggerFactory;
  * @param <T>
  */
 
-public class CompositeEventSender<T> implements EventSender<T> {
+public class MutableCompositeEventSender<T> implements EventSender<T> {
 
-	private static final Logger LOG = LoggerFactory.getLogger(CompositeEventSender.class);
+	private static final Logger LOG = LoggerFactory.getLogger(MutableCompositeEventSender.class);
 	
 	private final EventSender<T>[] targets;
 	
 	// ------------------------------------------------------------------------
 
-	public CompositeEventSender(EventSender<T>[] targets) {
+	public MutableCompositeEventSender(EventSender<T>[] targets) {
 		this.targets = targets;
 	}
 

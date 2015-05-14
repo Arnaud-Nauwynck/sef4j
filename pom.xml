@@ -96,8 +96,13 @@
 				<artifactId>sef4j-javaagent</artifactId> 
 				<version>${project.version}</version>
 			</dependency>
+			<dependency>
+				<groupId>org.sef4j</groupId>
+				<artifactId>sef4j-spring-messaging</artifactId> 
+				<version>${project.version}</version>
+			</dependency>
 		
-		
+			<!-- Thirdparties -->
 			<dependency>
 				<groupId>org.slf4j</groupId>
 				<artifactId>slf4j-api</artifactId>

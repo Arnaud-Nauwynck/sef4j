@@ -12,6 +12,9 @@ import org.slf4j.LoggerFactory;
  * composite of EventSender<T> to add/remove several listener EventSender<T>
  * this class is mutable, and thread-safe
  * 
+ * It may be confusing to have both role EventSender and EventProvider ...
+ * see other more restrictive classes
+ * 
  * 
  * <PRE>
  *       addEventListener() 

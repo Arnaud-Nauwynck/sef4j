@@ -2,10 +2,12 @@ package org.sef4j.testwebapp.config;
 
 import java.util.Map;
 
-import org.sef4j.testwebapp.web.PerfStatsWebSocketHandler;
+import org.sef4j.core.api.session.InOutEventsClientSessionManager;
+import org.sef4j.core.util.factorydef.ObjectByDefRepositories;
+import org.sef4j.springmsg.websocket.ClientSessionTransportWebSocketHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;
@@ -23,9 +25,25 @@ import org.springframework.web.socket.server.HandshakeInterceptor;
 public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer implements WebSocketConfigurer{
     
     private static final Logger LOG = LoggerFactory.getLogger(WebSocketConfig.class);
+        
+    @Bean
+    public ObjectByDefRepositories sharedObjByDefRepositories() {
+    	ObjectByDefRepositories res = new ObjectByDefRepositories ();
+    	// TODO ... register factories
+    	
+    	return res;
+    }
     
-    @Autowired 
-    protected PerfStatsWebSocketHandler appWebSocketHandler;
+    @Bean
+    public InOutEventsClientSessionManager inOutEventsClientSessionManager() {
+    	return new InOutEventsClientSessionManager(sharedObjByDefRepositories());
+    }
+    
+    @Bean
+    public ClientSessionTransportWebSocketHandler clientSessionTransportWebSocketHandler() {
+    	return new ClientSessionTransportWebSocketHandler(inOutEventsClientSessionManager());
+    }
+    
     
 	@Override
 	public void configureMessageBroker(MessageBrokerRegistry config) {
@@ -42,7 +60,7 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer im
 
 	@Override
 	public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-		registry.addHandler(new PerfStatsWebSocketHandler(), "/pendingCount");
+		registry.addHandler(clientSessionTransportWebSocketHandler(), "/pendingCount");
 	}
 	
 

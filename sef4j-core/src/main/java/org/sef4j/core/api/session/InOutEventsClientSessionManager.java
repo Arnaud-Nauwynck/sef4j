@@ -1,6 +1,7 @@
 package org.sef4j.core.api.session;
 
 import org.sef4j.core.util.CopyOnWriteUtils;
+import org.sef4j.core.util.factorydef.ObjectByDefRepositories;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -10,28 +11,30 @@ import com.google.common.collect.ImmutableMap;
  * 
  * @param <K>
  */
-public class InOutEventsClientSessionManager<K> {
+public class InOutEventsClientSessionManager {
 
 	private static final Logger LOG = LoggerFactory.getLogger(InOutEventsClientSessionManager.class);
 	
 	/** copy-on-write map of ClientSessions */
-	private ImmutableMap<K,InOutEventsClientSession> clientSessions = ImmutableMap.of();
+	private ImmutableMap<String,InOutEventsClientSession> clientSessions = ImmutableMap.of();
 	
 	private Object clientSessionsWriteLock = new Object();
 	
+	private ObjectByDefRepositories sharedObjByDefRepositories;
 	
 	// ------------------------------------------------------------------------
 
-	public InOutEventsClientSessionManager() {
+	public InOutEventsClientSessionManager(ObjectByDefRepositories sharedObjByDefRepositories) {
+		this.sharedObjByDefRepositories = sharedObjByDefRepositories;
 	}
 
 	// ------------------------------------------------------------------------
 
-	public InOutEventsClientSession getClientSessionOrNull(K id) {
+	public InOutEventsClientSession getClientSessionOrNull(String id) {
 		return clientSessions.get(id);
 	}
 
-	public InOutEventsClientSession getClientSessionOrCreate(K id) {
+	public InOutEventsClientSession getClientSessionOrCreate(String id) {
 		InOutEventsClientSession res = clientSessions.get(id);
 		if (res == null) {
 			synchronized (clientSessionsWriteLock) {
@@ -44,18 +47,19 @@ public class InOutEventsClientSessionManager<K> {
 		return res;
 	}
 
-	public InOutEventsClientSession createClientSession(K id) {
+	public InOutEventsClientSession createClientSession(String id) {
 		LOG.info("createClientSession " + id);
 		InOutEventsClientSession res;
 		synchronized (clientSessionsWriteLock) {
 			if (clientSessions.containsKey(id)) throw new IllegalArgumentException();
-			res = new InOutEventsClientSession(id.toString());
+			String displayName = id; // to change?
+			res = new InOutEventsClientSession(this, id, displayName);
 			this.clientSessions = CopyOnWriteUtils.newWithPut(clientSessions, id, res);
 		}
 		return res;
 	}
 
-	public void deleteClientSession(K id) {
+	public void deleteClientSession(String id) {
 		LOG.info("deleteClientSession " + id);
 		InOutEventsClientSession res;
 		synchronized (clientSessionsWriteLock) {
@@ -67,6 +71,10 @@ public class InOutEventsClientSessionManager<K> {
 		} catch(Exception ex) {
 			LOG.warn("Failed to dispose ClientSession ... ignore, no rethrow!", ex);
 		}
+	}
+
+	/*pp*/ ObjectByDefRepositories getSharedObjByDefRepositories() {
+		return sharedObjByDefRepositories;
 	}
 
 	// ------------------------------------------------------------------------

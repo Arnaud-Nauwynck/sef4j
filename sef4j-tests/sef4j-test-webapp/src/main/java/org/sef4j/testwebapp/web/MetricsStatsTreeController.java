@@ -2,11 +2,12 @@ package org.sef4j.testwebapp.web;
 
 import java.util.List;
 
+import org.sef4j.core.api.session.SubscriptionCommandDTO;
+import org.sef4j.core.api.session.SubscriptionResponseDTO;
 import org.sef4j.core.helpers.proptree.dto.PropTreeNodeDTO;
-import org.sef4j.testwebapp.dto.SubscriptionCommandDTO;
+import org.sef4j.springmsg.websocket.ClientSessionTransportWebSocketHandler;
 import org.sef4j.testwebapp.service.MetricsStatsPublisher;
 import org.sef4j.testwebapp.service.MetricsStatsTreeRegistry;
-import org.sef4j.testwebapp.service.PerfStatsSubscriptionSessionManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +32,7 @@ public class MetricsStatsTreeController {
 	protected MetricsStatsPublisher metricsStatsPublisher;
 	
 	@Autowired 
-	protected PerfStatsSubscriptionSessionManager perfStatsSubscriptionSessionManager;
+	protected ClientSessionTransportWebSocketHandler clientSessionWSHandler;
 	
     // ------------------------------------------------------------------------
     
@@ -73,8 +74,8 @@ public class MetricsStatsTreeController {
     
     @MessageMapping(value="/pendingCount/subscription")
     @SendToUser(broadcast=false)
-    public List<String> asyncSubscriptionCommandsRequest(WebSocketSession webSocketSession, List<SubscriptionCommandDTO> subscriptionCommands) {
-    	List<String> res = perfStatsSubscriptionSessionManager.handleSubscriptionCommandsRequest(webSocketSession, subscriptionCommands);
+    public List<SubscriptionResponseDTO> handleSubscriptionCommands(WebSocketSession webSocketSession, List<SubscriptionCommandDTO> subscriptionCommands) {
+    	List<SubscriptionResponseDTO> res = clientSessionWSHandler.handleSubscriptionCommands(webSocketSession, subscriptionCommands);
     	return res;
     }
     

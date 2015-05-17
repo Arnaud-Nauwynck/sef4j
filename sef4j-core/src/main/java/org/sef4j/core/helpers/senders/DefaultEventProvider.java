@@ -92,4 +92,8 @@ public class DefaultEventProvider<T> implements EventSender<T>, EventProvider<T>
 		}
 	}
 
+	public int getEventListenerCount() {
+		return targets.length;
+	}
+
 }

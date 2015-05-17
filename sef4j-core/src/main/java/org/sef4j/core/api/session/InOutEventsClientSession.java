@@ -5,14 +5,19 @@ import java.util.Collection;
 import org.sef4j.core.api.EventProvider;
 import org.sef4j.core.api.EventSender;
 import org.sef4j.core.helpers.senders.DefaultEventProvider;
+import org.sef4j.core.helpers.senders.MutableInMemoryOrDelegateEventSender;
 
 /**
- * Client Session support class for input-output events 
+ * class for Client Session supporting input-output events
  * between hosted Application listener/sender <--- to/from---> SessionTransport listener/sender
  */
 public class InOutEventsClientSession {
 
-	public String sessionDisplayName;
+	private InOutEventsClientSessionManager ownerSessionManager;
+
+	private final String id;
+	
+	private String sessionDisplayName;
 	
 	/**
 	 * event redirector from hosted application provider to client session transport(s)
@@ -38,7 +43,10 @@ public class InOutEventsClientSession {
 	 * 
 	 * Notice that appSender(s) should generally be wrapped with a MultiplexerEventSender
 	 */
-	protected DefaultEventProvider<Object> appToSessionTransportsEventSender = new DefaultEventProvider<Object>();
+	protected MutableInMemoryOrDelegateEventSender<Object> appToSessionTransportsEventSender = new MutableInMemoryOrDelegateEventSender<Object>(null, 100);
+
+	// TODO ... may redispatch to only 1 TransportSession (by priority / round robin,  ...)
+	protected DefaultEventProvider<Object> sessionTransportsRedispatcher = new DefaultEventProvider<Object>();
 
 	/**
 	 * event redirector from client session transport(s) to hosted application event listener
@@ -79,32 +87,45 @@ public class InOutEventsClientSession {
 	 *      Subscriptions           Publications
 	 * </PRE>
 	 */
-	private SessionTransportService innerSessionTransportService = new SessionTransportService();
-	private AppService innerAppService = new AppService();
+	private SessionTransportService sessionTransportService = new SessionTransportService();
+	private AppService appService = new AppService();
 
 	private ClientSessionInputEventChainSubscriptions inputEventChainSubscriptions = 
 			new ClientSessionInputEventChainSubscriptions(this);
 	
 	// ------------------------------------------------------------------------
 
-	public InOutEventsClientSession(String sessionDisplayName) {
+	public InOutEventsClientSession(InOutEventsClientSessionManager ownerSessionManager, String id,
+			String sessionDisplayName) {
+		this.id = id;
 		this.sessionDisplayName = sessionDisplayName;
 	}
 
 	// ------------------------------------------------------------------------
 
-	public SessionTransportService getSessionTransportService() {
-		return innerSessionTransportService ;
+	public InOutEventsClientSessionManager getOwnerSessionManager() {
+		return ownerSessionManager;
 	}
 	
+	public String getId() {
+		return id;
+	}
+	
+	public SessionTransportService getSessionTransportService() {
+		return sessionTransportService ;
+	}
+	
+	public String getSessionDisplayName() {
+		return sessionDisplayName;
+	}
+
 	public AppService getAppService() {
-		return innerAppService;
+		return appService;
 	}
 
 	public ClientSessionInputEventChainSubscriptions getInputEventChainSubscriptions() {
 		return inputEventChainSubscriptions;
 	}
-
 	
 	// ------------------------------------------------------------------------
 	
@@ -122,20 +143,30 @@ public class InOutEventsClientSession {
 	 */
 	public class SessionTransportService {
 		
-		public EventProvider<Object> getSessionTransportsEventProvider() {
-			return appToSessionTransportsEventSender;
-		}
+//		public EventProvider<Object> getSessionTransportsEventProvider() {
+//			return appToSessionTransportsEventSender;
+//		}
 	
 		/** helper for <code>getSessionTransportsEventProvider().addEventListener()</code> */
 		public void addSessionTransportsEventListener(EventSender<Object> listener) {
-			appToSessionTransportsEventSender.addEventListener(listener);
+			sessionTransportsRedispatcher.addEventListener(listener);
+			if (sessionTransportsRedispatcher.getEventListenerCount() > 0 
+					&&  appToSessionTransportsEventSender.getDelegate() == null
+					) {
+				appToSessionTransportsEventSender.setDelegate(sessionTransportsRedispatcher);
+			}
 		}
 		/** helper for <code>getSessionTransportsEventProvider().removeEventListener()</code> */
 		public void removeSessionTransportsEventListener(EventSender<Object> listener) {
-			appToSessionTransportsEventSender.removeEventListener(listener);
+			sessionTransportsRedispatcher.removeEventListener(listener);
+			if (sessionTransportsRedispatcher.getEventListenerCount() == 0 
+					&&  appToSessionTransportsEventSender.getDelegate() != null
+					) {
+				appToSessionTransportsEventSender.setDelegate(null);
+			}
 		}
 
-		public EventSender<Object> getSessionTransportsEventSender() {
+		public EventSender<Object> getSessionTransportsEventReceiver() {
 			return sessionTransportsToAppListenersEventSender;
 		}
 
@@ -163,6 +194,7 @@ public class InOutEventsClientSession {
 	 * </PRE>
 	 */
 	public class AppService {
+
 		public EventProvider<Object> getAppEventProvider() {
 			return sessionTransportsToAppListenersEventSender;
 		}

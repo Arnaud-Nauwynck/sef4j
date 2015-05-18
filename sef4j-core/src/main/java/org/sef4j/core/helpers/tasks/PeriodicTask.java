@@ -104,6 +104,10 @@ public class PeriodicTask implements Closeable, IStartableSupport {
 		}
 	}
 
+	public void poll() {
+		delegateRunnableTask.run();
+	}
+	
 	public void setPeriod(int period, TimeUnit periodTimeUnit) {
 		synchronized(lock) {
 			boolean running = isStarted();

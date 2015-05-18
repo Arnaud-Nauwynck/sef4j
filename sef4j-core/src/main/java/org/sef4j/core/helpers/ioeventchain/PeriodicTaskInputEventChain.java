@@ -110,6 +110,11 @@ public class PeriodicTaskInputEventChain<T> extends InputEventChain<T> {
 	public static class Factory<T> 
 		extends InputEventChainFactory<PeriodicTaskInputEventChainDef,PeriodicTaskInputEventChain<T>> {
 		
+		@SuppressWarnings("rawtypes")
+		private static final Factory<?> INSTANCE = new Factory();
+		@SuppressWarnings("unchecked")
+		public static <T> Factory<T> instance() { return (Factory<T>) INSTANCE; }
+
 		public Factory() {
 			super("PeriodicTaskInputEventChain", PeriodicTaskInputEventChainDef.class);
 		}

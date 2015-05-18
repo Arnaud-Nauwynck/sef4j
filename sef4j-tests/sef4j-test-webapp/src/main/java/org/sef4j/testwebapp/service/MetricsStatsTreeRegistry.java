@@ -25,6 +25,10 @@ public class MetricsStatsTreeRegistry {
 
     private static final PropTreeNode rootWSStatsNode = PropTreeNode.newRoot();
 
+    public static PropTreeNode getRootWSStatsNode() {
+    	return rootWSStatsNode;
+    }
+
     private PropTreeNodeDTOMapper defaultPropTreeNodeDTOMapper = 
     		PerfStatsDTOMapperUtils.createDTOMapper();
     

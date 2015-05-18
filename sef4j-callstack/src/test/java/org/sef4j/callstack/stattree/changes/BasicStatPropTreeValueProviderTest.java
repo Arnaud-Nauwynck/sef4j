@@ -5,11 +5,11 @@ import java.util.Map;
 import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.callstack.stattree.changes.BasicStatIgnorePendingChangeCollector;
+import org.sef4j.callstack.stattree.changes.BasicStatPropTreeValueProvider;
 import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 
-public class BasicStatIgnorePendingChangeCollectorTest {
+public class BasicStatPropTreeValueProviderTest {
 
 	private PropTreeNode rootNode = PropTreeNode.newRoot();
 	private PropTreeNode fooNode = rootNode.getOrCreateChild("foo");
@@ -20,7 +20,7 @@ public class BasicStatIgnorePendingChangeCollectorTest {
 	private PerfStats fooBarStats = fooBarNode.getOrCreateProp("stats", PerfStats.FACTORY);
 	// private PerfStats fooBarBazStats = fooBarBazNode.getStats();
 
-	private BasicStatIgnorePendingChangeCollector sut = new BasicStatIgnorePendingChangeCollector(rootNode);
+	private BasicStatPropTreeValueProvider sut = new BasicStatPropTreeValueProvider(rootNode);
 	
 	@Test
 	public void testMarkAndCollectChanges_fooAdd1_chg_fooAdd2_chg_fooRemove1_chg_fooRemove2() {

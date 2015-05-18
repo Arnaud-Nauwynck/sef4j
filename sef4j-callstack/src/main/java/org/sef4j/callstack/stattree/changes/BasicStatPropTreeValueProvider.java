@@ -3,10 +3,12 @@ package org.sef4j.callstack.stattree.changes;
 import java.util.function.Function;
 
 import org.sef4j.callstack.stats.PerfStats;
+import org.sef4j.callstack.stats.dto.BasicStatPropTreeValueProviderDef;
 import org.sef4j.core.helpers.export.ExportFragment;
 import org.sef4j.core.helpers.export.ExportFragmentsAdder;
-import org.sef4j.core.helpers.proptree.changes.AbstractPropTreeValueChangeCollector;
+import org.sef4j.core.helpers.proptree.changes.AbstractPropTreeValueProvider;
 import org.sef4j.core.helpers.proptree.model.PropTreeNode;
+import org.sef4j.core.util.factorydef.DependencyObjectCreationContext;
 
 /**
  * collector of changed PerfStats since previous copy, ignoring Pending counts
@@ -14,7 +16,7 @@ import org.sef4j.core.helpers.proptree.model.PropTreeNode;
  * this is a "basic" implementation: no optimization to avoid recursing in untouched sub-tree
  * A better implementation should count occurrences+pending to check when a sub-tree is unmodified.
  */
-public class BasicStatIgnorePendingChangeCollector extends AbstractPropTreeValueChangeCollector<PerfStats> {
+public class BasicStatPropTreeValueProvider extends AbstractPropTreeValueProvider<PerfStats> {
 
 	public static final Function<PropTreeNode, PerfStats> DEFAULT_PERFSTAT_SRC_COPY_EXTRACTOR = 
 			new Function<PropTreeNode, PerfStats>() {
@@ -33,11 +35,11 @@ public class BasicStatIgnorePendingChangeCollector extends AbstractPropTreeValue
 
 	// ------------------------------------------------------------------------
 
-	public BasicStatIgnorePendingChangeCollector(PropTreeNode srcRoot) {
+	public BasicStatPropTreeValueProvider(PropTreeNode srcRoot) {
 		super(srcRoot, PropTreeNode.newRoot(), DEFAULT_PERFSTAT_SRC_COPY_EXTRACTOR, DEFAULT_PERFSTAT_PREV_EXTRACTOR);
 	}
 
-	public BasicStatIgnorePendingChangeCollector(
+	public BasicStatPropTreeValueProvider(
 			PropTreeNode srcRoot,
 			PropTreeNode prevRoot,
 			Function<PropTreeNode, PerfStats> srcValueCopyExtractor,
@@ -73,6 +75,25 @@ public class BasicStatIgnorePendingChangeCollector extends AbstractPropTreeValue
 			return true;
 		}
 		return false;
+	}
+	
+	// ------------------------------------------------------------------------
+	
+	public static class Factory 
+		extends ExportFragmentsProviderFactory<BasicStatPropTreeValueProviderDef,BasicStatPropTreeValueProvider> {
+		
+		public Factory() {
+			super("BasicStatPropTreeValueProvider", BasicStatPropTreeValueProviderDef.class);
+		}
+	
+		@Override
+		public BasicStatPropTreeValueProvider create(
+				BasicStatPropTreeValueProviderDef def, 
+				DependencyObjectCreationContext ctx) {
+			PropTreeNode rootNode = ctx.getOrCreateDependencyByDef("rootNode", def.getRootNodeDef());
+			return new BasicStatPropTreeValueProvider(rootNode);
+		}
+		
 	}
 
 }

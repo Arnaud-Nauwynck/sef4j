@@ -9,6 +9,7 @@ import org.sef4j.core.helpers.export.ExportFragmentsProviderDef;
 import org.sef4j.core.helpers.tasks.PollingEventProvider.AbstractPollingEventProvider;
 import org.sef4j.core.util.factorydef.AbstractSharedObjByDefFactory;
 import org.sef4j.core.util.factorydef.DependencyObjectCreationContext;
+import org.sef4j.core.util.factorydef.ObjectByDefRepositories;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -139,6 +140,17 @@ public class ExportFragmentsPollingEventProvider<T> extends AbstractPollingEvent
     
     public static class ExportFragmentsPollingEventProviderFactory<T> 
     	extends AbstractSharedObjByDefFactory<ExportFragmentsPollingEventProviderDef, ExportFragmentsPollingEventProvider<T>> {
+
+    	@SuppressWarnings("rawtypes")
+		public static ExportFragmentsPollingEventProviderFactory<?> instance() {
+    		return new ExportFragmentsPollingEventProviderFactory();
+    	}
+
+		@SuppressWarnings({ "unchecked", "rawtypes" })
+		public static void registerInstance(ObjectByDefRepositories to) {
+    		to.registerFactoryFor(ExportFragmentsPollingEventProviderDef.class,
+    				new ExportFragmentsPollingEventProviderFactory());
+    	}
 
 		public ExportFragmentsPollingEventProviderFactory() {
 			super("ExportFragmentsPollingEventProvider", ExportFragmentsPollingEventProviderDef.class);

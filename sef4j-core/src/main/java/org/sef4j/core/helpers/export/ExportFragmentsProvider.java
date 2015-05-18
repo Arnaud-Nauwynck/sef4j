@@ -22,12 +22,11 @@ public interface ExportFragmentsProvider<T> {
 		
 	// ------------------------------------------------------------------------
 	
-	public static abstract class ExportFragmentsProviderFactory<T> 
-		extends AbstractSharedObjByDefFactory<ExportFragmentsProviderDef, ExportFragmentsProvider<T>> {
+	public static abstract class ExportFragmentsProviderFactory<TDef extends ExportFragmentsProviderDef,T extends ExportFragmentsProvider<?>> 
+		extends AbstractSharedObjByDefFactory<TDef, T> {
 
-		@SuppressWarnings("unchecked")
-		public ExportFragmentsProviderFactory(String displayName, Class<? extends ExportFragmentsProviderDef> clss) {
-			super(displayName, (Class<ExportFragmentsProviderDef>) clss);
+		public ExportFragmentsProviderFactory(String displayName, Class<TDef> clss) {
+			super(displayName, clss);
 		}
 		
 	}

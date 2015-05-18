@@ -16,7 +16,7 @@ import org.sef4j.core.helpers.proptree.model.PropTreeNode;
  * </PRE>
  * 
  */
-public abstract class AbstractPropTreeValueChangeCollector<TValue> 
+public abstract class AbstractPropTreeValueProvider<TValue> 
 		implements ExportFragmentsProvider<TValue> {
 	
 	protected PropTreeNode srcRoot;
@@ -28,7 +28,7 @@ public abstract class AbstractPropTreeValueChangeCollector<TValue>
 
 	// ------------------------------------------------------------------------
 	
-	public AbstractPropTreeValueChangeCollector(
+	public AbstractPropTreeValueProvider(
 			PropTreeNode srcRoot,
 			PropTreeNode prevRoot,
 			Function<PropTreeNode, TValue> srcValueCopyExtractor,

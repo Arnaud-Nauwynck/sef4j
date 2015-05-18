@@ -24,8 +24,8 @@ public class ChangeEventSenderTaskTest {
 	private PerfStats fooStats = fooNode.getOrCreateProp("stats", PerfStats.FACTORY);
 	private PerfStats fooBarStats = fooBarNode.getOrCreateProp("stats", PerfStats.FACTORY);
 
-	private BasicStatIgnorePendingChangeCollector perfStatsChangeCollector = 
-			new BasicStatIgnorePendingChangeCollector(rootNode);
+	private BasicStatPropTreeValueProvider perfStatsChangeCollector = 
+			new BasicStatPropTreeValueProvider(rootNode);
 	private InMemoryEventSender<ExportFragmentList<PerfStats>> inMemoryEventSender = new InMemoryEventSender<ExportFragmentList<PerfStats>>();
 
 	private ExportFragmentsPollingEventProvider<PerfStats> sut = 

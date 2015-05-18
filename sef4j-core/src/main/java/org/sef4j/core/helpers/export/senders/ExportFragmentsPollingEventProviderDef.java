@@ -4,11 +4,12 @@ import java.io.Serializable;
 import java.util.Collection;
 
 import org.sef4j.core.helpers.export.ExportFragmentsProviderDef;
+import org.sef4j.core.helpers.tasks.TaskDef;
 
 import com.google.common.collect.ImmutableList;
 
 
-public class ExportFragmentsPollingEventProviderDef implements Serializable {
+public class ExportFragmentsPollingEventProviderDef extends TaskDef implements Serializable {
 	
 	/** */
 	private static final long serialVersionUID = 1L;

@@ -6,11 +6,11 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
-import org.sef4j.callstack.stattree.changes.PendingCountChangeCollector;
+import org.sef4j.callstack.stattree.changes.PendingCountPropTreeValueProvider;
 import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 
-public class PendingCountChangeCollectorTest {
+public class PendingCountPropTreeValueProviderTest {
 
 	private PropTreeNode rootNode = PropTreeNode.newRoot();
 	private PropTreeNode fooNode = rootNode.getOrCreateChild("foo");
@@ -21,7 +21,7 @@ public class PendingCountChangeCollectorTest {
 	private PendingPerfCount fooBarPendings = fooBarNode.getOrCreateProp("stats", PerfStats.FACTORY).getPendingCounts();
 	// private PendingPerfCount fooBarBazPendings = fooBarBazNode.getStats().getPendingCounts();
 
-	private PendingCountChangeCollector sut = new PendingCountChangeCollector(rootNode);
+	private PendingCountPropTreeValueProvider sut = new PendingCountPropTreeValueProvider(rootNode);
 	
 	@Test
 	public void testMarkAndCollectChanges_fooAdd1_chg_fooAdd2_chg_fooRemove1_chg_fooRemove2() {
@@ -231,10 +231,10 @@ public class PendingCountChangeCollectorTest {
 	@Test
 	public void testMarkAndCollectChanges_withSelfPropExtractor() {
 		// replace default copy storage... sut = new PendingCountChangeCollector(rootNode);
-		sut = new PendingCountChangeCollector(rootNode,
+		sut = new PendingCountPropTreeValueProvider(rootNode,
 				rootNode, // <= store on self node!  CallTreeNode.newRoot(),
-				PendingCountChangeCollector.DEFAULT_PENDING_SRC_COPY_EXTRACTOR,
-				PendingCountChangeCollector.createGetOrCreatePropPendingExtractor("propPending")
+				PendingCountPropTreeValueProvider.DEFAULT_PENDING_SRC_COPY_EXTRACTOR,
+				PendingCountPropTreeValueProvider.createGetOrCreatePropPendingExtractor("propPending")
 				);
 		
 		// Prepare

@@ -9,7 +9,7 @@ import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 /**
  * collector of changed DummyCount since previous copy
  */
-public class DummyCountChangeCollector extends AbstractPropTreeValueChangeCollector<DummyCount> {
+public class DummyCountPropTreeValueProvider extends AbstractPropTreeValueProvider<DummyCount> {
 
 	public static final Function<PropTreeNode, DummyCount> DEFAULT_DUMMYCOUNT_SRC_COPY_EXTRACTOR = 
 			new Function<PropTreeNode, DummyCount>() {
@@ -28,11 +28,11 @@ public class DummyCountChangeCollector extends AbstractPropTreeValueChangeCollec
 
 	// ------------------------------------------------------------------------
 
-	public DummyCountChangeCollector(PropTreeNode srcRoot) {
+	public DummyCountPropTreeValueProvider(PropTreeNode srcRoot) {
 		super(srcRoot, srcRoot, DEFAULT_DUMMYCOUNT_SRC_COPY_EXTRACTOR, DEFAULT_DUMMYCOUNT_PREV_EXTRACTOR);
 	}
 
-	public DummyCountChangeCollector(
+	public DummyCountPropTreeValueProvider(
 			PropTreeNode srcRoot,
 			PropTreeNode prevRoot,
 			Function<PropTreeNode, DummyCount> srcValueCopyExtractor,

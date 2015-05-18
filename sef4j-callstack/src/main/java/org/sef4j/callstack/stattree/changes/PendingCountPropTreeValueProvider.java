@@ -5,9 +5,12 @@ import java.util.function.Function;
 
 import org.sef4j.callstack.stats.PendingPerfCount;
 import org.sef4j.callstack.stats.PerfStats;
+import org.sef4j.callstack.stats.dto.PendingCountPropTreeValueProviderDef;
 import org.sef4j.core.helpers.export.ExportFragmentsAdder;
-import org.sef4j.core.helpers.proptree.changes.AbstractPropTreeValueChangeCollector;
+import org.sef4j.core.helpers.proptree.changes.AbstractPropTreeValueProvider;
 import org.sef4j.core.helpers.proptree.model.PropTreeNode;
+import org.sef4j.core.util.factorydef.AbstractSharedObjByDefFactory;
+import org.sef4j.core.util.factorydef.DependencyObjectCreationContext;
 
 /**
  * Collector of changed PendingPerfCount since previous copy
@@ -37,7 +40,7 @@ import org.sef4j.core.helpers.proptree.model.PropTreeNode;
  * }
  * </PRE>
  */
-public final class PendingCountChangeCollector extends AbstractPropTreeValueChangeCollector<PendingPerfCount> {
+public final class PendingCountPropTreeValueProvider extends AbstractPropTreeValueProvider<PendingPerfCount> {
 	
 	public static final Function<PropTreeNode, PendingPerfCount> DEFAULT_PENDING_SRC_COPY_EXTRACTOR = 
 			new Function<PropTreeNode, PendingPerfCount>() {
@@ -65,11 +68,11 @@ public final class PendingCountChangeCollector extends AbstractPropTreeValueChan
 
 	// ------------------------------------------------------------------------
 
-	public PendingCountChangeCollector(PropTreeNode srcRoot) {
+	public PendingCountPropTreeValueProvider(PropTreeNode srcRoot) {
 		super(srcRoot, PropTreeNode.newRoot(), DEFAULT_PENDING_SRC_COPY_EXTRACTOR, DEFAULT_PENDING_PREV_EXTRACTOR);
 	}
 
-	public PendingCountChangeCollector(
+	public PendingCountPropTreeValueProvider(
 			PropTreeNode srcRoot,
 			PropTreeNode prevRoot,
 			Function<PropTreeNode, PendingPerfCount> srcCopyExtractor,
@@ -232,6 +235,25 @@ public final class PendingCountChangeCollector extends AbstractPropTreeValueChan
 			}
 		}
 
+	}
+
+	// ------------------------------------------------------------------------
+	
+	public static class Factory 
+		extends ExportFragmentsProviderFactory<PendingCountPropTreeValueProviderDef,PendingCountPropTreeValueProvider> {
+		
+		public Factory() {
+			super("PendingCountPropTreeValueProvider", PendingCountPropTreeValueProviderDef.class);
+		}
+	
+		@Override
+		public PendingCountPropTreeValueProvider create(
+				PendingCountPropTreeValueProviderDef def, 
+				DependencyObjectCreationContext ctx) {
+			PropTreeNode rootNode = ctx.getOrCreateDependencyByDef("rootNode", def.getRootNodeDef());
+			return new PendingCountPropTreeValueProvider(rootNode);
+		}
+		
 	}
 
 }

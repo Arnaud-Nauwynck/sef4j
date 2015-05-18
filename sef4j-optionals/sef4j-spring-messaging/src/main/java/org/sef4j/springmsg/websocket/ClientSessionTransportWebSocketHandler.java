@@ -3,6 +3,7 @@ package org.sef4j.springmsg.websocket;
 import java.util.List;
 
 import org.sef4j.core.api.EventSender;
+import org.sef4j.core.api.session.ClientSessionInputEventChainSubscriptions;
 import org.sef4j.core.api.session.InOutEventsClientSession;
 import org.sef4j.core.api.session.InOutEventsClientSessionManager;
 import org.sef4j.core.api.session.SubscriptionCommandDTO;
@@ -117,7 +118,8 @@ public class ClientSessionTransportWebSocketHandler extends AbstractWebSocketHan
 			LOG.warn("webSocket entry '" + wsId + "' not found ... ignore message!");
 			throw new IllegalStateException("webSocket entry not found for wsId: '" + wsId + "'");
 		}
-		List<SubscriptionResponseDTO> res = entry.clientSession.getInputEventChainSubscriptions().handleSubscriptionCommands(commands);
+		ClientSessionInputEventChainSubscriptions inputEventChainSubscriptions = entry.clientSession.getInputEventChainSubscriptions();
+		List<SubscriptionResponseDTO> res = inputEventChainSubscriptions.handleSubscriptionCommands(commands);
 		return res;
     }
     

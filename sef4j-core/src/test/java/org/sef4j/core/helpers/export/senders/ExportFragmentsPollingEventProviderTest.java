@@ -10,7 +10,7 @@ import org.junit.Test;
 import org.sef4j.core.helpers.export.ExportFragment;
 import org.sef4j.core.helpers.export.ExportFragmentList;
 import org.sef4j.core.helpers.proptree.DummyCount;
-import org.sef4j.core.helpers.proptree.changes.DummyCountChangeCollector;
+import org.sef4j.core.helpers.proptree.changes.DummyCountPropTreeValueProvider;
 import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 import org.sef4j.core.helpers.senders.InMemoryEventSender;
 
@@ -24,7 +24,7 @@ public class ExportFragmentsPollingEventProviderTest {
 	private DummyCount fooCount = fooNode.getOrCreateProp("dummyCount", DummyCount.FACTORY);
 	private DummyCount fooBarCount = fooBarNode.getOrCreateProp("dummyCount", DummyCount.FACTORY);
 
-	private DummyCountChangeCollector dummyCountChangeCollector = new DummyCountChangeCollector(rootNode);
+	private DummyCountPropTreeValueProvider dummyCountChangeCollector = new DummyCountPropTreeValueProvider(rootNode);
 	private InMemoryEventSender<ExportFragmentList<DummyCount>> inMemoryEventSender = new InMemoryEventSender<ExportFragmentList<DummyCount>>();
 	
 	private ExportFragmentsPollingEventProvider<DummyCount> sut = 

@@ -1,5 +1,5 @@
 'use strict';
-testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $http, ngTableParams, StatsAsyncService) {
+testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $http, $interval, ngTableParams, StatsAsyncService) {
 	var vm = this;
 
 	vm.message = "";
@@ -11,9 +11,10 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 	vm.pendingCountData = {
 		// treeData: null,
 		tableData: [],
-		serverClockNanos: 0,
 		serverTimeMillis: 0,
-		clientTimeMillis: 0
+		clientTimeMillis: 0,
+		
+		lastUpdateTime: 0
 	};
 
 	vm.showRealTimeColumn = false;
@@ -78,16 +79,6 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 	
 
 	
-	vm.updateTime = function() {
-		var timeNow = new Date().getTime();
-		var elapsedMillisUntilNow = timeNow - vm.pendingCountData.clientTimeMillis;
-		vm.pendingCountData.tableData.forEach(function(e) {
-			e.pendingAverageMillisUntilNow = e.pendingCount * (e.pendingAverageMillisOnLoad + elapsedMillisUntilNow);
-		});
-	}
-
-	
-	
 	
 	var recursivePendingCountTreeToTableData = function(res, tree, 
 			rootClassName, rootMethodName,
@@ -147,14 +138,10 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		var serverClockNanos = src.propsMap["clockNanos"];
 		var serverTimeMillis = src.propsMap["timeNowMillis"];
 
-		res.serverClockNanos = serverClockNanos;
+		// res.serverClockNanos = serverClockNanos;
 		res.serverTimeMillis = serverTimeMillis;
 		res.clientTimeMillis = timeNow;
-
-		// var diffServerTime = timeNow - serverTimeNowMillis;
-//		console.info("server clockNanos: " + clockNanos);
-//		console.info("serverTimeMillis:" + serverTimeMillis + ", timeNow:" + timeNow + ", diffServerTime:" + diffServerTime);
-		
+		res.lastUpdateTime = timeNow; 
 		
 		recursivePendingCountTreeToTableData(res, src, 
 				'', '', 
@@ -165,15 +152,27 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		
 		res.forEach(function(e) {
 			if (e.pendingCount != 0) {
-				var avgNanosOnLoad = (e.pendingCount * serverClockNanos - e.pendingSumStartTime ) / e.pendingCount;
-				e.pendingAverageMillisOnLoad = avgNanosOnLoad / 1000000;
-				e.pendingAverageStartTimeMillis = timeNow - e.pendingAverageMillisOnLoad;
+				var avgOnLoad = (e.pendingCount * serverClockNanos - e.pendingSumStartTime ) / e.pendingCount;
+				e.pendingAverageMillisOnLoad = avgOnLoad / 1000000;
+				e.pendingAverageStartTimeMillis = timeNow - e.pendingAverageMillisOnLoad; //??
+				e.pendingAverageMillisUntilNow = e.pendingAverageMillisOnLoad; 
 			}
 		});
+		
     	vm.updateTime();
 	}
 
 
+	vm.updateTime = function() {
+		var timeNow = new Date().getTime();
+		var incrMillis = (timeNow - vm.pendingCountData.lastUpdateTime); // / 1000; 
+		vm.pendingCountData.tableData.forEach(function(e) {
+			e.pendingAverageMillisUntilNow += e.pendingCount * incrMillis;
+		});
+		vm.pendingCountData.lastUpdateTime = timeNow;
+	}
+	
+	
 
 	vm.showTreePath = function(e) {
 		var treePath = e.treePath;
@@ -245,13 +244,14 @@ testwebapp.controller('PendingCountTreeController', function ($scope, $filter, $
 		};
 		vm.stopTime = $interval(updateTimeCallback, 1000);
 
-		//TODO
-//        vm.on('$destroy', function() {
-//        	if (vm.stopTime != null) {
-//        		$interval.cancel(vm.stopTime);
-//        	}
-//        });
 	};
+
+	$scope.$on('$destroy', function() {
+    	if (vm.stopTime != null) {
+    		$interval.cancel(vm.stopTime);
+    		vm.stopTime = null;
+    	}
+    });
 
 	vm.stopUpdateTimer = function() {
 		var toStop = vm.stopTime;

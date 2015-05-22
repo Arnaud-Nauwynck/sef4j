@@ -14,11 +14,11 @@ public class PendingPerfCountDTO implements ICopySupport<PendingPerfCountDTO> {
 	
 	/**
 	 * cf PendingPerfCount:
-	 * sum of startTime in nanos for all currently pending threads.
+	 * sum of startTime for all currently pending threads.
 	 * notice that will probably overflow long (2^64 bits), so the value is "correct modulo 2^64"
 	 * 
 	 * to compute average until given timeNow, use <code>(pendingCount * timeNow - pendingSumStartTime) / pendingCount</code>
-	 * see getPendingAverageTimeNanosUntilTime(timeNow)
+	 * see getPendingAverageTimeUntilTime(timeNow)
 	 */
 	private long pendingSumStartTime;
 	

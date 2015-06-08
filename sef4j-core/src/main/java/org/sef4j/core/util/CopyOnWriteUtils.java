@@ -77,6 +77,13 @@ public class CopyOnWriteUtils {
         return result;
     }
 
+    public static <T> T[] newWithMerge(Class<T> clss, T[] left, T[] right) {
+    	int len = left.length + right.length;
+    	T[] res = newArray(clss, len);
+    	System.arraycopy(left, 0, res, 0, left.length);
+    	System.arraycopy(right, 0, res, left.length, right.length);
+    	return res;
+    }
     
     public static <T> int indexOf(T[] array, T objectToFind) {
         if (array == null) {

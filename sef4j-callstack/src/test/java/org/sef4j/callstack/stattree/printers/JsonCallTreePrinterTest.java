@@ -10,7 +10,6 @@ import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.sef4j.callstack.stattree.CallTreeNodeTstBuilder;
-import org.sef4j.callstack.stattree.printers.JsonCallTreePrinter;
 import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 
 public class JsonCallTreePrinterTest {
@@ -39,7 +38,9 @@ public class JsonCallTreePrinterTest {
         String res = buffer.toString();
         System.out.println(res);
         
-        InputStream expectedStream = getClass().getResourceAsStream("JsonCallTreePrintTest-testRecursivePrintNodes.txt");
+        String resourceName = "JsonCallTreePrintTest-testRecursivePrintNodes.txt";
+        // FileUtils.write(new File("src/test/resources/org/sef4j/callstack/stattree/printers/" + resourceName), res);
+		InputStream expectedStream = getClass().getResourceAsStream(resourceName);
         String expectedRes = IOUtils.toString(expectedStream);
         Assert.assertEquals(expectedRes, res);
     }

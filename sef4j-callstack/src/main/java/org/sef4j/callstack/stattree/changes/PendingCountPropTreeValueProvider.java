@@ -46,7 +46,9 @@ public final class PendingCountPropTreeValueProvider extends AbstractPropTreeVal
 			new Function<PropTreeNode, PendingPerfCount>() {
 		@Override
 		public PendingPerfCount apply(PropTreeNode t) {
-			return t.getOrCreateProp("stats", PerfStats.FACTORY).getPendingCounts().clone();
+			PerfStats tmpRes = // t.getOrCreateProp("stats", PerfStats.FACTORY);
+					t.getPropOrNull("stats", PerfStats.class);
+			return (tmpRes != null)? tmpRes.getPendingCounts().clone() : null;
 		}
 	};
 	public static final Function<PropTreeNode, PendingPerfCount> DEFAULT_PENDING_PREV_EXTRACTOR = 

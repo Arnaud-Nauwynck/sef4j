@@ -46,7 +46,7 @@ public class CallTreeStatsUpdaterCallStackHandlerTest {
 		PropTreeNode bazNode = barNode.getChildMap().get(cName + ":baz");		
 		Assert.assertNotNull(bazNode);
 		
-		PerfStats bazStats = bazNode.getOrCreateProp("stats", PerfStats.FACTORY);
+		PerfStats bazStats = bazNode.getPropOrNull("stats", PerfStats.class);
 		Assert.assertEquals(foo.repeatBazCount, bazStats.getElapsedTimeStats().cumulatedCount());
 	}
 	

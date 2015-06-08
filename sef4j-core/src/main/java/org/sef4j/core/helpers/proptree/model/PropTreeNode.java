@@ -1,14 +1,13 @@
 package org.sef4j.core.helpers.proptree.model;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.Map;
 import java.util.concurrent.Callable;
 
+import org.sef4j.core.util.CopyOnWriteUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.google.common.collect.ImmutableCollection;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * PropTreeNode are nodes of a Tree, containing property name-values
@@ -100,20 +99,21 @@ public class PropTreeNode {
 	private final int nodeId = nodeIdGenerator++;
 	
 	
-	private static final LinkedHashMap<String,PropTreeNode> EMPTY_CHILD_MAP = new LinkedHashMap<String, PropTreeNode>();
-	private static final HashMap<String,Object> EMPTY_PROP_MAP = new HashMap<String,Object>();
-
 	private final PropTreeNode parent;
 	private final String name;
 	
 	private static Object childLock = new Object();
 	
 	// copy-on-write => no lock for reading, lock on childLock for writing copy
-	private LinkedHashMap<String,PropTreeNode> childMap = EMPTY_CHILD_MAP;
-		
+	private ImmutableMap<String,PropTreeNode> childMap = ImmutableMap.of();
+
 	private static Object propsLock = new Object();
-	private HashMap<String,Object> propsMap = EMPTY_PROP_MAP;
+	private ImmutableMap<String,Object> propsMap = ImmutableMap.of();
 	
+//	private ImmutableMap<String,PropTreeValueListener<?>[]> inheritablePropListeners = ImmutableMap.of();
+//	private ImmutableMap<String,PropTreeValueListener<?>[]> inheritedPropListeners = ImmutableMap.of();
+//	
+//	private static final PropTreeValueListener<?>[] EMPTY_LISTENERS_ARRAY = new PropTreeValueListener[0];
 	
 	// ------------------------------------------------------------------------
 	
@@ -139,14 +139,61 @@ public class PropTreeNode {
 		return name;
 	}
 	
-	public LinkedHashMap<String, PropTreeNode> getChildMap() {
+	public ImmutableMap<String, PropTreeNode> getChildMap() {
 		return childMap;
 	}
 
-	public Collection<PropTreeNode> getChildList() {
+	public ImmutableCollection<PropTreeNode> getChildList() {
 	    return childMap.values();
 	}
 	
+	// ------------------------------------------------------------------------
+	
+//	public void putInheritablePropListener(String propName, PropTreeValueListener<?> listener) {
+//		synchronized(childLock) {
+//			PropTreeValueListener<?>[] listeners = inheritablePropListeners.get(propName);
+//			if (listeners == null) listeners = EMPTY_LISTENERS_ARRAY;
+//			PropTreeValueListener<?>[] newListeners = CopyOnWriteUtils.newWithAdd(PropTreeValueListener.class, listeners, listener);
+//			this.inheritablePropListeners = CopyOnWriteUtils.newWithPut(inheritablePropListeners, propName, newListeners);
+//		
+//			// recursive recompute inherited from parent+inheritable
+//			doRecursiveRecomputeInheritedPropListeners(propName);
+//		}
+//	}
+//
+//	public void removeInheritablePropListener(String propName, PropTreeValueListener<?> listener) {
+//		synchronized(childLock) {
+//			PropTreeValueListener<?>[] listeners = inheritablePropListeners.get(propName);
+//			if (listeners == null) listeners = EMPTY_LISTENERS_ARRAY;
+//			PropTreeValueListener<?>[] newListeners = CopyOnWriteUtils.newWithRemove(PropTreeValueListener.class, listeners, listener);
+//			this.inheritablePropListeners = CopyOnWriteUtils.newWithPut(inheritablePropListeners, propName, newListeners);
+//		
+//			// recursive recompute inherited from parent+inheritable
+//			doRecursiveRecomputeInheritedPropListeners(propName);
+//		}
+//	}
+//
+//	private void doRecursiveRecomputeInheritedPropListeners(String propName) {
+//		PropTreeValueListener<?>[] mergeListeners;
+//		PropTreeValueListener<?>[] parentPropListeners = getParent() != null? 
+//				getParent().inheritedPropListeners.get(propName) : null;
+//		if (! inheritablePropListeners.isEmpty()) {
+//			PropTreeValueListener<?>[] propListeners = inheritablePropListeners.get(propName);
+//			mergeListeners = CopyOnWriteUtils.newWithMerge(PropTreeValueListener.class,
+//						parentPropListeners!=null? parentPropListeners : EMPTY_LISTENERS_ARRAY,
+//						propListeners!=null? propListeners : EMPTY_LISTENERS_ARRAY);
+//		} else {
+//			mergeListeners = parentPropListeners;
+//		}
+//		this.inheritedPropListeners = CopyOnWriteUtils.newWithPut(inheritedPropListeners, propName, mergeListeners);
+//		// *** recurse ***
+//		for(PropTreeNode child : childMap.values()) {
+//			synchronized(child.childLock) {
+//				child.doRecursiveRecomputeInheritedPropListeners(propName);
+//			}
+//		}
+//	}
+
 	// ------------------------------------------------------------------------
 	
 	public int getDepth() {
@@ -210,10 +257,7 @@ public class PropTreeNode {
 				res = childMap.get(childName);
 				if (res != null) return res;
 				res = new PropTreeNode(this, childName);
-				LinkedHashMap<String, PropTreeNode> newChildMap = new LinkedHashMap<String, PropTreeNode>(childMap.size() + 1);
-				newChildMap.putAll(childMap);
-				newChildMap.put(childName, res);
-				this.childMap = newChildMap;
+				this.childMap = CopyOnWriteUtils.newWithPut(childMap, childName, res);
 				
 				if (DEBUG_NEW_NODE) {
 					LOG.info("created node: " + childName + " (" + res.nodeId + ") on parent (" + nodeId + ")");
@@ -253,7 +297,16 @@ public class PropTreeNode {
 		return res;
 	}
 
-	
+	public <T> void updateOrCreateProp(String propName, Callable<T> valueFactory, PropTreeValueCallback<T> callback) {
+		T propValue = getOrCreateProp(propName, valueFactory);
+		callback.doWith(this, propName, propValue);		
+	}
+
+	public <T> void updateProp(String propName, Class<T> clss, PropTreeValueCallback<T> callback) {
+		T propValue = getPropOrNull(propName, clss);
+		callback.doWith(this, propName, propValue);		
+	}
+
 	/**
 	 * @param propName
 	 * @return prop with name "propName", newly created if did not exist before
@@ -270,10 +323,7 @@ public class PropTreeNode {
 				} catch (Exception ex) {
 					throw new RuntimeException("Failed to create prop value", ex);
 				}
-				HashMap<String, Object> newPropsMap = new HashMap<String, Object>(propsMap.size() + 1);
-				newPropsMap.putAll(propsMap);
-				newPropsMap.put(propName, res);
-				this.propsMap = newPropsMap;
+				this.propsMap = CopyOnWriteUtils.newWithPut(propsMap, propName, res);
 
 				if (DEBUG_NEW_PROP) {
 					LOG.info("created Prop " + propName + " on node: " + name + " (" + nodeId + ")");
@@ -284,13 +334,18 @@ public class PropTreeNode {
 		return res;
 	}
 
-	/** @return unmodifiable Map, and immutable (owner use copy-on-write, so new Map is created) */
-	public Map<String,Object> getPropsMap() {
-	    return Collections.unmodifiableMap(propsMap);
+	/** @return immutable Map */
+	public ImmutableMap<String,Object> getPropsMap() {
+	    return propsMap;
 	}
 
 	public Object getPropOrNull(String propName) {
 	    return propsMap.get(propName);
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T getPropOrNull(String propName, Class<T> clss) {
+	    return (T) getPropOrNull(propName);
 	}
 
 	// ------------------------------------------------------------------------

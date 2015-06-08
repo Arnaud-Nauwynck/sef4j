@@ -5,7 +5,7 @@ import java.io.Serializable;
 /**
  * immutable Path
  * 
- * implementation note: datastorage is 2 pointers: parentPath+last <br/>
+ * implementation note: data storage using pointer to parentPath + last (string) element<br/>
  * getParentPath() takes o(1) as a pure getter
  * ... but <code>elementAt(i)<code> takes o(length-i) (not efficient... in particular for iterating)!
  */

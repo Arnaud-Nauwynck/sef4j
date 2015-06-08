@@ -15,7 +15,8 @@ public class DummyCountPropTreeValueProvider extends AbstractPropTreeValueProvid
 			new Function<PropTreeNode, DummyCount>() {
 		@Override
 		public DummyCount apply(PropTreeNode t) {
-			return t.getOrCreateProp("dummyCount", DummyCount.FACTORY).getCopy();
+			DummyCount tmpres = t.getPropOrNull("dummyCount", DummyCount.class);
+			return (tmpres != null)? tmpres.getCopy() : null;
 		}
 	};
 	public static final Function<PropTreeNode, DummyCount> DEFAULT_DUMMYCOUNT_PREV_EXTRACTOR = 

@@ -4,6 +4,7 @@ import org.sef4j.callstack.CallStackElt;
 import org.sef4j.callstack.CallStackPushPopHandler;
 import org.sef4j.callstack.stats.PerfStats;
 import org.sef4j.core.helpers.proptree.model.PropTreeNode;
+import org.sef4j.core.helpers.proptree.model.PropTreeValueCallback;
 
 /**
  * a CallStackPushPopHandler to update statistic on a call tree
@@ -11,7 +12,7 @@ import org.sef4j.core.helpers.proptree.model.PropTreeNode;
 public class CallTreeStatsUpdaterCallStackHandler extends CallStackPushPopHandler {
 
 	private PropTreeNode currNode;
-	PerfStats currProp;
+	private static final String propName = "stats";
 	
 	// ------------------------------------------------------------------------
 	
@@ -26,10 +27,13 @@ public class CallTreeStatsUpdaterCallStackHandler extends CallStackPushPopHandle
 		// update seldf handler for pushed elt
 		String childName = stackElt.getClassName() + ":" + stackElt.getName();
 		this.currNode = currNode.getOrCreateChild(childName);
-	
-		PerfStats prop = currNode.getOrCreateProp("stats", PerfStats.FACTORY);
-		currProp = prop;
-		prop.addPending(stackElt);
+
+		currNode.updateOrCreateProp(propName, PerfStats.FACTORY, new PropTreeValueCallback<PerfStats>() {
+			@Override
+			public void doWith(PropTreeNode node, String propName, PerfStats propValue) {
+				propValue.addPending(stackElt);
+			}
+		});
 		
 		// add self as listener on child stack elt
 		stackElt.onPushAddCallStackPushPopHandler(this);
@@ -37,18 +41,17 @@ public class CallTreeStatsUpdaterCallStackHandler extends CallStackPushPopHandle
 
 	@Override
 	public void onPop(CallStackElt stackElt) {
-		PerfStats prop = (PerfStats) currNode.getPropOrNull("stats");
-		if (prop == null) {
-			return; // should not occur!
-		}
-		if (currProp != null) {
-			assert prop == currProp;
-		}
-		prop.incrAndRemovePending(stackElt);
-		
+		currNode.updateProp(propName, PerfStats.class, new PropTreeValueCallback<PerfStats>() {
+			@Override
+			public void doWith(PropTreeNode node, String propName, PerfStats propValue) {
+				if (propValue == null) {
+					return; // should not occur!
+				}
+				propValue.incrAndRemovePending(stackElt);
+			}
+		});
 		// update seldf handler for pop elt
 		this.currNode = currNode.getParent();
-		currProp = null;
 	}
 
 	@Override

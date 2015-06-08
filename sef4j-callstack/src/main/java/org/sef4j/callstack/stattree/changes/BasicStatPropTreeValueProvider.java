@@ -22,9 +22,12 @@ public class BasicStatPropTreeValueProvider extends AbstractPropTreeValueProvide
 			new Function<PropTreeNode, PerfStats>() {
 		@Override
 		public PerfStats apply(PropTreeNode t) {
-			return t.getOrCreateProp("stats", PerfStats.FACTORY).clone();
+			PerfStats tmpRes = // t.getOrCreateProp("stats", PerfStats.FACTORY);
+					t.getPropOrNull("stats", PerfStats.class);
+			return (tmpRes != null)? tmpRes.clone() : null;
 		}
 	};
+
 	public static final Function<PropTreeNode, PerfStats> DEFAULT_PERFSTAT_PREV_EXTRACTOR = 
 			new Function<PropTreeNode, PerfStats>() {
 		@Override

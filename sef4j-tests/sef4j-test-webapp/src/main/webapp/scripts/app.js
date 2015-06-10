@@ -23,6 +23,9 @@ testwebapp.config(function ($routeProvider, $httpProvider) {
         .when('/statsTreeMetrics', {
         	templateUrl: 'features/statsTree/statsTree.html'
         })
+        .when('/chat', {
+        	templateUrl: 'features/chat/chat.html'
+        })
         .otherwise({
             templateUrl: 'features/home/home.html'
             // controller: 'HomeController'

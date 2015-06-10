@@ -3,13 +3,8 @@ package org.sef4j.testwebapp.config;
 import java.util.Map;
 
 import org.sef4j.core.api.session.InOutEventsClientSessionManager;
-import org.sef4j.core.helpers.export.senders.ExportFragmentsPollingEventProvider.ExportFragmentsPollingEventProviderFactory;
-import org.sef4j.core.helpers.export.senders.ExportFragmentsPollingEventProviderDef;
-import org.sef4j.core.helpers.ioeventchain.PeriodicTaskInputEventChain;
-import org.sef4j.core.helpers.tasks.PeriodicTaskInputEventChainDef;
 import org.sef4j.core.util.factorydef.ObjectByDefRepositories;
 import org.sef4j.springmsg.websocket.ClientSessionTransportWebSocketHandler;
-import org.sef4j.testwebapp.service.MetricsStatsTreeRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

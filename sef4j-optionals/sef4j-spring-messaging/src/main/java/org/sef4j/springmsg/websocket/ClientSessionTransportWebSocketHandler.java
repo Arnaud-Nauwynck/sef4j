@@ -1,14 +1,17 @@
 package org.sef4j.springmsg.websocket;
 
 import java.util.List;
+import java.util.Map;
 
 import org.sef4j.core.api.EventSender;
+import org.sef4j.core.api.def.ioevenchain.InputEventChainDef;
 import org.sef4j.core.api.session.ClientSessionInputEventChainSubscriptions;
 import org.sef4j.core.api.session.InOutEventsClientSession;
 import org.sef4j.core.api.session.InOutEventsClientSessionManager;
 import org.sef4j.core.api.session.SubscriptionCommandDTO;
 import org.sef4j.core.api.session.SubscriptionResponseDTO;
 import org.sef4j.core.util.CopyOnWriteUtils;
+import org.sef4j.core.util.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.socket.TextMessage;
@@ -112,20 +115,42 @@ public class ClientSessionTransportWebSocketHandler extends AbstractWebSocketHan
 	}
 
     public List<SubscriptionResponseDTO> handleSubscriptionCommands(WebSocketSession wsSession, List<SubscriptionCommandDTO> commands) {
+		WebSocketEntry entry = sageGetWsSession(wsSession);
+		ClientSessionInputEventChainSubscriptions inputEventChainSubscriptions = entry.clientSession.getInputEventChainSubscriptions();
+		List<SubscriptionResponseDTO> res = inputEventChainSubscriptions.handleSubscriptionCommands(commands);
+		return res;
+    }
+    
+    public SubscriptionResponseDTO handleSubscriptionCommand(WebSocketSession wsSession, SubscriptionCommandDTO command) {
+		WebSocketEntry entry = sageGetWsSession(wsSession);
+		ClientSessionInputEventChainSubscriptions inputEventChainSubscriptions = entry.clientSession.getInputEventChainSubscriptions();
+		SubscriptionResponseDTO res = inputEventChainSubscriptions.handleSubscriptionCommand(command);
+		return res;
+    }
+    
+	public Handle addSubscription(WebSocketSession wsSession, InputEventChainDef def, Object key, String displayName, Map<String,Object> options) {
+		WebSocketEntry entry = sageGetWsSession(wsSession);
+		return entry.clientSession.getInputEventChainSubscriptions().addSubscription(def, key, displayName, options);
+	}
+	
+	public void removeSubscription(WebSocketSession wsSession, Handle handle) {
+		WebSocketEntry entry = sageGetWsSession(wsSession);
+		entry.clientSession.getInputEventChainSubscriptions().removeSubscription(handle);
+	}
+		
+	// internal
+	// ------------------------------------------------------------------------
+
+	private WebSocketEntry sageGetWsSession(WebSocketSession wsSession) {
 		String wsId = wsSession.getId();
 		WebSocketEntry entry = webSocketEntries.get(wsId);
 		if (entry == null) {
 			LOG.warn("webSocket entry '" + wsId + "' not found ... ignore message!");
 			throw new IllegalStateException("webSocket entry not found for wsId: '" + wsId + "'");
 		}
-		ClientSessionInputEventChainSubscriptions inputEventChainSubscriptions = entry.clientSession.getInputEventChainSubscriptions();
-		List<SubscriptionResponseDTO> res = inputEventChainSubscriptions.handleSubscriptionCommands(commands);
-		return res;
-    }
+		return entry;
+	}
     
-	// internal
-	// ------------------------------------------------------------------------
-	
 	private void doAttachWebSocketToClientSession(WebSocketEntry entry, InOutEventsClientSession clientSession) {
 		if (entry.clientSession == clientSession) {
 			return; // do nothing (should not occur however)

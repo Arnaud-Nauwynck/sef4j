@@ -16,6 +16,10 @@ public class Handle implements Serializable {
 		this.internalId = internalId;
 	}
 
+	public int getInternalId() {
+		return internalId;
+	}
+	
 	@Override
 	public int hashCode() {
 		return internalId;

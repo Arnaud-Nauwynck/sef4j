@@ -20,6 +20,17 @@ public class SubscriptionResponseDTO implements Serializable {
 	public SubscriptionResponseDTO() {
 	}
 
+	public SubscriptionResponseDTO(boolean status, String reasonText) {
+		this.status = status;
+		this.reasonText = reasonText;
+	}
+
+	public SubscriptionResponseDTO(Handle handle) {
+		this.status = true;
+		this.reasonText = "OK";
+		this.handle = handle;
+	}
+
 	// ------------------------------------------------------------------------
 	
 	public String getClientCommandId() {

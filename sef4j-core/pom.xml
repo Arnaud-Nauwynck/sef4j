@@ -33,6 +33,12 @@
 			<artifactId>guava</artifactId>
 		</dependency>
 
+	    <dependency>
+	        <groupId>org.elasticsearch</groupId>
+	        <artifactId>elasticsearch</artifactId>
+	        <scope>provided</scope>
+	    </dependency>
+
 		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
